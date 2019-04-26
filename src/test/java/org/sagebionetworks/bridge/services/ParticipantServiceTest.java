@@ -999,41 +999,35 @@ public class ParticipantServiceTest {
 
     @Test
     public void signOutUser() {
-        // Need to look this up by email, not account ID
-        AccountId accountId = AccountId.forEmail(STUDY.getIdentifier(), EMAIL);
-        
         // Setup
-        when(accountDao.getAccount(accountId)).thenReturn(account);
+        when(accountDao.getAccount(ACCOUNT_ID)).thenReturn(account);
         account.setId(ID);
 
         // Execute
-        participantService.signUserOut(STUDY, EMAIL, false);
+        participantService.signUserOut(STUDY, ID, false);
 
         // Verify
-        verify(accountDao).getAccount(accountId);
+        verify(accountDao).getAccount(ACCOUNT_ID);
         verify(accountDao, never()).deleteReauthToken(any());
         verify(cacheProvider).removeSessionByUserId(ID);
     }
 
     @Test
     public void signOutUserDeleteReauthToken() {
-        // Need to look this up by email, not account ID
-        AccountId accountId = AccountId.forEmail(STUDY.getIdentifier(), EMAIL);
-        
         // Setup
-        when(accountDao.getAccount(accountId)).thenReturn(account);
+        when(accountDao.getAccount(ACCOUNT_ID)).thenReturn(account);
         account.setId(ID);
 
         // Execute
-        participantService.signUserOut(STUDY, EMAIL, true);
+        participantService.signUserOut(STUDY, ID, true);
 
         // Verify
-        verify(accountDao).getAccount(accountId);
+        verify(accountDao).getAccount(ACCOUNT_ID);
         verify(accountDao).deleteReauthToken(accountIdCaptor.capture());
         verify(cacheProvider).removeSessionByUserId(ID);
 
         assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, accountIdCaptor.getValue().getStudyId());
-        assertEquals(EMAIL, accountIdCaptor.getValue().getEmail());
+        assertEquals(ID, accountIdCaptor.getValue().getId());
     }
 
     @Test
@@ -2608,13 +2602,10 @@ public class ParticipantServiceTest {
         BridgeUtils.setRequestContext(new RequestContext.Builder()
                 .withCallerSubstudies(ImmutableSet.of("substudyA")).build());
         
-        // Need to look this up by email, not account ID
-        AccountId accountId = AccountId.forEmail(STUDY.getIdentifier(), EMAIL);
-        
-        when(accountDao.getAccount(accountId)).thenReturn(account);
+        when(accountDao.getAccount(ACCOUNT_ID)).thenReturn(account);
         account.setId("userId");
 
-        participantService.signUserOut(STUDY, EMAIL, true);
+        participantService.signUserOut(STUDY, ID, true);
     }
     
     @Test(expected = EntityNotFoundException.class)
