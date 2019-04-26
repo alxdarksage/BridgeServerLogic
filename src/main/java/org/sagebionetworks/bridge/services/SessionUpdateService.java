@@ -88,17 +88,11 @@ public class SessionUpdateService {
         cacheProvider.setUserSession(session);
     }
     
-    public void updateConsentStatus(UserSession session, Map<SubpopulationGuid, ConsentStatus> statuses,
-            SharingScope sharingScope, boolean isWithdrawing) {
-        session.setConsentStatuses(statuses);
+    public void updateSession(UserSession oldSession, UserSession newSession) {
+        newSession.setSessionToken(oldSession.getSessionToken());
+        newSession.setInternalSessionToken(oldSession.getInternalSessionToken());
         
-        StudyParticipant.Builder builder = builder(session).withSharingScope(sharingScope);
-        if (isWithdrawing && !session.doesConsent()) {
-            builder.withSharingScope(SharingScope.NO_SHARING);
-        }
-        session.setParticipant(builder.build());
-        
-        cacheProvider.setUserSession(session);
+        cacheProvider.setUserSession(newSession);
     }
 
     private StudyParticipant.Builder builder(UserSession session) {

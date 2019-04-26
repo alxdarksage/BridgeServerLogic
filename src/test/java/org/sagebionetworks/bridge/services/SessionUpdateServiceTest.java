@@ -1,14 +1,13 @@
 package org.sagebionetworks.bridge.services;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.BridgeConstants.API_STUDY_ID;
 import static org.sagebionetworks.bridge.models.accounts.SharingScope.ALL_QUALIFIED_RESEARCHERS;
-import static org.sagebionetworks.bridge.models.accounts.SharingScope.NO_SHARING;
 
 import java.util.List;
 import java.util.Map;
@@ -56,6 +55,9 @@ public class SessionUpdateServiceTest {
 
     @Mock
     private NotificationTopicService mockNotificationTopicService;
+    
+    @Mock
+    private UserSession updatedSession;
     
     private SessionUpdateService service;
     
@@ -202,90 +204,19 @@ public class SessionUpdateServiceTest {
     }
     
     @Test
-    public void updateAllConsents() {
-        SubpopulationGuid consentA = SubpopulationGuid.create("consentA");
-        SubpopulationGuid consentB = SubpopulationGuid.create("consentB");
+    public void updateSession() {
+        UserSession oldSession = new UserSession();
+        oldSession.setSessionToken("oldSessionToken");
+        oldSession.setInternalSessionToken("oldInternalSessionToken");
         
-        Map<SubpopulationGuid,ConsentStatus> consents = Maps.newHashMap();
-        consents.put(consentA, new ConsentStatus.Builder().withName("consentA").withGuid(consentA).withConsented(true)
-                .withSignedMostRecentConsent(true).build());
-        consents.put(consentB, new ConsentStatus.Builder().withName("consentB").withGuid(consentB).withConsented(true)
-                .withSignedMostRecentConsent(true).build());
+        service.updateSession(oldSession, updatedSession);
         
-        UserSession session = new UserSession();
-        session.setStudyIdentifier(API_STUDY_ID);
-        session.setConsentStatuses(consents);
+        verify(mockCacheProvider).setUserSession(updatedSession);
         
-        service.updateConsentStatus(session, consents, ALL_QUALIFIED_RESEARCHERS, false);
-        
-        verify(mockCacheProvider).setUserSession(session);
-        assertEquals(ALL_QUALIFIED_RESEARCHERS, session.getParticipant().getSharingScope());
-    }
-    
-    @Test
-    public void updateConsentStatus() {
-        SubpopulationGuid consentA = SubpopulationGuid.create("consentA");
-        SubpopulationGuid consentB = SubpopulationGuid.create("consentB");
-        
-        Map<SubpopulationGuid,ConsentStatus> consents = Maps.newHashMap();
-        consents.put(consentA, new ConsentStatus.Builder().withName("consentA").withGuid(consentA).withConsented(false)
-                .withSignedMostRecentConsent(false).build());
-        consents.put(consentB, new ConsentStatus.Builder().withName("consentB").withGuid(consentB).withConsented(true)
-                .withSignedMostRecentConsent(true).build());
-        
-        UserSession session = new UserSession();
-        session.setConsentStatuses(consents);
-        
-        service.updateConsentStatus(session, consents, ALL_QUALIFIED_RESEARCHERS, false);
-        
-        verify(mockCacheProvider).setUserSession(session);
-        
-        assertEquals(ALL_QUALIFIED_RESEARCHERS, session.getParticipant().getSharingScope());
-    }
-    
-    @Test
-    public void updateConsentStatusOptionalConsentWithdrawn() {
-        // In this situation, the user's sharing should not be set to NO_SHARING.
-        SubpopulationGuid consentA = SubpopulationGuid.create("consentA");
-        SubpopulationGuid consentB = SubpopulationGuid.create("consentB");
-        
-        Map<SubpopulationGuid,ConsentStatus> consents = Maps.newHashMap();
-        consents.put(consentA, new ConsentStatus.Builder().withName("consentA").withGuid(consentA).withConsented(false)
-                .withSignedMostRecentConsent(false).withRequired(false).build());
-        consents.put(consentB, new ConsentStatus.Builder().withName("consentB").withGuid(consentB).withConsented(true)
-                .withSignedMostRecentConsent(true).withRequired(true).build());
-        
-        UserSession session = new UserSession();
-        session.setConsentStatuses(consents);
-        
-        assertNull(session.getParticipant().getSharingScope());
-
-        service.updateConsentStatus(session, consents, ALL_QUALIFIED_RESEARCHERS, true);
-        
-        assertEquals(ALL_QUALIFIED_RESEARCHERS, session.getParticipant().getSharingScope());
-    }
-    
-    @Test
-    public void updateConsentStatusRequiredConsentWithdrawn() {
-        // If a withdrawal causes a user to no longer be in study, should set sharing to NO_SHARING
-        // In this situation, the user's sharing should not be set to NO_SHARING.
-        SubpopulationGuid consentA = SubpopulationGuid.create("consentA");
-        SubpopulationGuid consentB = SubpopulationGuid.create("consentB");
-        
-        Map<SubpopulationGuid,ConsentStatus> consents = Maps.newHashMap();
-        consents.put(consentA, new ConsentStatus.Builder().withName("consentA").withGuid(consentA).withConsented(false)
-                .withSignedMostRecentConsent(false).withRequired(true).build());
-        consents.put(consentB, new ConsentStatus.Builder().withName("consentB").withGuid(consentB).withConsented(true)
-                .withSignedMostRecentConsent(true).withRequired(true).build());
-        
-        UserSession session = new UserSession();
-        session.setStudyIdentifier(API_STUDY_ID);
-        session.setParticipant(new StudyParticipant.Builder().withHealthCode("healthCode").build());
-        session.setConsentStatuses(consents);
-
-        service.updateConsentStatus(session, consents, ALL_QUALIFIED_RESEARCHERS, true);
-        
-        assertEquals(NO_SHARING, session.getParticipant().getSharingScope());
+        verify(updatedSession).setSessionToken("oldSessionToken");
+        verify(updatedSession).setInternalSessionToken("oldInternalSessionToken");
+        // and nothing else is set in the updated session.
+        verifyNoMoreInteractions(updatedSession);
     }
     
     @Test
