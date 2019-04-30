@@ -89,6 +89,8 @@ public class StudyService {
 
     private static final String BASE_URL = BridgeConfigFactory.getConfig().get("webservices.url");
     static final String CONFIG_KEY_SUPPORT_EMAIL_PLAIN = "support.email.plain";
+    static final String CONFIG_KEY_TEAM_BRIDGE_ADMIN = "team.bridge.admin";
+    static final String CONFIG_KEY_TEAM_BRIDGE_STAFF = "team.bridge.staff";
     private static final String VERIFY_STUDY_EMAIL_URL = "%s/vse?study=%s&token=%s&type=%s";
     static final int VERIFY_STUDY_EMAIL_EXPIRE_IN_SECONDS = 60*60*24;
     static final String EXPORTER_SYNAPSE_USER_ID = BridgeConfigFactory.getConfig().getExporterSynapseId(); // copy-paste from website
@@ -103,6 +105,8 @@ public class StudyService {
     public static final Set<ACCESS_TYPE> READ_DOWNLOAD_ACCESS = ImmutableSet.of(ACCESS_TYPE.READ, ACCESS_TYPE.DOWNLOAD);
 
     private String bridgeSupportEmailPlain;
+    private String bridgeAdminTeamId;
+    private String bridgeStaffTeamId;
     private CompoundActivityDefinitionService compoundActivityDefinitionService;
     private SendMailService sendMailService;
     private UploadCertificateService uploadCertService;
@@ -228,6 +232,8 @@ public class StudyService {
     @Autowired
     public final void setBridgeConfig(BridgeConfig bridgeConfig) {
         this.bridgeSupportEmailPlain = bridgeConfig.get(CONFIG_KEY_SUPPORT_EMAIL_PLAIN);
+        this.bridgeAdminTeamId = bridgeConfig.get(CONFIG_KEY_TEAM_BRIDGE_ADMIN);
+        this.bridgeStaffTeamId = bridgeConfig.get(CONFIG_KEY_TEAM_BRIDGE_STAFF);
     }
 
     /** Compound activity definition service, used to clean up deleted studies. This is set by Spring. */
@@ -519,13 +525,15 @@ public class StudyService {
         Team newTeam = synapseClient.createTeam(team);
         Project newProject = synapseClient.createEntity(project);
         
-        // Add the exporter and individuals as admins 
+        // Add the exporter, bridge admin team, and individuals as admins
         AccessControlList projectACL = synapseClient.getACL(newProject.getId());
         addAdminToACL(projectACL, EXPORTER_SYNAPSE_USER_ID); // add exporter as admin
+        addAdminToACL(projectACL, bridgeAdminTeamId);
         for (String synapseUserId : synapseUserIds) {
             addAdminToACL(projectACL, synapseUserId);
         }
-        // Add the team as a read/download team
+        // Add the data access team and bridge staff team as a read/download team
+        addToACL(projectACL, bridgeStaffTeamId, READ_DOWNLOAD_ACCESS);
         addToACL(projectACL, newTeam.getId(), READ_DOWNLOAD_ACCESS);
         synapseClient.updateACL(projectACL);
 

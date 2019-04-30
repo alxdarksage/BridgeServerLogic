@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import org.junit.Before;
@@ -86,6 +88,8 @@ import org.sagebionetworks.bridge.validators.StudyValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StudyServiceMockTest {
+    private static final long BRIDGE_ADMIN_TEAM_ID = 1357L;
+    private static final long BRIDGE_STAFF_TEAM_ID = 2468L;
     private static final Long TEST_USER_ID = Long.parseLong("3348228"); // test user exists in synapse
     private static final String TEST_NAME_SCOPING_TOKEN = "qwerty";
     private static final String TEST_PROJECT_NAME = "Test Study StudyServiceMockTest Project " + TEST_NAME_SCOPING_TOKEN;
@@ -156,6 +160,10 @@ public class StudyServiceMockTest {
     public void before() throws Exception {
         // Mock config.
         when(bridgeConfig.get(StudyService.CONFIG_KEY_SUPPORT_EMAIL_PLAIN)).thenReturn(SUPPORT_EMAIL);
+        when(bridgeConfig.get(StudyService.CONFIG_KEY_TEAM_BRIDGE_ADMIN)).thenReturn(String.valueOf(
+                BRIDGE_ADMIN_TEAM_ID));
+        when(bridgeConfig.get(StudyService.CONFIG_KEY_TEAM_BRIDGE_STAFF)).thenReturn(String.valueOf(
+                BRIDGE_STAFF_TEAM_ID));
 
         // Set up service and dependencies.
         service.setBridgeConfig(bridgeConfig);
@@ -1382,43 +1390,29 @@ public class StudyServiceMockTest {
         verify(mockSynapseClient).updateACL(argumentProjectAcl.capture());
         AccessControlList capturedProjectAcl = argumentProjectAcl.getValue();
         Set<ResourceAccess> capturedProjectAclSet = capturedProjectAcl.getResourceAccess();
-        assertNotNull(capturedProjectAclSet);
-        assertEquals(3, capturedProjectAclSet.size()); // only has exporter and team
-        // first verify exporter
-        List<ResourceAccess> retListForExporter = capturedProjectAclSet.stream()
-                .filter(ra -> ra.getPrincipalId().equals(Long.parseLong(EXPORTER_SYNAPSE_USER_ID)))
-                .collect(Collectors.toList());
+        assertEquals(5, capturedProjectAclSet.size());
+        Map<Long, ResourceAccess> principalIdToAcl = Maps.uniqueIndex(capturedProjectAclSet,
+                ResourceAccess::getPrincipalId);
+        assertEquals(5, principalIdToAcl.size());
 
-        assertNotNull(retListForExporter);
-        assertEquals(1, retListForExporter.size()); // should only have one exporter info
-        ResourceAccess capturedExporterRa = retListForExporter.get(0);
-        assertNotNull(capturedExporterRa);
-        assertEquals(EXPORTER_SYNAPSE_USER_ID, capturedExporterRa.getPrincipalId().toString());
+        // 1. Exporter (admin)
+        ResourceAccess capturedExporterRa = principalIdToAcl.get(Long.valueOf(EXPORTER_SYNAPSE_USER_ID));
         assertEquals(ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS, capturedExporterRa.getAccessType());
 
-        assertEquals(EXPORTER_SYNAPSE_USER_ID, capturedExporterRa.getPrincipalId().toString());
-        assertEquals(ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS, capturedExporterRa.getAccessType());
-        // then verify target user
-        List<ResourceAccess> retListForUser = capturedProjectAclSet.stream()
-                .filter(ra -> ra.getPrincipalId().equals(TEST_USER_ID))
-                .collect(Collectors.toList());
-        assertNotNull(retListForUser);
-        assertEquals(1, retListForUser.size()); // should only have one exporter info
-        ResourceAccess capturedUserRa = retListForUser.get(0);
-        assertNotNull(capturedUserRa);
-        assertEquals(TEST_USER_ID, capturedUserRa.getPrincipalId());
+        // 2. Bridge Admin
+        ResourceAccess bridgeAdminAcl = principalIdToAcl.get(BRIDGE_ADMIN_TEAM_ID);
+        assertEquals(ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS, bridgeAdminAcl.getAccessType());
+
+        // 3. Specified admin user
+        ResourceAccess capturedUserRa = principalIdToAcl.get(TEST_USER_ID);
         assertEquals(ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS, capturedUserRa.getAccessType());
-        
-        // then verify team
-        List<ResourceAccess> retListForTeam = capturedProjectAclSet.stream()
-                .filter(ra -> ra.getPrincipalId().equals(Long.parseLong(TEST_TEAM_ID)))
-                .collect(Collectors.toList());
 
-        assertNotNull(retListForTeam);
-        assertEquals(retListForTeam.size(), 1); // should only have one team info
-        ResourceAccess capturedTeamRa = retListForTeam.get(0);
-        assertNotNull(capturedTeamRa);
-        assertEquals(TEST_TEAM_ID, capturedTeamRa.getPrincipalId().toString());
+        // 4. Bridge Staff
+        ResourceAccess bridgeStaffAcl = principalIdToAcl.get(BRIDGE_STAFF_TEAM_ID);
+        assertEquals(StudyService.READ_DOWNLOAD_ACCESS, bridgeStaffAcl.getAccessType());
+
+        // 5. Created data access team.
+        ResourceAccess capturedTeamRa = principalIdToAcl.get(Long.valueOf(TEST_TEAM_ID));
         assertEquals(StudyService.READ_DOWNLOAD_ACCESS, capturedTeamRa.getAccessType());
 
         // invite user to team
