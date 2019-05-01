@@ -26,6 +26,11 @@ public class CacheKeyTest {
     }
     
     @Test
+    public void metricsKey() {
+        assertEquals("ABC:Metrics", CacheKey.metricsKey("ABC").toString());
+    }
+    
+    @Test
     public void reauthTokenLookupKey() {
         assertEquals("ABC:api:ReauthToken", CacheKey.reauthTokenLookupKey("ABC", TestConstants.TEST_STUDY).toString());
     }

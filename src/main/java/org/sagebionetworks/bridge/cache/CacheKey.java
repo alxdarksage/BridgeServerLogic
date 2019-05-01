@@ -29,7 +29,10 @@ public final class CacheKey {
         }
         return false;
     }
-
+    
+    public static final CacheKey metricsKey(String requestId) {
+        return new CacheKey(requestId, "Metrics"); 
+    }
     public static final CacheKey reauthTokenLookupKey(String userId, StudyIdentifier studyId) {
         return new CacheKey(userId, studyId.getIdentifier(), "ReauthToken");
     }
