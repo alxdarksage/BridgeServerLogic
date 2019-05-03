@@ -914,7 +914,7 @@ public class ParticipantService {
             RequestContext newContext = new RequestContext.Builder()
                     .withCallerRoles(currentContext.getCallerRoles())
                     .withCallerStudyId(currentContext.getCallerStudyIdentifier())
-                    .withRequestId(currentContext.getId())
+                    .withRequestId(currentContext.getRequestId())
                     .withCallerSubstudies(newSubstudies)
                     .build();
             BridgeUtils.setRequestContext(newContext);

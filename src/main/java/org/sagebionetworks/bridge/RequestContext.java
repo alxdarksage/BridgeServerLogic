@@ -2,29 +2,36 @@ package org.sagebionetworks.bridge;
 
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+
+import org.sagebionetworks.bridge.models.Metrics;
 import org.sagebionetworks.bridge.models.studies.StudyIdentifier;
 import org.sagebionetworks.bridge.models.studies.StudyIdentifierImpl;
 
-import com.google.common.collect.ImmutableSet;
-
 public class RequestContext {
     
-    public static final RequestContext NULL_INSTANCE = new RequestContext.Builder().build();
+    public static final RequestContext NULL_INSTANCE = new RequestContext(null, null, null, ImmutableSet.of(),
+            ImmutableSet.of());
 
-    private final String id;
+    private final String requestId;
     private final StudyIdentifier callerStudyId;
     private final Set<String> callerSubstudies;
     private final Set<Roles> callerRoles;
+    private final Metrics metrics;
     
-    private RequestContext(String id, String callerStudyId, Set<String> callerSubstudies, Set<Roles> callerRoles) {
-        this.id = id;
+    private RequestContext(Metrics metrics, String requestId, String callerStudyId, Set<String> callerSubstudies, Set<Roles> callerRoles) {
+        this.requestId = requestId;
         this.callerStudyId = (callerStudyId == null) ? null : new StudyIdentifierImpl(callerStudyId);
         this.callerSubstudies = callerSubstudies;
         this.callerRoles = callerRoles;
+        this.metrics = metrics;
     }
     
-    public String getId() {
-        return id;
+    public Metrics getMetrics() {
+        return metrics;
+    }
+    public String getRequestId() {
+        return requestId;
     }
     public String getCallerStudyId() {
         return (callerStudyId == null) ? null : callerStudyId.getIdentifier();
@@ -40,11 +47,16 @@ public class RequestContext {
     }
     
     public static class Builder {
+        private Metrics metrics;
         private String callerStudyId;
         private Set<String> callerSubstudies;
         private Set<Roles> callerRoles;
-        private String id;
+        private String requestId;
 
+        public Builder withMetrics(Metrics metrics) {
+            this.metrics = metrics;
+            return this;
+        }
         public Builder withCallerStudyId(StudyIdentifier studyId) {
             this.callerStudyId = (studyId == null) ? null : studyId.getIdentifier();
             return this;
@@ -57,25 +69,31 @@ public class RequestContext {
             this.callerRoles = (roles == null) ? null : ImmutableSet.copyOf(roles);
             return this;
         }
-        public Builder withRequestId(String id) {
-            this.id = id;
+        public Builder withRequestId(String requestId) {
+            this.requestId = requestId;
             return this;
         }
         
         public RequestContext build() {
+            if (requestId == null) {
+                requestId = BridgeUtils.generateGuid();
+            }
             if (callerSubstudies == null) {
                 callerSubstudies = ImmutableSet.of();
             }
             if (callerRoles == null) {
                 callerRoles = ImmutableSet.of();
             }
-            return new RequestContext(id, callerStudyId, callerSubstudies, callerRoles);
+            if (metrics == null) {
+                metrics = new Metrics(requestId);
+            }
+            return new RequestContext(metrics, requestId, callerStudyId, callerSubstudies, callerRoles);
         }
     }
 
     @Override
     public String toString() {
         return "RequestContext [callerStudyId=" + callerStudyId + ", callerSubstudies=" + 
-                callerSubstudies + ", callerRoles=" + callerRoles + ", id=" + id + "]";
+                callerSubstudies + ", callerRoles=" + callerRoles + ", requestId=" + requestId + "]";
     }
 }

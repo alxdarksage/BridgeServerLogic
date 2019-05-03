@@ -1,6 +1,7 @@
 package org.sagebionetworks.bridge;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -20,11 +21,17 @@ public class RequestContextTest {
         RequestContext nullContext = new RequestContext.Builder().withRequestId(null).withCallerStudyId(null)
                 .withCallerSubstudies(null).withCallerRoles(null).build();
         
-        assertNull(nullContext.getId());
+        assertNotNull(nullContext.getRequestId());
         assertTrue(nullContext.getCallerSubstudies().isEmpty());
         assertTrue(nullContext.getCallerRoles().isEmpty());
         assertNull(nullContext.getCallerStudyId());
         assertNull(nullContext.getCallerStudyIdentifier());
+        
+        assertNull(RequestContext.NULL_INSTANCE.getRequestId());
+        assertTrue(RequestContext.NULL_INSTANCE.getCallerSubstudies().isEmpty());
+        assertTrue(RequestContext.NULL_INSTANCE.getCallerRoles().isEmpty());
+        assertNull(RequestContext.NULL_INSTANCE.getCallerStudyId());
+        assertNull(RequestContext.NULL_INSTANCE.getCallerStudyIdentifier());
     }
 
     @Test
@@ -33,7 +40,7 @@ public class RequestContextTest {
                 .withCallerStudyId(TestConstants.TEST_STUDY).withCallerSubstudies(SUBSTUDIES)
                 .withCallerRoles(ROLES).build();
 
-        assertEquals("requestId", context.getId());
+        assertEquals("requestId", context.getRequestId());
         assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, context.getCallerStudyId());
         assertEquals(TestConstants.TEST_STUDY, context.getCallerStudyIdentifier());
         assertEquals(SUBSTUDIES, context.getCallerSubstudies());
