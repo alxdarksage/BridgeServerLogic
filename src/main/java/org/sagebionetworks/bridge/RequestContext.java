@@ -30,7 +30,7 @@ public class RequestContext {
     public Metrics getMetrics() {
         return metrics;
     }
-    public String getRequestId() {
+    public String getId() {
         return requestId;
     }
     public String getCallerStudyId() {

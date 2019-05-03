@@ -21,13 +21,13 @@ public class RequestContextTest {
         RequestContext nullContext = new RequestContext.Builder().withRequestId(null).withCallerStudyId(null)
                 .withCallerSubstudies(null).withCallerRoles(null).build();
         
-        assertNotNull(nullContext.getRequestId());
+        assertNotNull(nullContext.getId());
         assertTrue(nullContext.getCallerSubstudies().isEmpty());
         assertTrue(nullContext.getCallerRoles().isEmpty());
         assertNull(nullContext.getCallerStudyId());
         assertNull(nullContext.getCallerStudyIdentifier());
         
-        assertNull(RequestContext.NULL_INSTANCE.getRequestId());
+        assertNull(RequestContext.NULL_INSTANCE.getId());
         assertTrue(RequestContext.NULL_INSTANCE.getCallerSubstudies().isEmpty());
         assertTrue(RequestContext.NULL_INSTANCE.getCallerRoles().isEmpty());
         assertNull(RequestContext.NULL_INSTANCE.getCallerStudyId());
@@ -40,7 +40,7 @@ public class RequestContextTest {
                 .withCallerStudyId(TestConstants.TEST_STUDY).withCallerSubstudies(SUBSTUDIES)
                 .withCallerRoles(ROLES).build();
 
-        assertEquals("requestId", context.getRequestId());
+        assertEquals("requestId", context.getId());
         assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, context.getCallerStudyId());
         assertEquals(TestConstants.TEST_STUDY, context.getCallerStudyIdentifier());
         assertEquals(SUBSTUDIES, context.getCallerSubstudies());

@@ -1,5 +1,6 @@
 package org.sagebionetworks.bridge.models;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import org.joda.time.DateTime;
@@ -7,6 +8,7 @@ import org.sagebionetworks.bridge.time.DateUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import org.sagebionetworks.bridge.json.JsonUtils;
 
 /**
@@ -21,6 +23,11 @@ public class Metrics {
 
     private final ObjectNode json;
 
+    public static String getCacheKey(String requestId) {
+        checkArgument(isNotBlank(requestId), "Request ID cannot be blank.");
+        return requestId + ":" + Metrics.class.getSimpleName();
+    }
+
     public Metrics(final String requestId) {
         json = MAPPER.createObjectNode();
         json.put("version", VERSION);
@@ -28,6 +35,10 @@ public class Metrics {
         setRequestId(requestId);
     }
 
+    public String getCacheKey() {
+        return Metrics.getCacheKey(json.get("request_id").asText());
+    }
+    
     /** The JSON node backing this metrics object. This is used primarily for testing. */
     public ObjectNode getJson() {
         return json;
@@ -62,6 +73,7 @@ public class Metrics {
     }
 
     public void setRequestId(String requestId) {
+        checkArgument(isNotBlank(requestId), "Request ID cannot be blank.");
         json.put("request_id", requestId);
     }
 

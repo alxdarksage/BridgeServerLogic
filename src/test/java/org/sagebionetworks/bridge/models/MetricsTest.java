@@ -111,4 +111,24 @@ public class MetricsTest {
         assertTrue(json.contains("\"session_id\":\"d839fe\""));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorRequestIdMustNotBeNull() {
+        new Metrics(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorRequestIdMustNotBeEmpty() {
+        new Metrics(" ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetCacheKeyRequestIdMustNotBeNull() {
+        Metrics.getCacheKey(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetCacheKeyRequestIdMustNotBeEmpty() {
+        Metrics.getCacheKey(" ");
+    }
+    
 }

@@ -106,8 +106,8 @@ public class SendMailViaAmazonService implements SendMailService {
         emailClient.setRegion(REGION);
         SendRawEmailResult result = emailClient.sendRawEmail(req);
 
-        logger.info("Sent email to SES with messageID " + result.getMessageId() + " with type " + email.getType()
-                + " for study " + studyId + " and request " + BridgeUtils.getRequestContext().getRequestId());
+        logger.info("Sent email to SES with messageID " + result.getMessageId() + " with type " +
+                email.getType() + " for study " + studyId + " and request " + BridgeUtils.getRequestContext().getId());
     }
     
 }

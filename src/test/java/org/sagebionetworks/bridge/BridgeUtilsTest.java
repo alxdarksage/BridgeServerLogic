@@ -346,20 +346,20 @@ public class BridgeUtilsTest {
         RequestContext otherContext = new RequestContext.Builder().withRequestId("other request ID").build();
         
         BridgeUtils.setRequestContext(context);
-        assertEquals("main request ID", BridgeUtils.getRequestContext().getRequestId());
+        assertEquals("main request ID", BridgeUtils.getRequestContext().getId());
 
         // Request ID is thread local, so a separate thread should see a different request ID.
         Runnable runnable = () -> {
             assertEquals(RequestContext.NULL_INSTANCE, BridgeUtils.getRequestContext());
             BridgeUtils.setRequestContext(otherContext);
-            assertEquals("other request ID", BridgeUtils.getRequestContext().getRequestId());
+            assertEquals("other request ID", BridgeUtils.getRequestContext().getId());
         };
         Thread otherThread = new Thread(runnable);
         otherThread.start();
         otherThread.join();
 
         // Other thread doesn't affect this thread.
-        assertEquals("main request ID", BridgeUtils.getRequestContext().getRequestId());
+        assertEquals("main request ID", BridgeUtils.getRequestContext().getId());
 
         // Setting request ID to null is fine.
         BridgeUtils.setRequestContext(null);

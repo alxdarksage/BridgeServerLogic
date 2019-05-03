@@ -122,7 +122,7 @@ public class SmsService {
         messageId = result.getMessageId();
 
         LOG.debug("Sent SMS message, study=" + study.getIdentifier() + ", message ID=" + messageId + ", request ID=" +
-                BridgeUtils.getRequestContext().getRequestId());
+                BridgeUtils.getRequestContext().getId());
 
         // Log SMS message.
         DateTime sentOn = DateTime.now();
