@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.sagebionetworks.bridge.BridgeUtils;
-import org.sagebionetworks.bridge.config.Config;
+import org.sagebionetworks.bridge.config.BridgeConfig;
 import org.sagebionetworks.bridge.dao.ExternalIdDao;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.exceptions.ConcurrentModificationException;
@@ -66,7 +66,7 @@ public class DynamoExternalIdDao implements ExternalIdDao {
 
     /** Gets the add limit and lock duration from Config. */
     @Autowired
-    final void setConfig(Config config) {
+    final void setBridgeConfig(BridgeConfig config) {
         setGetExternalIdRateLimiter(RateLimiter.create(config.getInt(EXTERNAL_ID_GET_RATE)));
     }
     

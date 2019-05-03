@@ -18,7 +18,6 @@ import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
