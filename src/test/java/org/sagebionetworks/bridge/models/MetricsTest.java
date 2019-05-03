@@ -30,6 +30,10 @@ public class MetricsTest {
         Metrics metrics = new Metrics(requestId);
         assertNotNull(metrics);
 
+        // Validate cache key.
+        assertEquals("12345:Metrics", metrics.getCacheKey());
+        assertEquals("12345:Metrics", Metrics.getCacheKey(requestId));
+
         // Apply setters.
         metrics.setRecordId("test-record");
 
@@ -130,5 +134,4 @@ public class MetricsTest {
     public void testGetCacheKeyRequestIdMustNotBeEmpty() {
         Metrics.getCacheKey(" ");
     }
-    
 }
