@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import org.sagebionetworks.bridge.BridgeUtils;
-import org.sagebionetworks.bridge.config.Config;
+import org.sagebionetworks.bridge.config.BridgeConfig;
 import org.sagebionetworks.bridge.dao.FPHSExternalIdentifierDao;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.exceptions.EntityAlreadyExistsException;
@@ -32,7 +32,7 @@ public class DynamoFPHSExternalIdentifierDao implements FPHSExternalIdentifierDa
 
     /** Gets the add limit from Config. */
     @Autowired
-    public final void setConfig(Config config) {
+    public final void setConfig(BridgeConfig config) {
         addLimit = config.getInt(CONFIG_KEY_ADD_LIMIT);
     }
     
