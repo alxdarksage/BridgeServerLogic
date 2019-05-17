@@ -1,9 +1,9 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.Roles;
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.accounts.AccountStatus;
@@ -35,16 +36,16 @@ public class HibernateAccountTest {
         account.setAttributes(originalAttrMap);
 
         Map<String, String> gettedAttrMap1 = account.getAttributes();
-        assertEquals(1, gettedAttrMap1.size());
-        assertEquals("foo-value", gettedAttrMap1.get("foo"));
+        assertEquals(gettedAttrMap1.size(), 1);
+        assertEquals(gettedAttrMap1.get("foo"), "foo-value");
 
         // Putting values in the map reflect through to the account object.
         gettedAttrMap1.put("bar", "bar-value");
 
         Map<String, String> gettedAttrMap2 = account.getAttributes();
-        assertEquals(2, gettedAttrMap2.size());
-        assertEquals("foo-value", gettedAttrMap2.get("foo"));
-        assertEquals("bar-value", gettedAttrMap2.get("bar"));
+        assertEquals(gettedAttrMap2.size(), 2);
+        assertEquals(gettedAttrMap2.get("foo"), "foo-value");
+        assertEquals(gettedAttrMap2.get("bar"), "bar-value");
 
         // Setting attributes to null clears it and returns a new empty map.
         account.setAttributes(null);
@@ -56,8 +57,8 @@ public class HibernateAccountTest {
         gettedAttrMap3.put("baz", "baz-value");
 
         Map<String, String> gettedAttrMap4 = account.getAttributes();
-        assertEquals(1, gettedAttrMap4.size());
-        assertEquals("baz-value", gettedAttrMap4.get("baz"));
+        assertEquals(gettedAttrMap4.size(), 1);
+        assertEquals(gettedAttrMap4.get("baz"), "baz-value");
     }
 
     @Test
@@ -79,14 +80,14 @@ public class HibernateAccountTest {
         account.setConsents(originalConsentMap);
 
         Map<HibernateAccountConsentKey, HibernateAccountConsent> gettedConsentMap1 = account.getConsents();
-        assertEquals(1, gettedConsentMap1.size());
+        assertEquals(gettedConsentMap1.size(), 1);
         assertSame(fooConsent, gettedConsentMap1.get(fooConsentKey));
 
         // Putting values in the map reflect through to the account object.
         gettedConsentMap1.put(barConsentKey, barConsent);
 
         Map<HibernateAccountConsentKey, HibernateAccountConsent> gettedConsentMap2 = account.getConsents();
-        assertEquals(2, gettedConsentMap2.size());
+        assertEquals(gettedConsentMap2.size(), 2);
         assertSame(fooConsent, gettedConsentMap2.get(fooConsentKey));
         assertSame(barConsent, gettedConsentMap2.get(barConsentKey));
 
@@ -100,7 +101,7 @@ public class HibernateAccountTest {
         gettedConsentMap3.put(bazConsentKey, bazConsent);
 
         Map<HibernateAccountConsentKey, HibernateAccountConsent> gettedConsentMap4 = account.getConsents();
-        assertEquals(1, gettedConsentMap4.size());
+        assertEquals(gettedConsentMap4.size(), 1);
         assertSame(bazConsent, gettedConsentMap4.get(bazConsentKey));
     }
 
@@ -111,11 +112,11 @@ public class HibernateAccountTest {
         // Can set and get.
         account.setRoles(EnumSet.of(Roles.ADMIN));
         Set<Roles> gettedRoleSet1 = account.getRoles();
-        assertEquals(EnumSet.of(Roles.ADMIN), gettedRoleSet1);
+        assertEquals(gettedRoleSet1, EnumSet.of(Roles.ADMIN));
 
         // Putting values in the set reflect through to the account object.
         gettedRoleSet1.add(Roles.DEVELOPER);
-        assertEquals(EnumSet.of(Roles.ADMIN, Roles.DEVELOPER), account.getRoles());
+        assertEquals(account.getRoles(), EnumSet.of(Roles.ADMIN, Roles.DEVELOPER));
 
         // Setting to null clears the set. Getting again initializes a new empty set.
         account.setRoles(null);
@@ -124,7 +125,7 @@ public class HibernateAccountTest {
 
         // Similarly, putting values to the set reflect through.
         gettedRoleSet2.add(Roles.RESEARCHER);
-        assertEquals(EnumSet.of(Roles.RESEARCHER), account.getRoles());
+        assertEquals(account.getRoles(), EnumSet.of(Roles.RESEARCHER));
     }
     
     @Test
@@ -132,15 +133,15 @@ public class HibernateAccountTest {
         HibernateAccount account = new HibernateAccount(new DateTime(123L), TestConstants.TEST_STUDY_IDENTIFIER, "firstName",
                 "lastName", "email", TestConstants.PHONE, "externalId", "id", AccountStatus.UNVERIFIED);
 
-        assertEquals(123L, account.getCreatedOn().getMillis());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, account.getStudyId());
-        assertEquals("firstName", account.getFirstName());
-        assertEquals("lastName", account.getLastName());
-        assertEquals("email", account.getEmail());
-        assertEquals(TestConstants.PHONE, account.getPhone());
-        assertEquals("externalId", account.getExternalId());
-        assertEquals("id", account.getId());
-        assertEquals(AccountStatus.UNVERIFIED, account.getStatus());
+        assertEquals(account.getCreatedOn().getMillis(), 123L);
+        assertEquals(account.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(account.getFirstName(), "firstName");
+        assertEquals(account.getLastName(), "lastName");
+        assertEquals(account.getEmail(), "email");
+        assertEquals(account.getPhone(), TestConstants.PHONE);
+        assertEquals(account.getExternalId(), "externalId");
+        assertEquals(account.getId(), "id");
+        assertEquals(account.getStatus(), AccountStatus.UNVERIFIED);
     }
     
     @Test
@@ -150,7 +151,7 @@ public class HibernateAccountTest {
 
         // Set works.
         account.setDataGroups(Sets.newHashSet("A","B"));
-        assertEquals(Sets.newHashSet("A","B"), account.getDataGroups());
+        assertEquals(account.getDataGroups(), Sets.newHashSet("A","B"));
 
         // Setting to null makes it an empty set.
         account.setDataGroups(null);
@@ -173,7 +174,7 @@ public class HibernateAccountTest {
         
         // Set works.
         account.setLanguages(langs);
-        assertEquals(langs, account.getLanguages());
+        assertEquals(account.getLanguages(), langs);
         
         // Setting to null makes it an empty set.
         account.setLanguages(null);
@@ -183,7 +184,7 @@ public class HibernateAccountTest {
     @Test
     public void sharingDefaultsToNoSharing() {
         HibernateAccount account = new HibernateAccount();
-        assertEquals(SharingScope.NO_SHARING, account.getSharingScope());
+        assertEquals(account.getSharingScope(), SharingScope.NO_SHARING);
     }
     
     @Test
@@ -230,38 +231,38 @@ public class HibernateAccountTest {
         Map<SubpopulationGuid, List<ConsentSignature>> histories = account.getAllConsentSignatureHistories();
         
         List<ConsentSignature> history1 = histories.get(guid1);
-        assertEquals(3, history1.size());
+        assertEquals(history1.size(), 3);
         // Signed on values are copied over from keys
-        assertEquals(TIME1, history1.get(0).getSignedOn());
-        assertEquals(TIME2, history1.get(1).getSignedOn());
-        assertEquals(TIME3, history1.get(2).getSignedOn());
+        assertEquals(history1.get(0).getSignedOn(), TIME1);
+        assertEquals(history1.get(1).getSignedOn(), TIME2);
+        assertEquals(history1.get(2).getSignedOn(), TIME3);
         
         List<ConsentSignature> history2 = histories.get(guid2);
-        assertEquals(2, history2.size());
+        assertEquals(history2.size(), 2);
         // Signed on values are copied over from keys
-        assertEquals(TIME4, history2.get(0).getSignedOn());
-        assertEquals(TIME5, history2.get(1).getSignedOn());
+        assertEquals(history2.get(0).getSignedOn(), TIME4);
+        assertEquals(history2.get(1).getSignedOn(), TIME5);
         
         // Test getConsentSignatureHistory(guid). Should produce identical results.
         history1 = account.getConsentSignatureHistory(guid1);
-        assertEquals(3, history1.size());
+        assertEquals(history1.size(), 3);
         // Signed on values are copied over from keys
-        assertEquals(TIME1, history1.get(0).getSignedOn());
-        assertEquals(TIME2, history1.get(1).getSignedOn());
-        assertEquals(TIME3, history1.get(2).getSignedOn());
+        assertEquals(history1.get(0).getSignedOn(), TIME1);
+        assertEquals(history1.get(1).getSignedOn(), TIME2);
+        assertEquals(history1.get(2).getSignedOn(), TIME3);
         
         history2 = account.getConsentSignatureHistory(guid2);
-        assertEquals(2, history2.size());
+        assertEquals(history2.size(), 2);
         // Signed on values are copied over from keys
-        assertEquals(TIME4, history2.get(0).getSignedOn());
-        assertEquals(TIME5, history2.get(1).getSignedOn());
+        assertEquals(history2.get(0).getSignedOn(), TIME4);
+        assertEquals(history2.get(1).getSignedOn(), TIME5);
         
         // The last consent in the series was withdrawn, so this consent is not active.
         ConsentSignature sig1 = account.getActiveConsentSignature(guid1);
         assertNull(sig1);
         
         ConsentSignature sig2 = account.getActiveConsentSignature(guid2);
-        assertEquals(sig2, history2.get(1));
+        assertEquals(history2.get(1), sig2);
         
         // Add a consent to the withdrawn series.
         ConsentSignature sig3 = new ConsentSignature.Builder().withBirthdate("1980-01-01")
@@ -273,7 +274,7 @@ public class HibernateAccountTest {
         account.setConsentSignatureHistory(guid1, signatures);
         
         sig1 = account.getActiveConsentSignature(guid1);
-        assertEquals(sig1, account.getAllConsentSignatureHistories().get(guid1).get(3));
+        assertEquals(account.getAllConsentSignatureHistories().get(guid1).get(3), sig1);
     }
     
     @Test

@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,9 @@ import com.google.common.collect.Lists;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -54,7 +56,7 @@ public class DynamoStudyTest {
         // Set value works
         Map<String, String> dummyMap = ImmutableMap.of("3-days-after-enrollment", "P3D");
         study.setAutomaticCustomEvents(dummyMap);
-        assertEquals(dummyMap, study.getAutomaticCustomEvents());
+        assertEquals(study.getAutomaticCustomEvents(), dummyMap);
 
         // Set to null makes it empty again
         study.setAutomaticCustomEvents(null);
@@ -74,7 +76,7 @@ public class DynamoStudyTest {
 
         // set value works
         study.setUploadMetadataFieldDefinitions(fieldDefList);
-        assertEquals(fieldDefList, study.getUploadMetadataFieldDefinitions());
+        assertEquals(study.getUploadMetadataFieldDefinitions(), fieldDefList);
 
         // set to null makes it empty again
         study.setUploadMetadataFieldDefinitions(null);
@@ -138,18 +140,18 @@ public class DynamoStudyTest {
                 JsonUtils.asEntity(node, "signedConsentTemplate", EmailTemplate.class));
         assertEqualsAndNotNull(study.getAppInstallLinkTemplate(),
                 JsonUtils.asEntity(node, "appInstallLinkTemplate", EmailTemplate.class));
-        assertEquals(study.getResetPasswordSmsTemplate(),
-                JsonUtils.asEntity(node, "resetPasswordSmsTemplate", SmsTemplate.class));
-        assertEquals(study.getPhoneSignInSmsTemplate(),
-                JsonUtils.asEntity(node, "phoneSignInSmsTemplate", SmsTemplate.class));
-        assertEquals(study.getAppInstallLinkSmsTemplate(),
-                JsonUtils.asEntity(node, "appInstallLinkSmsTemplate", SmsTemplate.class));
-        assertEquals(study.getVerifyPhoneSmsTemplate(),
-                JsonUtils.asEntity(node, "verifyPhoneSmsTemplate", SmsTemplate.class));
-        assertEquals(study.getAccountExistsSmsTemplate(),
-                JsonUtils.asEntity(node, "accountExistsSmsTemplate", SmsTemplate.class));
-        assertEquals(study.getSignedConsentSmsTemplate(),
-                JsonUtils.asEntity(node, "signedConsentSmsTemplate", SmsTemplate.class));
+        assertEquals(JsonUtils.asEntity(node, "resetPasswordSmsTemplate", SmsTemplate.class),
+                study.getResetPasswordSmsTemplate());
+        assertEquals(JsonUtils.asEntity(node, "phoneSignInSmsTemplate", SmsTemplate.class),
+                study.getPhoneSignInSmsTemplate());
+        assertEquals(JsonUtils.asEntity(node, "appInstallLinkSmsTemplate", SmsTemplate.class),
+                study.getAppInstallLinkSmsTemplate());
+        assertEquals(JsonUtils.asEntity(node, "verifyPhoneSmsTemplate", SmsTemplate.class),
+                study.getVerifyPhoneSmsTemplate());
+        assertEquals(JsonUtils.asEntity(node, "accountExistsSmsTemplate", SmsTemplate.class),
+                study.getAccountExistsSmsTemplate());
+        assertEquals(JsonUtils.asEntity(node, "signedConsentSmsTemplate", SmsTemplate.class),
+                study.getSignedConsentSmsTemplate());
         assertEqualsAndNotNull(study.getUserProfileAttributes(), JsonUtils.asStringSet(node, "userProfileAttributes"));
         assertEqualsAndNotNull(study.getTaskIdentifiers(), JsonUtils.asStringSet(node, "taskIdentifiers"));
         assertEqualsAndNotNull(study.getActivityEventKeys(), JsonUtils.asStringSet(node, "activityEventKeys"));
@@ -164,7 +166,7 @@ public class DynamoStudyTest {
         assertTrue(node.get("reauthenticationEnabled").booleanValue());
         assertTrue(node.get("autoVerificationPhoneSuppressed").booleanValue());
         assertTrue(node.get("verifyChannelOnSignInEnabled").booleanValue());
-        assertEquals(0, node.get("accountLimit").asInt());
+        assertEquals(node.get("accountLimit").asInt(), 0);
         assertFalse(node.get("disableExport").asBoolean());
         assertEqualsAndNotNull("Study", node.get("type").asText());
         assertEqualsAndNotNull(study.getPushNotificationARNs().get(OperatingSystem.IOS),
@@ -173,8 +175,8 @@ public class DynamoStudyTest {
                 node.get("pushNotificationARNs").get(OperatingSystem.ANDROID).asText());
 
         JsonNode automaticCustomEventsNode = node.get("automaticCustomEvents");
-        assertEquals(1, automaticCustomEventsNode.size());
-        assertEquals("P3D", automaticCustomEventsNode.get("3-days-after-enrollment").textValue());
+        assertEquals(automaticCustomEventsNode.size(), 1);
+        assertEquals(automaticCustomEventsNode.get("3-days-after-enrollment").textValue(), "P3D");
 
         JsonNode appleLink = node.get("appleAppLinks").get(0);
         assertEquals("studyId", appleLink.get("appID").textValue());
@@ -182,9 +184,9 @@ public class DynamoStudyTest {
         assertEquals("/appId/*", appleLink.get("paths").get(1).textValue());
         
         JsonNode androidLink = node.get("androidAppLinks").get(0);
-        assertEquals("namespace", androidLink.get("namespace").textValue());
-        assertEquals("package_name", androidLink.get("package_name").textValue());
-        assertEquals("sha256_cert_fingerprints", androidLink.get("sha256_cert_fingerprints").get(0).textValue());
+        assertEquals(androidLink.get("namespace").textValue(), "namespace");
+        assertEquals(androidLink.get("package_name").textValue(), "package_name");
+        assertEquals(androidLink.get("sha256_cert_fingerprints").get(0).textValue(), "sha256_cert_fingerprints");
 
         // validate minAppVersion
         JsonNode supportedVersionsNode = JsonUtils.asJsonNode(node, "minSupportedAppVersions");
@@ -195,21 +197,21 @@ public class DynamoStudyTest {
 
         // validate metadata field defs
         JsonNode metadataFieldDefListNode = node.get("uploadMetadataFieldDefinitions");
-        assertEquals(1, metadataFieldDefListNode.size());
+        assertEquals(metadataFieldDefListNode.size(), 1);
         JsonNode oneMetadataFieldDefNode = metadataFieldDefListNode.get(0);
-        assertEquals("test-metadata-field", oneMetadataFieldDefNode.get("name").textValue());
-        assertEquals("int", oneMetadataFieldDefNode.get("type").textValue());
+        assertEquals(oneMetadataFieldDefNode.get("name").textValue(), "test-metadata-field");
+        assertEquals(oneMetadataFieldDefNode.get("type").textValue(), "int");
 
         JsonNode providerNode = node.get("oAuthProviders").get("myProvider");
-        assertEquals("clientId", providerNode.get("clientId").textValue());
-        assertEquals("secret", providerNode.get("secret").textValue());
-        assertEquals("endpoint", providerNode.get("endpoint").textValue());
-        assertEquals(OAuthProviderTest.CALLBACK_URL, providerNode.get("callbackUrl").textValue());
-        assertEquals("OAuthProvider", providerNode.get("type").textValue());
+        assertEquals(providerNode.get("clientId").textValue(), "clientId");
+        assertEquals(providerNode.get("secret").textValue(), "secret");
+        assertEquals(providerNode.get("endpoint").textValue(), "endpoint");
+        assertEquals(providerNode.get("callbackUrl").textValue(), OAuthProviderTest.CALLBACK_URL);
+        assertEquals(providerNode.get("type").textValue(), "OAuthProvider");
         
         // Deserialize back to a POJO and verify.
         final Study deserStudy = BridgeObjectMapper.get().readValue(node.toString(), Study.class);
-        assertEquals(study, deserStudy);
+        assertEquals(deserStudy, study);
     }
     
     @Test
@@ -222,14 +224,14 @@ public class DynamoStudyTest {
 
         // Deserialize back to a POJO and verify.
         final Study deserStudy = BridgeObjectMapper.get().readValue(json, Study.class);
-        assertEquals(study, deserStudy);
+        assertEquals(deserStudy, study);
     }
     
     @Test
     public void settingStringOrObjectStudyIdentifierSetsTheOther() {
         DynamoStudy study = new DynamoStudy();
         study.setIdentifier("test-study");
-        assertEquals(study.getStudyIdentifier(), new StudyIdentifierImpl("test-study"));
+        assertEquals(new StudyIdentifierImpl("test-study"), study.getStudyIdentifier());
         
         study.setIdentifier(null);
         assertNull(study.getStudyIdentifier());
@@ -238,7 +240,7 @@ public class DynamoStudyTest {
     void assertEqualsAndNotNull(Object expected, Object actual) {
         assertNotNull(expected);
         assertNotNull(actual);
-        assertEquals(expected, actual);
+        assertEquals(actual, expected);
     }
     
 }

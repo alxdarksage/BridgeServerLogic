@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.Criteria;
 import org.sagebionetworks.bridge.models.subpopulations.Subpopulation;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
@@ -37,7 +37,7 @@ public class JsonNodeMarshallerTest {
         String json = MARSHALLER.convert(node);
         JsonNode deser = MARSHALLER.unconvert(json);
         
-        assertEquals(node.toString(), deser.toString());
+        assertEquals(deser.toString(), node.toString());
         
         // To simplify testing, convert the deserialized node to a subpopulation
         Subpopulation copy = BridgeObjectMapper.get().treeToValue(deser, Subpopulation.class);
@@ -45,10 +45,10 @@ public class JsonNodeMarshallerTest {
         copy.getCriteria().setKey(subpop.getCriteria().getKey());
         
         // It has serialized/deserialized the object structure, including criteria
-        assertEquals(subpop.getName(), copy.getName());
-        assertEquals(subpop.getGuidString(), copy.getGuidString());
+        assertEquals(copy.getName(), subpop.getName());
+        assertEquals(copy.getGuidString(), subpop.getGuidString());
         assertTrue(copy.isRequired());
-        assertEquals(subpop.getCriteria().getLanguage(), copy.getCriteria().getLanguage());
-        assertEquals(subpop.getCriteria(), copy.getCriteria());
+        assertEquals(copy.getCriteria().getLanguage(), subpop.getCriteria().getLanguage());
+        assertEquals(copy.getCriteria(), subpop.getCriteria());
     }
 }

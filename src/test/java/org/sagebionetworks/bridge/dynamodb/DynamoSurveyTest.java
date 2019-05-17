@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
@@ -13,7 +13,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.surveys.DataType;
@@ -67,50 +67,50 @@ public class DynamoSurveyTest {
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(survey, JsonNode.class);
 
         // Convert JSON to map to validate JSON. Note that study ID is intentionally omitted, but type is added.
-        assertEquals(14, jsonNode.size());
-        assertEquals("test-survey-guid", jsonNode.get("guid").textValue());
-        assertEquals(2, jsonNode.get("version").intValue());
-        assertEquals(TEST_COPYRIGHT_NOTICE, jsonNode.get("copyrightNotice").textValue());
-        assertEquals(MODULE_ID, jsonNode.get("moduleId").textValue());
-        assertEquals(MODULE_VERSION, jsonNode.get("moduleVersion").intValue());
-        assertEquals(survey.getName(), jsonNode.get("name").textValue());
-        assertEquals(survey.getIdentifier(), jsonNode.get("identifier").textValue());
+        assertEquals(jsonNode.size(), 14);
+        assertEquals(jsonNode.get("guid").textValue(), "test-survey-guid");
+        assertEquals(jsonNode.get("version").intValue(), 2);
+        assertEquals(jsonNode.get("copyrightNotice").textValue(), TEST_COPYRIGHT_NOTICE);
+        assertEquals(jsonNode.get("moduleId").textValue(), MODULE_ID);
+        assertEquals(jsonNode.get("moduleVersion").intValue(), MODULE_VERSION);
+        assertEquals(jsonNode.get("name").textValue(), survey.getName());
+        assertEquals(jsonNode.get("identifier").textValue(), survey.getIdentifier());
         assertTrue(jsonNode.get("published").booleanValue());
         assertTrue(jsonNode.get("deleted").booleanValue());
-        assertEquals(42, jsonNode.get("schemaRevision").intValue());
-        assertEquals("Survey", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.get("schemaRevision").intValue(), 42);
+        assertEquals(jsonNode.get("type").textValue(), "Survey");
 
         // Timestamps are stored as long, but serialized as ISO timestamps. Convert them back to long millis so we
         // don't have to deal with timezones and formatting issues.
-        assertEquals(TEST_CREATED_ON_MILLIS, DateTime.parse(jsonNode.get("createdOn").textValue()).getMillis());
-        assertEquals(TEST_MODIFIED_ON_MILLIS, DateTime.parse(jsonNode.get("modifiedOn").textValue()).getMillis());
+        assertEquals(DateTime.parse(jsonNode.get("createdOn").textValue()).getMillis(), TEST_CREATED_ON_MILLIS);
+        assertEquals(DateTime.parse(jsonNode.get("modifiedOn").textValue()).getMillis(), TEST_MODIFIED_ON_MILLIS);
 
         // Just test that we have the right number of elements. In-depth serialization testing is done by
         // SurveyElementTest
         JsonNode jsonElementList = jsonNode.get("elements");
-        assertEquals(12, jsonElementList.size());
+        assertEquals(jsonElementList.size(), 12);
 
         // Convert back to POJO and validate. Note that study ID is still missing, since it was removed from the JSON.
         Survey convertedSurvey = BridgeObjectMapper.get().convertValue(jsonNode, Survey.class);
         assertNull(convertedSurvey.getStudyIdentifier());
-        assertEquals("test-survey-guid", convertedSurvey.getGuid());
-        assertEquals(TEST_CREATED_ON_MILLIS, convertedSurvey.getCreatedOn());
-        assertEquals(TEST_MODIFIED_ON_MILLIS, convertedSurvey.getModifiedOn());
-        assertEquals(TEST_COPYRIGHT_NOTICE, convertedSurvey.getCopyrightNotice());
-        assertEquals(MODULE_ID, convertedSurvey.getModuleId());
-        assertEquals(MODULE_VERSION, convertedSurvey.getModuleVersion().intValue());
-        assertEquals(2, convertedSurvey.getVersion().longValue());
-        assertEquals(survey.getName(), convertedSurvey.getName());
-        assertEquals(survey.getIdentifier(), convertedSurvey.getIdentifier());
+        assertEquals(convertedSurvey.getGuid(), "test-survey-guid");
+        assertEquals(convertedSurvey.getCreatedOn(), TEST_CREATED_ON_MILLIS);
+        assertEquals(convertedSurvey.getModifiedOn(), TEST_MODIFIED_ON_MILLIS);
+        assertEquals(convertedSurvey.getCopyrightNotice(), TEST_COPYRIGHT_NOTICE);
+        assertEquals(convertedSurvey.getModuleId(), MODULE_ID);
+        assertEquals(convertedSurvey.getModuleVersion().intValue(), MODULE_VERSION);
+        assertEquals(convertedSurvey.getVersion().longValue(), 2);
+        assertEquals(convertedSurvey.getName(), survey.getName());
+        assertEquals(convertedSurvey.getIdentifier(), survey.getIdentifier());
         assertTrue(convertedSurvey.isPublished());
-        assertEquals(42, convertedSurvey.getSchemaRevision().longValue());
-        assertEquals(12, convertedSurvey.getElements().size());
+        assertEquals(convertedSurvey.getSchemaRevision().longValue(), 42);
+        assertEquals(convertedSurvey.getElements().size(), 12);
         for (int i = 0; i < 12; i++) {
             assertEqualsSurveyElement(survey.getElements().get(i), convertedSurvey.getElements().get(i));
         }
 
         // There are 11 survey elements, but only the first 10 are questions.
-        assertEquals(11, convertedSurvey.getUnmodifiableQuestionList().size());
+        assertEquals(convertedSurvey.getUnmodifiableQuestionList().size(), 11);
         for (int i = 0; i < 11; i++) {
             assertEqualsSurveyElement(convertedSurvey.getElements().get(i),
                     convertedSurvey.getUnmodifiableQuestionList().get(i));
@@ -119,24 +119,24 @@ public class DynamoSurveyTest {
         // validate that date constraints are persisted
         SurveyQuestion convertedDateQuestion = (SurveyQuestion)TestSurvey.selectBy(convertedSurvey, DataType.DATE);
         DateConstraints dc = (DateConstraints)convertedDateQuestion.getConstraints();
-        assertNotNull("Earliest date exists", dc.getEarliestValue());
-        assertNotNull("Latest date exists", dc.getLatestValue());
-        assertEquals(rule, convertedDateQuestion.getAfterRules().get(0));
+        assertNotNull(dc.getEarliestValue(), "Earliest date exists");
+        assertNotNull(dc.getLatestValue(), "Latest date exists");
+        assertEquals(convertedDateQuestion.getAfterRules().get(0), rule);
 
         DateTimeConstraints dtc = (DateTimeConstraints) TestSurvey.selectBy(convertedSurvey, DataType.DATETIME).getConstraints();
-        assertNotNull("Earliest date exists", dtc.getEarliestValue());
-        assertNotNull("Latest date exists", dtc.getLatestValue());
+        assertNotNull(dtc.getEarliestValue(), "Earliest date exists");
+        assertNotNull(dtc.getLatestValue(), "Latest date exists");
         
         IntegerConstraints ic = (IntegerConstraints) TestSurvey.selectBy(convertedSurvey, DataType.INTEGER).getConstraints();
-        assertEquals(SurveyRule.Operator.LE, ic.getRules().get(0).getOperator());
-        assertEquals(2, ic.getRules().get(0).getValue());
-        assertEquals("name", ic.getRules().get(0).getSkipToTarget());
+        assertEquals(ic.getRules().get(0).getOperator(), SurveyRule.Operator.LE);
+        assertEquals(ic.getRules().get(0).getValue(), 2);
+        assertEquals(ic.getRules().get(0).getSkipToTarget(), "name");
         
-        assertEquals(SurveyRule.Operator.DE, ic.getRules().get(1).getOperator());
-        assertEquals("name", ic.getRules().get(1).getSkipToTarget());
+        assertEquals(ic.getRules().get(1).getOperator(), SurveyRule.Operator.DE);
+        assertEquals(ic.getRules().get(1).getSkipToTarget(), "name");
         
         SurveyInfoScreen retrievedScreen = (SurveyInfoScreen)convertedSurvey.getElements().get(convertedSurvey.getElements().size()-1);
-        assertEquals(rule, retrievedScreen.getAfterRules().get(0));
+        assertEquals(retrievedScreen.getAfterRules().get(0), rule);
     }
 
     @Test
@@ -146,19 +146,19 @@ public class DynamoSurveyTest {
         Survey copy = new DynamoSurvey(survey);
 
         // validate
-        assertEquals(TEST_STUDY_IDENTIFIER, copy.getStudyIdentifier());
-        assertEquals("test-survey-guid", copy.getGuid());
-        assertEquals(TEST_CREATED_ON_MILLIS, copy.getCreatedOn());
-        assertEquals(TEST_MODIFIED_ON_MILLIS, copy.getModifiedOn());
-        assertEquals(TEST_COPYRIGHT_NOTICE, copy.getCopyrightNotice());
-        assertEquals(MODULE_ID, copy.getModuleId());
-        assertEquals(MODULE_VERSION, copy.getModuleVersion().intValue());
-        assertEquals(2, copy.getVersion().longValue());
-        assertEquals(survey.getName(), copy.getName());
-        assertEquals(survey.getIdentifier(), copy.getIdentifier());
+        assertEquals(copy.getStudyIdentifier(), TEST_STUDY_IDENTIFIER);
+        assertEquals(copy.getGuid(), "test-survey-guid");
+        assertEquals(copy.getCreatedOn(), TEST_CREATED_ON_MILLIS);
+        assertEquals(copy.getModifiedOn(), TEST_MODIFIED_ON_MILLIS);
+        assertEquals(copy.getCopyrightNotice(), TEST_COPYRIGHT_NOTICE);
+        assertEquals(copy.getModuleId(), MODULE_ID);
+        assertEquals(copy.getModuleVersion().intValue(), MODULE_VERSION);
+        assertEquals(copy.getVersion().longValue(), 2);
+        assertEquals(copy.getName(), survey.getName());
+        assertEquals(copy.getIdentifier(), survey.getIdentifier());
         assertTrue(copy.isPublished());
-        assertEquals(42, copy.getSchemaRevision().longValue());
-        assertEquals(11, copy.getElements().size());
+        assertEquals(copy.getSchemaRevision().longValue(), 42);
+        assertEquals(copy.getElements().size(), 11);
         for (int i = 0; i < 11; i++) {
             assertEqualsSurveyElement(survey.getElements().get(i), copy.getElements().get(i));
         }
@@ -186,7 +186,7 @@ public class DynamoSurveyTest {
         // and they have the same ID.
         assertTrue((expected instanceof DynamoSurveyQuestion && actual instanceof DynamoSurveyQuestion)
                 || (expected instanceof DynamoSurveyInfoScreen && actual instanceof DynamoSurveyInfoScreen));
-        assertEquals(expected.getIdentifier(), actual.getIdentifier());
+        assertEquals(actual.getIdentifier(), expected.getIdentifier());
     }
 
     private static DynamoSurvey makeTestSurvey() {

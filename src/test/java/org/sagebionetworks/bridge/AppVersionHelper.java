@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class AppVersionHelper {
         // validate result
         Method getOsKeysMethod = objClass.getMethod("getAppVersionOperatingSystems");
         Set<String> osKeySet = (Set<String>) getOsKeysMethod.invoke(obj);
-        assertEquals(7, osKeySet.size());
+        assertEquals(osKeySet.size(), 7);
         assertTrue(osKeySet.contains("foo"));
         assertTrue(osKeySet.contains("bar"));
         assertTrue(osKeySet.contains("baz"));
@@ -69,33 +69,33 @@ public class AppVersionHelper {
 
         // Get the map back. Verify that the null value is not there.
         Map<String, Integer> gettedMap1 = (Map<String, Integer>) getMapMethod.invoke(obj);
-        assertEquals(2, gettedMap1.size());
-        assertEquals(2, gettedMap1.get("fooOs").intValue());
-        assertEquals(3, gettedMap1.get("barOs").intValue());
+        assertEquals(gettedMap1.size(), 2);
+        assertEquals(gettedMap1.get("fooOs").intValue(), 2);
+        assertEquals(gettedMap1.get("barOs").intValue(), 3);
 
         // Write to the originalMap. Get the map again and verify it's unchanged.
         originalMap.put("qwertyOs", 4);
         Map<String, Integer> gettedMap2 = (Map<String, Integer>) getMapMethod.invoke(obj);
-        assertEquals(2, gettedMap2.size());
-        assertEquals(2, gettedMap2.get("fooOs").intValue());
-        assertEquals(3, gettedMap2.get("barOs").intValue());
+        assertEquals(gettedMap2.size(), 2);
+        assertEquals(gettedMap2.get("fooOs").intValue(), 2);
+        assertEquals(gettedMap2.get("barOs").intValue(), 3);
 
         // Put a value that modifies the object's map. Verify that it appears in the new getted map, but not in the old
         // ones.
         setByOsNameMethod.invoke(obj, "asdfOs", 5);
         Map<String, Integer> gettedMap3 = (Map<String, Integer>) getMapMethod.invoke(obj);
-        assertEquals(3, gettedMap3.size());
-        assertEquals(2, gettedMap3.get("fooOs").intValue());
-        assertEquals(3, gettedMap3.get("barOs").intValue());
-        assertEquals(5, gettedMap3.get("asdfOs").intValue());
+        assertEquals(gettedMap3.size(), 3);
+        assertEquals(gettedMap3.get("fooOs").intValue(), 2);
+        assertEquals(gettedMap3.get("barOs").intValue(), 3);
+        assertEquals(gettedMap3.get("asdfOs").intValue(), 5);
 
-        assertEquals(2, gettedMap2.size());
-        assertEquals(2, gettedMap2.get("fooOs").intValue());
-        assertEquals(3, gettedMap2.get("barOs").intValue());
+        assertEquals(gettedMap2.size(), 2);
+        assertEquals(gettedMap2.get("fooOs").intValue(), 2);
+        assertEquals(gettedMap2.get("barOs").intValue(), 3);
 
-        assertEquals(2, gettedMap1.size());
-        assertEquals(2, gettedMap1.get("fooOs").intValue());
-        assertEquals(3, gettedMap1.get("barOs").intValue());
+        assertEquals(gettedMap1.size(), 2);
+        assertEquals(gettedMap1.get("fooOs").intValue(), 2);
+        assertEquals(gettedMap1.get("barOs").intValue(), 3);
 
         // Test getted maps are immutable.
         try {
@@ -120,17 +120,17 @@ public class AppVersionHelper {
         }
 
         // Test getting by OS name
-        assertEquals(2, getByOsNameMethod.invoke(obj, "fooOs"));
-        assertEquals(3, getByOsNameMethod.invoke(obj, "barOs"));
-        assertEquals(5, getByOsNameMethod.invoke(obj, "asdfOs"));
+        assertEquals(getByOsNameMethod.invoke(obj, "fooOs"), 2);
+        assertEquals(getByOsNameMethod.invoke(obj, "barOs"), 3);
+        assertEquals(getByOsNameMethod.invoke(obj, "asdfOs"), 5);
 
         // We can remove by OS name
         setByOsNameMethod.invoke(obj, "asdfOs", null);
         assertNull(getByOsNameMethod.invoke(obj, "asdfOs"));
         Map<String, Integer> gettedMap4 = (Map<String, Integer>) getMapMethod.invoke(obj);
-        assertEquals(2, gettedMap4.size());
-        assertEquals(2, gettedMap4.get("fooOs").intValue());
-        assertEquals(3, gettedMap4.get("barOs").intValue());
+        assertEquals(gettedMap4.size(), 2);
+        assertEquals(gettedMap4.get("fooOs").intValue(), 2);
+        assertEquals(gettedMap4.get("barOs").intValue(), 3);
 
         // Setting the map to null converts it to an empty map. (For the setMapMethod, we need to wrap it in an array
         // because varargs with null is weird.)

@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.models.studies.AndroidAppLink;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,11 +19,11 @@ public class AndroidAppSiteAssociationTest {
         AndroidAppSiteAssociation assoc = new AndroidAppSiteAssociation(link);
         
         JsonNode node = new ObjectMapper().valueToTree(assoc);
-        assertEquals(AndroidAppSiteAssociation.RELATION, node.get("relation").get(0).textValue());
+        assertEquals(node.get("relation").get(0).textValue(), AndroidAppSiteAssociation.RELATION);
         JsonNode target = node.get("target");
-        assertEquals("namespace", target.get("namespace").textValue());
-        assertEquals("package", target.get("package_name").textValue());
-        assertEquals("fingerprint", target.get("sha256_cert_fingerprints").get(0).textValue());
+        assertEquals(target.get("namespace").textValue(), "namespace");
+        assertEquals(target.get("package_name").textValue(), "package");
+        assertEquals(target.get("sha256_cert_fingerprints").get(0).textValue(), "fingerprint");
     }
     
 }

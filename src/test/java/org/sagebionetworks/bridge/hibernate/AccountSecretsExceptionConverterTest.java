@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertSame;
+import static org.testng.Assert.assertSame;
 
 import javax.persistence.PersistenceException;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class AccountSecretsExceptionConverterTest {
     

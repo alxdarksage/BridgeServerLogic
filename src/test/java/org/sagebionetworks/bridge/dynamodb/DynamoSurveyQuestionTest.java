@@ -1,10 +1,8 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.surveys.IntegerConstraints;
 import org.sagebionetworks.bridge.models.surveys.SurveyQuestion;
@@ -12,6 +10,9 @@ import org.sagebionetworks.bridge.models.surveys.SurveyRule;
 import org.sagebionetworks.bridge.models.surveys.UIHint;
 import org.sagebionetworks.bridge.models.surveys.Unit;
 import org.sagebionetworks.bridge.models.surveys.SurveyRule.Operator;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -36,19 +37,19 @@ public class DynamoSurveyQuestionTest {
         question.setAfterRules(Lists.newArrayList(afterRule));
     
         SurveyQuestion copy = new DynamoSurveyQuestion(question);
-        assertEquals("prompt", copy.getPrompt());
-        assertEquals("promptDetail", copy.getPromptDetail());
+        assertEquals(copy.getPrompt(), "prompt");
+        assertEquals(copy.getPromptDetail(), "promptDetail");
         assertTrue(copy.getFireEvent());
-        assertEquals(UIHint.COMBOBOX, copy.getUiHint());
+        assertEquals(copy.getUiHint(), UIHint.COMBOBOX);
         assertTrue(copy.getConstraints() instanceof IntegerConstraints);
-        assertEquals("surveyCompoundKey", copy.getSurveyCompoundKey());
-        assertEquals("guid", copy.getGuid());
-        assertEquals("identifier", copy.getIdentifier());
-        assertEquals("SurveyQuestion", copy.getType());
-        assertEquals(1, copy.getBeforeRules().size());
-        assertEquals(question.getBeforeRules().get(0), copy.getBeforeRules().get(0));
-        assertEquals(1, copy.getAfterRules().size());
-        assertEquals(question.getAfterRules().get(0), copy.getAfterRules().get(0));
+        assertEquals(copy.getSurveyCompoundKey(), "surveyCompoundKey");
+        assertEquals(copy.getGuid(), "guid");
+        assertEquals(copy.getIdentifier(), "identifier");
+        assertEquals(copy.getType(), "SurveyQuestion");
+        assertEquals(copy.getBeforeRules().size(), 1);
+        assertEquals(copy.getBeforeRules().get(0), question.getBeforeRules().get(0));
+        assertEquals(copy.getAfterRules().size(), 1);
+        assertEquals(copy.getAfterRules().get(0), question.getAfterRules().get(0));
     }
     
     @Test
@@ -73,21 +74,21 @@ public class DynamoSurveyQuestionTest {
         question.setConstraints(c);
         
         String string = BridgeObjectMapper.get().writeValueAsString(question);
-        assertEquals("{\"surveyCompoundKey\":\"AAA:1444471810000\",\"guid\":\"AAA\",\"identifier\":\"identifier\",\"type\":\"type\",\"prompt\":\"Prompt\",\"promptDetail\":\"Prompt Detail\",\"fireEvent\":false,\"constraints\":{\"rules\":[],\"dataType\":\"integer\",\"unit\":\"days\",\"minValue\":2.0,\"maxValue\":6.0,\"step\":2.0,\"type\":\"IntegerConstraints\"},\"uiHint\":\"checkbox\"}", string);
+        assertEquals(string, "{\"surveyCompoundKey\":\"AAA:1444471810000\",\"guid\":\"AAA\",\"identifier\":\"identifier\",\"type\":\"type\",\"prompt\":\"Prompt\",\"promptDetail\":\"Prompt Detail\",\"fireEvent\":false,\"constraints\":{\"rules\":[],\"dataType\":\"integer\",\"unit\":\"days\",\"minValue\":2.0,\"maxValue\":6.0,\"step\":2.0,\"type\":\"IntegerConstraints\"},\"uiHint\":\"checkbox\"}");
 
         SurveyQuestion question2 = (SurveyQuestion)SurveyQuestion.fromJson(BridgeObjectMapper.get().readTree(string));
-        assertEquals(question.getPromptDetail(), question2.getPromptDetail());
-        assertEquals(question.getPrompt(), question2.getPrompt());
-        assertEquals(question.getIdentifier(), question2.getIdentifier());
-        assertEquals(question.getGuid(), question2.getGuid());
-        assertEquals(question.getType(), question2.getType());
-        assertEquals(question.getUiHint(), question2.getUiHint());
+        assertEquals(question2.getPromptDetail(), question.getPromptDetail());
+        assertEquals(question2.getPrompt(), question.getPrompt());
+        assertEquals(question2.getIdentifier(), question.getIdentifier());
+        assertEquals(question2.getGuid(), question.getGuid());
+        assertEquals(question2.getType(), question.getType());
+        assertEquals(question2.getUiHint(), question.getUiHint());
         
         IntegerConstraints c2 = (IntegerConstraints)question2.getConstraints();
-        assertEquals(c.getMinValue(), c2.getMinValue());
-        assertEquals(c.getMaxValue(), c2.getMaxValue());
-        assertEquals(c.getStep(), c2.getStep());
-        assertEquals(c.getUnit(), c2.getUnit());
+        assertEquals(c2.getMinValue(), c.getMinValue());
+        assertEquals(c2.getMaxValue(), c.getMaxValue());
+        assertEquals(c2.getStep(), c.getStep());
+        assertEquals(c2.getUnit(), c.getUnit());
     }
     
 }

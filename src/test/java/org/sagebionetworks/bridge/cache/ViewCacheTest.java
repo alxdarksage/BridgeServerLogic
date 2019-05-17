@@ -1,15 +1,16 @@
 package org.sagebionetworks.bridge.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.cache.CacheKey;
@@ -30,7 +31,7 @@ public class ViewCacheTest {
     private BridgeObjectMapper mapper;
     private Study study;
     
-    @Before
+    @BeforeMethod
     public void before() {
         mapper = BridgeObjectMapper.get();
         
@@ -57,7 +58,7 @@ public class ViewCacheTest {
         });
         
         Study foundStudy = BridgeObjectMapper.get().readValue(json, DynamoStudy.class);
-        assertEquals("Test Study 2", foundStudy.getName());
+        assertEquals(foundStudy.getName(), "Test Study 2");
     }
     
     @Test
@@ -81,7 +82,7 @@ public class ViewCacheTest {
             });
             fail("This should have thrown an exception");
         } catch(BridgeServiceException e) {
-            assertEquals("There has been a problem retrieving the study", e.getMessage());
+            assertEquals(e.getMessage(), "There has been a problem retrieving the study");
         }
     }
     
@@ -106,7 +107,7 @@ public class ViewCacheTest {
         });
         
         Study foundStudy = BridgeObjectMapper.get().readValue(json, DynamoStudy.class);
-        assertEquals("Test Study [ViewCacheTest]", foundStudy.getName());
+        assertEquals(foundStudy.getName(), "Test Study [ViewCacheTest]");
     }
     
     @Test
@@ -130,7 +131,7 @@ public class ViewCacheTest {
             }
         });
         Study foundStudy = BridgeObjectMapper.get().readValue(json, DynamoStudy.class);
-        assertEquals("Test Study 2", foundStudy.getName());
+        assertEquals(foundStudy.getName(), "Test Study 2");
     }
     
     @Test
@@ -138,7 +139,7 @@ public class ViewCacheTest {
         ViewCache cache = new ViewCache();
         
         CacheKey cacheKey = cache.getCacheKey(Study.class, "mostRandom", "leastRandom");
-        assertEquals("mostRandom:leastRandom:Study:view", cacheKey.toString());
+        assertEquals(cacheKey.toString(), "mostRandom:leastRandom:Study:view");
     }
     
     @Test

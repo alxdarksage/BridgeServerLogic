@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.sagebionetworks.bridge.models.schedules.ScheduleType;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,7 +24,7 @@ public class EnumSerializationTest {
     
     private ObjectMapper mapper;
     
-    @Before
+    @BeforeMethod
     public void before() {
         mapper = BridgeObjectMapper.get();
     }
@@ -35,10 +36,10 @@ public class EnumSerializationTest {
         holder.setType(ScheduleType.ONCE);
         
         String json = mapper.writeValueAsString(holder);
-        assertEquals("{\"type\":\"once\"}", json);
+        assertEquals(json, "{\"type\":\"once\"}");
         
         holder = mapper.readValue(json, EnumSerializationTest.EnumHolder.class);
-        assertEquals(ScheduleType.ONCE, holder.getType());
+        assertEquals(holder.getType(), ScheduleType.ONCE);
     }
     
     @Test
@@ -46,7 +47,7 @@ public class EnumSerializationTest {
         EnumHolder holder = new EnumHolder();
         
         String json = mapper.writeValueAsString(holder);
-        assertEquals("{}", json);
+        assertEquals(json, "{}");
         
         holder = mapper.readValue(json, EnumSerializationTest.EnumHolder.class);
         assertNull(holder.getType());
@@ -57,7 +58,7 @@ public class EnumSerializationTest {
         String json = "{\"type\":\"ONCE\"}";
         
         EnumHolder holder = mapper.readValue(json, EnumSerializationTest.EnumHolder.class);
-        assertEquals(ScheduleType.ONCE, holder.getType());
+        assertEquals(holder.getType(), ScheduleType.ONCE);
     }
 
 }

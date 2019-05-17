@@ -1,13 +1,14 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.models.backfill.BackfillStatus;
 
 public class DynamoBackfillTaskTest {
@@ -16,10 +17,10 @@ public class DynamoBackfillTaskTest {
     public void test() {
         final long timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
         DynamoBackfillTask task = new DynamoBackfillTask("name", "user");
-        assertEquals("name", task.getName());
-        assertEquals("user", task.getUser());
+        assertEquals(task.getName(), "name");
+        assertEquals(task.getUser(), "user");
         assertTrue(task.getTimestamp() >= timestamp);
-        assertEquals(BackfillStatus.SUBMITTED.name(), task.getStatus());
+        assertEquals(task.getStatus(), BackfillStatus.SUBMITTED.name());
     }
 
     @Test
@@ -29,11 +30,11 @@ public class DynamoBackfillTaskTest {
         String id = task.getId();
         assertNotNull(id);
         String[] splits =id.split(":");
-        assertEquals(2, splits.length);
-        assertEquals("name", splits[0]);
+        assertEquals(splits.length, 2);
+        assertEquals(splits[0], "name");
         assertTrue(Long.parseLong(splits[1]) >= timestamp);
         task = new DynamoBackfillTask(id);
-        assertEquals("name", task.getName());
+        assertEquals(task.getName(), "name");
         assertNull(task.getUser());
         assertTrue(task.getTimestamp() >= timestamp);
         assertNull(task.getStatus());

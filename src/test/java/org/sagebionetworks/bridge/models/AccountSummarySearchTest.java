@@ -1,13 +1,14 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.ISOChronology;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +51,7 @@ public class AccountSummarySearchTest {
         String json = mapper.writeValueAsString(search1);
         AccountSummarySearch search2 = mapper.readValue(json, AccountSummarySearch.class);
         
-        assertEquals(search1, search2);
+        assertEquals(search2, search1);
     }
     
     @Test
@@ -75,24 +76,24 @@ public class AccountSummarySearchTest {
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
         // The one JSON property with no analogue in the object itself, verify it's correct
-        assertEquals("AccountSummarySearch", node.get("type").textValue());
+        assertEquals(node.get("type").textValue(), "AccountSummarySearch");
         
         AccountSummarySearch deser = BridgeObjectMapper.get().readValue(json, AccountSummarySearch.class);
         
-        assertEquals(10, deser.getOffsetBy());
-        assertEquals(100, deser.getPageSize());
-        assertEquals("email", deser.getEmailFilter());
-        assertEquals("phone", deser.getPhoneFilter());
-        assertEquals(Sets.newHashSet("group1"), deser.getAllOfGroups());
-        assertEquals(Sets.newHashSet("group2"), deser.getNoneOfGroups());
-        assertEquals("en", deser.getLanguage());
-        assertEquals(startTime, deser.getStartTime());
-        assertEquals(endTime, deser.getEndTime());
+        assertEquals(deser.getOffsetBy(), 10);
+        assertEquals(deser.getPageSize(), 100);
+        assertEquals(deser.getEmailFilter(), "email");
+        assertEquals(deser.getPhoneFilter(), "phone");
+        assertEquals(deser.getAllOfGroups(), Sets.newHashSet("group1"));
+        assertEquals(deser.getNoneOfGroups(), Sets.newHashSet("group2"));
+        assertEquals(deser.getLanguage(), "en");
+        assertEquals(deser.getStartTime(), startTime);
+        assertEquals(deser.getEndTime(), endTime);
     }
     
     @Test
     public void setsDefaults() {
-        assertEquals(0, AccountSummarySearch.EMPTY_SEARCH.getOffsetBy());
-        assertEquals(BridgeConstants.API_DEFAULT_PAGE_SIZE, AccountSummarySearch.EMPTY_SEARCH.getPageSize());
+        assertEquals(AccountSummarySearch.EMPTY_SEARCH.getOffsetBy(), 0);
+        assertEquals(AccountSummarySearch.EMPTY_SEARCH.getPageSize(), BridgeConstants.API_DEFAULT_PAGE_SIZE);
     }
 }

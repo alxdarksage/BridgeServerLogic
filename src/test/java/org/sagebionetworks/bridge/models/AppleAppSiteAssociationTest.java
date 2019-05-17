@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.models.studies.AppleAppLink;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,19 +24,19 @@ public class AppleAppSiteAssociationTest {
         
         JsonNode applinks = node.get("applinks"); // It's all under this property for some reason.
         
-        assertEquals(0, ((ArrayNode)applinks.get("apps")).size());
+        assertEquals(((ArrayNode)applinks.get("apps")).size(), 0);
         
         JsonNode details = applinks.get("details");
         
         JsonNode node1 = details.get(0);
-        assertEquals("appId1", node1.get("appID").textValue());
-        assertEquals("/appId1/", node1.get("paths").get(0).textValue());
-        assertEquals("/appId1/*", node1.get("paths").get(1).textValue());
+        assertEquals(node1.get("appID").textValue(), "appId1");
+        assertEquals(node1.get("paths").get(0).textValue(), "/appId1/");
+        assertEquals(node1.get("paths").get(1).textValue(), "/appId1/*");
         
         JsonNode node2 = details.get(1);
-        assertEquals("appId2", node2.get("appID").textValue());
-        assertEquals("/appId2/", node2.get("paths").get(0).textValue());
-        assertEquals("/appId2/*", node2.get("paths").get(1).textValue());
+        assertEquals(node2.get("appID").textValue(), "appId2");
+        assertEquals(node2.get("paths").get(0).textValue(), "/appId2/");
+        assertEquals(node2.get("paths").get(1).textValue(), "/appId2/*");
     }
 
 }

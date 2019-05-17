@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -22,8 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.junit.After;
-import org.junit.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.config.BridgeConfigFactory;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.hibernate.HibernateAccount;
@@ -46,7 +47,7 @@ public class BridgeUtilsTest {
     
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse("2010-10-10T10:10:10.111");
     
-    @After
+    @AfterMethod
     public void after() {
         BridgeUtils.setRequestContext(RequestContext.NULL_INSTANCE);
     }
@@ -63,11 +64,11 @@ public class BridgeUtilsTest {
         account.setAccountSubstudies(ImmutableSet.of(substudy1, substudy2, substudy3, substudy4));
         
         Map<String, String> results = BridgeUtils.mapSubstudyMemberships(account);
-        assertEquals(4, results.size());
-        assertEquals("<none>", results.get("subA"));
-        assertEquals("extB", results.get("subB"));
-        assertEquals("extC", results.get("subC"));
-        assertEquals("<none>", results.get("subD"));
+        assertEquals(results.size(), 4);
+        assertEquals(results.get("subA"), "<none>");
+        assertEquals(results.get("subB"), "extB");
+        assertEquals(results.get("subC"), "extC");
+        assertEquals(results.get("subD"), "<none>");
     }
     
     @Test
@@ -78,8 +79,8 @@ public class BridgeUtilsTest {
         account.setAccountSubstudies(ImmutableSet.of(substudy2));
         
         Map<String, String> results = BridgeUtils.mapSubstudyMemberships(account);
-        assertEquals(1, results.size());
-        assertEquals("extB", results.get("subB"));
+        assertEquals(results.size(), 1);
+        assertEquals(results.get("subB"), "extB");
     }
     
     @Test
@@ -113,7 +114,7 @@ public class BridgeUtilsTest {
         Set<String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(accountSubstudies)
                 .getSubstudyIdsVisibleToCaller();
         
-        assertEquals(ImmutableSet.of("substudyA", "substudyB"), visibles);
+        assertEquals(visibles, ImmutableSet.of("substudyA", "substudyB"));
     }
     
     @Test
@@ -126,7 +127,7 @@ public class BridgeUtilsTest {
         Set<String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(accountSubstudies)
                 .getSubstudyIdsVisibleToCaller();
         
-        assertEquals(ImmutableSet.of("substudyA", "substudyB", "substudyC"), visibles);
+        assertEquals(visibles, ImmutableSet.of("substudyA", "substudyB", "substudyC"));
     }
     
     @Test
@@ -137,7 +138,7 @@ public class BridgeUtilsTest {
         Set<String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(ImmutableSet.of())
                 .getSubstudyIdsVisibleToCaller();
         
-        assertEquals(ImmutableSet.of(), visibles);
+        assertEquals(visibles, ImmutableSet.of());
     }    
     
     @Test
@@ -148,7 +149,7 @@ public class BridgeUtilsTest {
         Set<String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(null)
                 .getSubstudyIdsVisibleToCaller();
         
-        assertEquals(ImmutableSet.of(), visibles);
+        assertEquals(visibles, ImmutableSet.of());
     }
     
     @Test
@@ -167,7 +168,7 @@ public class BridgeUtilsTest {
         Map<String, String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(accountSubstudies)
                 .getExternalIdsVisibleToCaller();
         
-        assertEquals(ImmutableMap.of("substudyA", "extA", "substudyB", "extB"), visibles);
+        assertEquals(visibles, ImmutableMap.of("substudyA", "extA", "substudyB", "extB"));
     }
     
     @Test
@@ -183,7 +184,7 @@ public class BridgeUtilsTest {
         Map<String, String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(accountSubstudies)
                 .getExternalIdsVisibleToCaller();
         
-        assertEquals(ImmutableMap.of("substudyA", "extA", "substudyB", "extB", "substudyC", "extC"), visibles);
+        assertEquals(visibles, ImmutableMap.of("substudyA", "extA", "substudyB", "extB", "substudyC", "extC"));
     }    
 
     @Test
@@ -194,7 +195,7 @@ public class BridgeUtilsTest {
         Map<String, String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(ImmutableSet.of())
                 .getExternalIdsVisibleToCaller();
         
-        assertEquals(ImmutableMap.of(), visibles);
+        assertEquals(visibles, ImmutableMap.of());
     }      
     
     @Test
@@ -205,7 +206,7 @@ public class BridgeUtilsTest {
         Map<String, String> visibles = BridgeUtils.substudyAssociationsVisibleToCaller(null)
                 .getExternalIdsVisibleToCaller();
         
-        assertEquals(ImmutableMap.of(), visibles);
+        assertEquals(visibles, ImmutableMap.of());
     }
     
     @Test
@@ -220,13 +221,13 @@ public class BridgeUtilsTest {
         account.setExternalId("subDextId");
         
         Set<String> externalIds = BridgeUtils.collectExternalIds(account);
-        assertEquals(ImmutableSet.of("subAextId","subBextId","subDextId"), externalIds);
+        assertEquals(externalIds, ImmutableSet.of("subAextId","subBextId","subDextId"));
     }
     
     @Test
     public void collectExternalIdsNullsAreIgnored() {
         Set<String> externalIds = BridgeUtils.collectExternalIds(Account.create());
-        assertEquals(ImmutableSet.of(), externalIds);
+        assertEquals(externalIds, ImmutableSet.of());
     }    
     
     @Test
@@ -236,8 +237,8 @@ public class BridgeUtilsTest {
                 .withCallerSubstudies(substudies).build());
         
         Account account = BridgeUtils.filterForSubstudy(getAccountWithSubstudy("substudyB", "substudyA"));
-        assertEquals(1, account.getAccountSubstudies().size());
-        assertEquals("substudyA", Iterables.getFirst(account.getAccountSubstudies(), null).getSubstudyId());
+        assertEquals(account.getAccountSubstudies().size(), 1);
+        assertEquals(Iterables.getFirst(account.getAccountSubstudies(), null).getSubstudyId(), "substudyA");
         
         BridgeUtils.setRequestContext(null);
     }
@@ -245,7 +246,7 @@ public class BridgeUtilsTest {
     @Test
     public void filterForSubstudyAccountReturnsAllUnsharedSubstudyIdsForNonSubstudyCaller() {
         Account account = BridgeUtils.filterForSubstudy(getAccountWithSubstudy("substudyB", "substudyA"));
-        assertEquals(2, account.getAccountSubstudies().size());
+        assertEquals(account.getAccountSubstudies().size(), 2);
     }
     
     @Test
@@ -346,69 +347,69 @@ public class BridgeUtilsTest {
         RequestContext otherContext = new RequestContext.Builder().withRequestId("other request ID").build();
         
         BridgeUtils.setRequestContext(context);
-        assertEquals("main request ID", BridgeUtils.getRequestContext().getId());
+        assertEquals(BridgeUtils.getRequestContext().getId(), "main request ID");
 
         // Request ID is thread local, so a separate thread should see a different request ID.
         Runnable runnable = () -> {
-            assertEquals(RequestContext.NULL_INSTANCE, BridgeUtils.getRequestContext());
+            assertEquals(BridgeUtils.getRequestContext(), RequestContext.NULL_INSTANCE);
             BridgeUtils.setRequestContext(otherContext);
-            assertEquals("other request ID", BridgeUtils.getRequestContext().getId());
+            assertEquals(BridgeUtils.getRequestContext().getId(), "other request ID");
         };
         Thread otherThread = new Thread(runnable);
         otherThread.start();
         otherThread.join();
 
         // Other thread doesn't affect this thread.
-        assertEquals("main request ID", BridgeUtils.getRequestContext().getId());
+        assertEquals(BridgeUtils.getRequestContext().getId(), "main request ID");
 
         // Setting request ID to null is fine.
         BridgeUtils.setRequestContext(null);
-        assertEquals(RequestContext.NULL_INSTANCE, BridgeUtils.getRequestContext());
+        assertEquals(BridgeUtils.getRequestContext(), RequestContext.NULL_INSTANCE);
     }
 
     @Test
     public void secondsToPeriodString() {
-        assertEquals("30 seconds", BridgeUtils.secondsToPeriodString(30));
-        assertEquals("1 minute", BridgeUtils.secondsToPeriodString(60));
-        assertEquals("90 seconds", BridgeUtils.secondsToPeriodString(90));
-        assertEquals("5 minutes", BridgeUtils.secondsToPeriodString(60*5));
-        assertEquals("25 minutes", BridgeUtils.secondsToPeriodString(60*25));
-        assertEquals("90 minutes", BridgeUtils.secondsToPeriodString(60*90));
-        assertEquals("1 hour", BridgeUtils.secondsToPeriodString(60*60));
-        assertEquals("2 hours", BridgeUtils.secondsToPeriodString(60*60*2));
-        assertEquals("36 hours", BridgeUtils.secondsToPeriodString(60*60*36));
-        assertEquals("1 day", BridgeUtils.secondsToPeriodString(60*60*24));
-        assertEquals("2 days", BridgeUtils.secondsToPeriodString(60*60*24*2));
-        assertEquals("7 days", BridgeUtils.secondsToPeriodString(60*60*24*7));
+        assertEquals(BridgeUtils.secondsToPeriodString(30), "30 seconds");
+        assertEquals(BridgeUtils.secondsToPeriodString(60), "1 minute");
+        assertEquals(BridgeUtils.secondsToPeriodString(90), "90 seconds");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*5), "5 minutes");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*25), "25 minutes");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*90), "90 minutes");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*60), "1 hour");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*60*2), "2 hours");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*60*36), "36 hours");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*60*24), "1 day");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*60*24*2), "2 days");
+        assertEquals(BridgeUtils.secondsToPeriodString(60*60*24*7), "7 days");
     }
     
     @Test
     public void parseAccountId() {
         // Identifier has upper-case letter to ensure we don't downcase or otherwise change it.
         AccountId accountId = BridgeUtils.parseAccountId("test", "IdentifierA9");
-        assertEquals("test", accountId.getStudyId());
-        assertEquals("IdentifierA9", accountId.getId());
+        assertEquals(accountId.getStudyId(), "test");
+        assertEquals(accountId.getId(), "IdentifierA9");
         
         accountId = BridgeUtils.parseAccountId("test", "externalid:IdentifierA9");
-        assertEquals("test", accountId.getStudyId());
-        assertEquals("IdentifierA9", accountId.getExternalId());
+        assertEquals(accountId.getStudyId(), "test");
+        assertEquals(accountId.getExternalId(), "IdentifierA9");
         
         accountId = BridgeUtils.parseAccountId("test", "externalId:IdentifierA9");
-        assertEquals("test", accountId.getStudyId());
-        assertEquals("IdentifierA9", accountId.getExternalId());
+        assertEquals(accountId.getStudyId(), "test");
+        assertEquals(accountId.getExternalId(), "IdentifierA9");
         
         accountId = BridgeUtils.parseAccountId("test", "healthcode:IdentifierA9");
-        assertEquals("test", accountId.getStudyId());
-        assertEquals("IdentifierA9", accountId.getHealthCode());
+        assertEquals(accountId.getStudyId(), "test");
+        assertEquals(accountId.getHealthCode(), "IdentifierA9");
         
         accountId = BridgeUtils.parseAccountId("test", "healthCode:IdentifierA9");
-        assertEquals("test", accountId.getStudyId());
-        assertEquals("IdentifierA9", accountId.getHealthCode());
+        assertEquals(accountId.getStudyId(), "test");
+        assertEquals(accountId.getHealthCode(), "IdentifierA9");
         
         // Unrecognized prefix is just part of the userId
         accountId = BridgeUtils.parseAccountId("test", "unk:IdentifierA9");
-        assertEquals("test", accountId.getStudyId());
-        assertEquals("unk:IdentifierA9", accountId.getId());
+        assertEquals(accountId.getStudyId(), "test");
+        assertEquals(accountId.getId(), "unk:IdentifierA9");
     }
     
     @Test
@@ -429,15 +430,15 @@ public class BridgeUtilsTest {
         });
         map.put("thisMap", "isMutable");
         
-        assertEquals("name2", map.get("studyName"));
-        assertEquals("shortName", map.get("studyShortName"));
-        assertEquals("identifier2", map.get("studyId"));
-        assertEquals("sponsorName2", map.get("sponsorName"));
-        assertEquals("supportEmail2", map.get("supportEmail"));
-        assertEquals("technicalEmail2", map.get("technicalEmail"));
-        assertEquals("consentNotificationEmail2", map.get("consentEmail"));
-        assertEquals("isMutable", map.get("thisMap"));
-        assertEquals(host, map.get("host"));
+        assertEquals(map.get("studyName"), "name2");
+        assertEquals(map.get("studyShortName"), "shortName");
+        assertEquals(map.get("studyId"), "identifier2");
+        assertEquals(map.get("sponsorName"), "sponsorName2");
+        assertEquals(map.get("supportEmail"), "supportEmail2");
+        assertEquals(map.get("technicalEmail"), "technicalEmail2");
+        assertEquals(map.get("consentEmail"), "consentNotificationEmail2");
+        assertEquals(map.get("thisMap"), "isMutable");
+        assertEquals(map.get("host"), host);
     }
     
     @Test
@@ -459,7 +460,7 @@ public class BridgeUtilsTest {
         // In particular, verifying that replacement of multiple identical tokens occurs,
         // unmatched variables are left alone
         String result = BridgeUtils.resolveTemplate("foo ${baz} bar ${baz} ${box} ${unused}", map);
-        assertEquals("foo Belgium bar Belgium Albuquerque ${unused}", result);
+        assertEquals(result, "foo Belgium bar Belgium Albuquerque ${unused}");
     }
     
     @Test
@@ -470,10 +471,10 @@ public class BridgeUtilsTest {
         // In particular, verifying that replacement of multiple identical tokens occurs,
         // unmatched variables are left alone
         String result = BridgeUtils.resolveTemplate("foo ${baz}", map);
-        assertEquals("foo ${baz}", result);
+        assertEquals(result, "foo ${baz}");
         
         result = BridgeUtils.resolveTemplate(" ", map);
-        assertEquals(" ", result);
+        assertEquals(result, " ");
     }
     
     @Test
@@ -482,7 +483,7 @@ public class BridgeUtilsTest {
         map.put("b.z", "bar");
         
         String result = BridgeUtils.resolveTemplate("${baz}", map);
-        assertEquals("${baz}", result);
+        assertEquals(result, "${baz}");
     }
     
     @Test
@@ -514,15 +515,15 @@ public class BridgeUtilsTest {
     public void setToCommaList() {
         Set<String> set = Sets.newHashSet("a", null, "", "b");
         
-        assertEquals("a,b", BridgeUtils.setToCommaList(set));
+        assertEquals(BridgeUtils.setToCommaList(set), "a,b");
         assertNull(BridgeUtils.setToCommaList(null));
         assertNull(BridgeUtils.setToCommaList(Sets.newHashSet()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void nullsafeImmutableSet() {
-        assertEquals(0, BridgeUtils.nullSafeImmutableSet(null).size());
-        assertEquals(Sets.newHashSet("A"), BridgeUtils.nullSafeImmutableSet(Sets.newHashSet("A")));
+        assertEquals(BridgeUtils.nullSafeImmutableSet(null).size(), 0);
+        assertEquals(BridgeUtils.nullSafeImmutableSet(Sets.newHashSet("A")), Sets.newHashSet("A"));
         
         // This should throw an UnsupportedOperationException
         Set<String> set = BridgeUtils.nullSafeImmutableSet(Sets.newHashSet("A"));
@@ -532,14 +533,14 @@ public class BridgeUtilsTest {
     @Test
     public void nullsAreRemovedFromSet() {
         // nulls are removed. They have to be to create ImmutableSet
-        assertEquals(Sets.newHashSet("A"), BridgeUtils.nullSafeImmutableSet(Sets.newHashSet(null, "A")));
+        assertEquals(BridgeUtils.nullSafeImmutableSet(Sets.newHashSet(null, "A")), Sets.newHashSet("A"));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void nullsafeImmutableList() {
-        assertEquals(0, BridgeUtils.nullSafeImmutableList(null).size());
+        assertEquals(BridgeUtils.nullSafeImmutableList(null).size(), 0);
         
-        assertEquals(Lists.newArrayList("A","B"), BridgeUtils.nullSafeImmutableList(Lists.newArrayList("A","B")));
+        assertEquals(BridgeUtils.nullSafeImmutableList(Lists.newArrayList("A","B")), Lists.newArrayList("A","B"));
         
         List<String> list = BridgeUtils.nullSafeImmutableList(Lists.newArrayList("A","B"));
         list.add("C");
@@ -548,20 +549,20 @@ public class BridgeUtilsTest {
     @Test
     public void nullsAreRemovedFromList() {
         List<String> list = BridgeUtils.nullSafeImmutableList(Lists.newArrayList(null,"A",null,"B"));
-        assertEquals(Lists.newArrayList("A","B"), list);
+        assertEquals(list, Lists.newArrayList("A","B"));
     }    
     
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void nullsafeImmutableMap() {
-        assertEquals(0, BridgeUtils.nullSafeImmutableMap(null).size());
+        assertEquals(BridgeUtils.nullSafeImmutableMap(null).size(), 0);
         
         Map<String,String> map = Maps.newHashMap();
         map.put("A", "B");
         map.put("C", "D");
         
-        assertEquals("B", map.get("A"));
-        assertEquals("D", map.get("C"));
-        assertEquals(map, BridgeUtils.nullSafeImmutableMap(map));
+        assertEquals(map.get("A"), "B");
+        assertEquals(map.get("C"), "D");
+        assertEquals(BridgeUtils.nullSafeImmutableMap(map), map);
         
         Map<String,String> newMap = BridgeUtils.nullSafeImmutableMap(map);
         newMap.put("E","F");
@@ -576,39 +577,39 @@ public class BridgeUtilsTest {
         Map<String,String> mapWithoutNulls = Maps.newHashMap();
         mapWithoutNulls.put("A", "B");
         
-        assertEquals(mapWithoutNulls, BridgeUtils.nullSafeImmutableMap(map));
+        assertEquals(BridgeUtils.nullSafeImmutableMap(map), mapWithoutNulls);
     }    
     
     @Test
     public void textToErrorKey() {
-        assertEquals("iphone_os", BridgeUtils.textToErrorKey("iPhone OS"));
-        assertEquals("android", BridgeUtils.textToErrorKey("Android"));
-        assertEquals("testers_operating_system_v2", BridgeUtils.textToErrorKey("Tester's Operating System v2"));
+        assertEquals(BridgeUtils.textToErrorKey("iPhone OS"), "iphone_os");
+        assertEquals(BridgeUtils.textToErrorKey("Android"), "android");
+        assertEquals(BridgeUtils.textToErrorKey("Tester's Operating System v2"), "testers_operating_system_v2");
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void textToErrorKeyRejectsNull() {
         BridgeUtils.textToErrorKey(null);
     }
             
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void textToErrorKeyRejectsEmptyString() {
         BridgeUtils.textToErrorKey(" ");
     }
     
     @Test
     public void parseIntegerOrDefault() {
-        assertEquals(3, BridgeUtils.getIntOrDefault(null, 3));
-        assertEquals(3, BridgeUtils.getIntOrDefault("  ", 3));
-        assertEquals(1, BridgeUtils.getIntOrDefault("1", 3));
+        assertEquals(BridgeUtils.getIntOrDefault(null, 3), 3);
+        assertEquals(BridgeUtils.getIntOrDefault("  ", 3), 3);
+        assertEquals(BridgeUtils.getIntOrDefault("1", 3), 1);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void parseIntegerOrDefaultThrowsException() {
         BridgeUtils.getIntOrDefault("asdf", 3);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void withoutNullEntriesNullMap() {
         BridgeUtils.withoutNullEntries(null);
     }
@@ -627,21 +628,21 @@ public class BridgeUtilsTest {
         inputMap.put("CCC", "333");
 
         Map<String, String> outputMap = BridgeUtils.withoutNullEntries(inputMap);
-        assertEquals(2, outputMap.size());
-        assertEquals("111", outputMap.get("AAA"));
-        assertEquals("333", outputMap.get("CCC"));
+        assertEquals(outputMap.size(), 2);
+        assertEquals(outputMap.get("AAA"), "111");
+        assertEquals(outputMap.get("CCC"), "333");
 
         // validate that modifying the input map doesn't affect the output map
         inputMap.put("new key", "new value");
-        assertEquals(2, outputMap.size());
+        assertEquals(outputMap.size(), 2);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void putOrRemoveNullMap() {
         BridgeUtils.putOrRemove(null, "key", "value");
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void putOrRemoveNullKey() {
         BridgeUtils.putOrRemove(new HashMap<>(), null, "value");
     }
@@ -654,33 +655,33 @@ public class BridgeUtilsTest {
         BridgeUtils.putOrRemove(map, "AAA", "111");
         BridgeUtils.putOrRemove(map, "BBB", "222");
         BridgeUtils.putOrRemove(map, "CCC", "333");
-        assertEquals(3, map.size());
-        assertEquals("111", map.get("AAA"));
-        assertEquals("222", map.get("BBB"));
-        assertEquals("333", map.get("CCC"));
+        assertEquals(map.size(), 3);
+        assertEquals(map.get("AAA"), "111");
+        assertEquals(map.get("BBB"), "222");
+        assertEquals(map.get("CCC"), "333");
 
         // replace a value and verify
         BridgeUtils.putOrRemove(map, "CCC", "not 333");
-        assertEquals(3, map.size());
-        assertEquals("111", map.get("AAA"));
-        assertEquals("222", map.get("BBB"));
-        assertEquals("not 333", map.get("CCC"));
+        assertEquals(map.size(), 3);
+        assertEquals(map.get("AAA"), "111");
+        assertEquals(map.get("BBB"), "222");
+        assertEquals(map.get("CCC"), "not 333");
 
         // remove a value and verify
         BridgeUtils.putOrRemove(map, "BBB", null);
-        assertEquals(2, map.size());
-        assertEquals("111", map.get("AAA"));
-        assertEquals("not 333", map.get("CCC"));
+        assertEquals(map.size(), 2);
+        assertEquals(map.get("AAA"), "111");
+        assertEquals(map.get("CCC"), "not 333");
     }
 
     @Test
     public void testGetLongOrDefault() {
         assertNull(BridgeUtils.getLongOrDefault(null, null));
-        assertEquals(new Long(10), BridgeUtils.getLongOrDefault(null, 10L));
-        assertEquals(new Long(20), BridgeUtils.getLongOrDefault("20", null));
+        assertEquals(BridgeUtils.getLongOrDefault(null, 10L), new Long(10));
+        assertEquals(BridgeUtils.getLongOrDefault("20", null), new Long(20));
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void testGetLongWithNonLongValue() {
         BridgeUtils.getLongOrDefault("asdf20", 10L);
     }
@@ -689,51 +690,51 @@ public class BridgeUtilsTest {
     public void testGetDateTimeOrDefault() {
         DateTime dateTime = DateTime.now();
         assertNull(BridgeUtils.getDateTimeOrDefault(null, null));
-        assertEquals(dateTime, BridgeUtils.getDateTimeOrDefault(null, dateTime));
+        assertEquals(BridgeUtils.getDateTimeOrDefault(null, dateTime), dateTime);
         assertTrue(dateTime.isEqual(BridgeUtils.getDateTimeOrDefault(dateTime.toString(), null)));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void testGetDateTimeWithInvalidDateTime() {
         BridgeUtils.getDateTimeOrDefault("asdf", null);
     }
     
     @Test
     public void encodeURIComponent() {
-        assertEquals("tester%2B4%40tester.com", BridgeUtils.encodeURIComponent("tester+4@tester.com"));
+        assertEquals(BridgeUtils.encodeURIComponent("tester+4@tester.com"), "tester%2B4%40tester.com");
     }
     
     @Test
     public void encodeURIComponentEmpty() {
-        assertEquals("", BridgeUtils.encodeURIComponent(""));
+        assertEquals(BridgeUtils.encodeURIComponent(""), "");
     }
     
     @Test
     public void encodeURIComponentNull() {
-        assertEquals(null, BridgeUtils.encodeURIComponent(null));
+        assertNull(BridgeUtils.encodeURIComponent(null));
     }
     
     @Test
     public void encodeURIComponentNoEscaping() {
-        assertEquals("foo-bar", BridgeUtils.encodeURIComponent("foo-bar"));
+        assertEquals(BridgeUtils.encodeURIComponent("foo-bar"), "foo-bar");
     }
     
     @Test
     public void passwordPolicyDescription() {
         PasswordPolicy policy = new PasswordPolicy(8, false, true, false, true);
         String description = BridgeUtils.passwordPolicyDescription(policy);
-        assertEquals("Password must be 8 or more characters, and must contain at least one upper-case letter, and one symbolic character (non-alphanumerics like #$%&@).", description);
+        assertEquals(description, "Password must be 8 or more characters, and must contain at least one upper-case letter, and one symbolic character (non-alphanumerics like #$%&@).");
         
         policy = new PasswordPolicy(2, false, false, false, false);
         description = BridgeUtils.passwordPolicyDescription(policy);
-        assertEquals("Password must be 2 or more characters.", description);
+        assertEquals(description, "Password must be 2 or more characters.");
     }
     
     @Test
     public void returnPasswordInURI() throws Exception {
         URI uri = new URI("redis://rediscloud:thisisapassword@pub-redis-555.us-east-1-4.1.ec2.garantiadata.com:555");
         String password = BridgeUtils.extractPasswordFromURI(uri);
-        assertEquals("thisisapassword", password);
+        assertEquals(password, "thisisapassword");
     }
     
     @Test
@@ -748,13 +749,13 @@ public class BridgeUtilsTest {
         Activity activity = TestUtils.getActivity2();
         
         String referent = BridgeUtils.createReferentGuidIndex(activity, LOCAL_DATE_TIME);
-        assertEquals("BBB:survey:2010-10-10T10:10:10.111", referent);
+        assertEquals(referent, "BBB:survey:2010-10-10T10:10:10.111");
     }
     
     @Test
     public void createReferentGuid2() {
         String referent = BridgeUtils.createReferentGuidIndex(ActivityType.TASK, "foo", LOCAL_DATE_TIME.toString());
-        assertEquals("foo:task:2010-10-10T10:10:10.111", referent);
+        assertEquals(referent, "foo:task:2010-10-10T10:10:10.111");
     }
     
     @Test
@@ -762,7 +763,7 @@ public class BridgeUtilsTest {
         LocalDate localDate = LocalDate.parse("2017-05-10");
         LocalDate parsed = BridgeUtils.getLocalDateOrDefault(localDate.toString(), null);
         
-        assertEquals(localDate, parsed);
+        assertEquals(parsed, localDate);
     }
     
     @Test
@@ -770,33 +771,33 @@ public class BridgeUtilsTest {
         LocalDate localDate = LocalDate.parse("2017-05-10");
         LocalDate parsed = BridgeUtils.getLocalDateOrDefault(null, localDate);
         
-        assertEquals(localDate, parsed);
+        assertEquals(parsed, localDate);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getLocalDateWithError() {
         BridgeUtils.getLocalDateOrDefault("2017-05-10T05:05:10.000Z", null);
     }
     
     @Test
     public void toSynapseFriendlyName() {
-        assertEquals("This is a .-_ synapse Friendly Name3",
-                BridgeUtils.toSynapseFriendlyName("This (is a).-_ synapse Friendly Name3 "));
+        assertEquals(BridgeUtils.toSynapseFriendlyName("This (is a).-_ synapse Friendly Name3 "),
+                "This is a .-_ synapse Friendly Name3");
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void nullToSynapseFriendlyNameThrowsException() {
         BridgeUtils.toSynapseFriendlyName(null);
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void emptyStringToSynapseFriendlyName() {
         BridgeUtils.toSynapseFriendlyName("  #");
     }
     
     // assertEquals with two sets doesn't verify the order is the same... hence this test method.
     private <T> void orderedSetsEqual(Set<T> first, Set<T> second) {
-        assertEquals(first.size(), second.size());
+        assertEquals(second.size(), first.size());
         
         Iterator<T> firstIterator = first.iterator();
         Iterator<T> secondIterator = second.iterator();

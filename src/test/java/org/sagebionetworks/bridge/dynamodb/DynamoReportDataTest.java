@@ -1,18 +1,18 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.reports.ReportData;
 import org.sagebionetworks.bridge.models.reports.ReportDataKey;
 import org.sagebionetworks.bridge.models.reports.ReportType;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -45,24 +45,24 @@ public class DynamoReportDataTest {
         
         JsonNode node = MAPPER.readTree(json);
         assertNull(node.get("key"));
-        assertEquals(DATETIME.toString(), node.get("date").textValue());
-        assertEquals(DATETIME.toString(), node.get("dateTime").textValue());
+        assertEquals(node.get("date").textValue(), DATETIME.toString());
+        assertEquals(node.get("dateTime").textValue(), DATETIME.toString());
         assertTrue(node.get("data").get("a").booleanValue());
-        assertEquals("string", node.get("data").get("b").textValue());
-        assertEquals(10, node.get("data").get("c").intValue());
-        assertEquals("substudyA", node.get("substudyIds").get(0).textValue());
-        assertEquals("substudyB", node.get("substudyIds").get(1).textValue());
-        assertEquals("ReportData", node.get("type").textValue());
-        assertEquals(5, node.size());
+        assertEquals(node.get("data").get("b").textValue(), "string");
+        assertEquals(node.get("data").get("c").intValue(), 10);
+        assertEquals(node.get("substudyIds").get(0).textValue(), "substudyA");
+        assertEquals(node.get("substudyIds").get(1).textValue(), "substudyB");
+        assertEquals(node.get("type").textValue(), "ReportData");
+        assertEquals(node.size(), 5);
         
         ReportData deser = MAPPER.readValue(json, ReportData.class);
         assertNull(deser.getKey());
-        assertEquals(DATETIME, deser.getDateTime());
-        assertEquals(DATETIME.toString(), deser.getDate());
+        assertEquals(deser.getDateTime(), DATETIME);
+        assertEquals(deser.getDate(), DATETIME.toString());
         assertTrue(deser.getData().get("a").asBoolean());
-        assertEquals("string", deser.getData().get("b").asText());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, deser.getSubstudyIds());
-        assertEquals(10, deser.getData().get("c").asInt());
+        assertEquals(deser.getData().get("b").asText(), "string");
+        assertEquals(deser.getSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
+        assertEquals(deser.getData().get("c").asInt(), 10);
     }
     
     @Test
@@ -72,14 +72,14 @@ public class DynamoReportDataTest {
         
         DynamoReportData report = new DynamoReportData();
         report.setLocalDate(localDate);
-        assertEquals(localDate.toString(), report.getDate());
-        assertEquals(localDate, report.getLocalDate());
+        assertEquals(report.getDate(), localDate.toString());
+        assertEquals(report.getLocalDate(), localDate);
         assertNull(report.getDateTime());
         
         report = new DynamoReportData();
         report.setDateTime(dateTime);
-        assertEquals(dateTime.toString(), report.getDate());
-        assertEquals(dateTime, report.getDateTime());
+        assertEquals(report.getDate(), dateTime.toString());
+        assertEquals(report.getDateTime(), dateTime);
         assertNull(report.getLocalDate());
     }
 }

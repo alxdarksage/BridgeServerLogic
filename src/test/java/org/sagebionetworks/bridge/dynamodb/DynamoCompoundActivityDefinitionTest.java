@@ -1,16 +1,17 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.schedules.CompoundActivity;
@@ -37,9 +38,9 @@ public class DynamoCompoundActivityDefinitionTest {
         def.setTaskId(TASK_ID);
 
         CompoundActivity compoundActivity = def.getCompoundActivity();
-        assertEquals(SCHEMA_LIST, compoundActivity.getSchemaList());
-        assertEquals(SURVEY_LIST, compoundActivity.getSurveyList());
-        assertEquals(TASK_ID, compoundActivity.getTaskIdentifier());
+        assertEquals(compoundActivity.getSchemaList(), SCHEMA_LIST);
+        assertEquals(compoundActivity.getSurveyList(), SURVEY_LIST);
+        assertEquals(compoundActivity.getTaskIdentifier(), TASK_ID);
     }
 
     @Test
@@ -64,11 +65,11 @@ public class DynamoCompoundActivityDefinitionTest {
         originalSurveyList.add(JKL_SURVEY);
 
         // verify that the lists in the def are unchanged
-        assertEquals(1, def.getSchemaList().size());
-        assertEquals(FOO_SCHEMA, def.getSchemaList().get(0));
+        assertEquals(def.getSchemaList().size(), 1);
+        assertEquals(def.getSchemaList().get(0), FOO_SCHEMA);
         assertListIsImmutable(def.getSchemaList(), BAR_SCHEMA);
-        assertEquals(1, def.getSurveyList().size());
-        assertEquals(ASDF_SURVEY, def.getSurveyList().get(0));
+        assertEquals(def.getSurveyList().size(), 1);
+        assertEquals(def.getSurveyList().get(0), ASDF_SURVEY);
         assertListIsImmutable(def.getSurveyList(), JKL_SURVEY);
 
         // set lists to null, validate that lists are still empty and immutable
@@ -102,43 +103,43 @@ public class DynamoCompoundActivityDefinitionTest {
         // convert to POJO - deserialize it as the base type, so we know it works with the base type
         DynamoCompoundActivityDefinition def = (DynamoCompoundActivityDefinition) BridgeObjectMapper.get().readValue(
                 jsonText, CompoundActivityDefinition.class);
-        assertEquals("test-study", def.getStudyId());
-        assertEquals("test-task", def.getTaskId());
-        assertEquals(42, def.getVersion().longValue());
+        assertEquals(def.getStudyId(), "test-study");
+        assertEquals(def.getTaskId(), "test-task");
+        assertEquals(def.getVersion().longValue(), 42);
 
         List<SchemaReference> outputSchemaList = def.getSchemaList();
-        assertEquals(2, outputSchemaList.size());
-        assertEquals(FOO_SCHEMA, outputSchemaList.get(0));
-        assertEquals(BAR_SCHEMA, outputSchemaList.get(1));
+        assertEquals(outputSchemaList.size(), 2);
+        assertEquals(outputSchemaList.get(0), FOO_SCHEMA);
+        assertEquals(outputSchemaList.get(1), BAR_SCHEMA);
 
         List<SurveyReference> outputSurveyList = def.getSurveyList();
-        assertEquals(2, outputSurveyList.size());
-        assertEquals(ASDF_SURVEY, outputSurveyList.get(0));
-        assertEquals(JKL_SURVEY, outputSurveyList.get(1));
+        assertEquals(outputSurveyList.size(), 2);
+        assertEquals(outputSurveyList.get(0), ASDF_SURVEY);
+        assertEquals(outputSurveyList.get(1), JKL_SURVEY);
 
         // convert back to JSON
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(def, JsonNode.class);
-        assertEquals(6, jsonNode.size());
-        assertEquals("test-study", jsonNode.get("studyId").textValue());
-        assertEquals("test-task", jsonNode.get("taskId").textValue());
-        assertEquals(42, jsonNode.get("version").intValue());
-        assertEquals("CompoundActivityDefinition", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.size(), 6);
+        assertEquals(jsonNode.get("studyId").textValue(), "test-study");
+        assertEquals(jsonNode.get("taskId").textValue(), "test-task");
+        assertEquals(jsonNode.get("version").intValue(), 42);
+        assertEquals(jsonNode.get("type").textValue(), "CompoundActivityDefinition");
 
         // For the lists, this is already tested by the encapsulated classes. Just verify that we have a list of the
         // right size.
         assertTrue(jsonNode.get("schemaList").isArray());
-        assertEquals(2, jsonNode.get("schemaList").size());
+        assertEquals(jsonNode.get("schemaList").size(), 2);
 
         assertTrue(jsonNode.get("surveyList").isArray());
-        assertEquals(2, jsonNode.get("surveyList").size());
+        assertEquals(jsonNode.get("surveyList").size(), 2);
 
         // convert to JSON using the PUBLIC_DEFINITION_WRITER
         // For simplicity, just test that study ID is absent and the other major key values are present
         String publicJsonText = CompoundActivityDefinition.PUBLIC_DEFINITION_WRITER.writeValueAsString(def);
         JsonNode publicJsonNode = BridgeObjectMapper.get().readTree(publicJsonText);
         assertNull(publicJsonNode.get("studyId"));
-        assertEquals("test-task", publicJsonNode.get("taskId").textValue());
-        assertEquals("CompoundActivityDefinition", publicJsonNode.get("type").textValue());
+        assertEquals(publicJsonNode.get("taskId").textValue(), "test-task");
+        assertEquals(publicJsonNode.get("type").textValue(), "CompoundActivityDefinition");
     }
 
     private static <T> void assertListIsImmutable(List<T> list, T objToAdd) {

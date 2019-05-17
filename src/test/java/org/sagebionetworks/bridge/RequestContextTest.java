@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.Metrics;
 
@@ -62,11 +62,11 @@ public class RequestContextTest {
                 .withCallerStudyId(TestConstants.TEST_STUDY).withCallerSubstudies(SUBSTUDIES)
                 .withMetrics(metrics).withCallerRoles(ROLES).build();
 
-        assertEquals("requestId", context.getId());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, context.getCallerStudyId());
-        assertEquals(TestConstants.TEST_STUDY, context.getCallerStudyIdentifier());
-        assertEquals(SUBSTUDIES, context.getCallerSubstudies());
-        assertEquals(ROLES, context.getCallerRoles());
-        assertEquals(metrics, context.getMetrics());
+        assertEquals(context.getId(), "requestId");
+        assertEquals(context.getCallerStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(context.getCallerStudyIdentifier(), TestConstants.TEST_STUDY);
+        assertEquals(context.getCallerSubstudies(), SUBSTUDIES);
+        assertEquals(context.getCallerRoles(), ROLES);
+        assertEquals(context.getMetrics(), metrics);
     }
 }

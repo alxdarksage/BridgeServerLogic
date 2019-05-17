@@ -2,9 +2,8 @@ package org.sagebionetworks.bridge.dynamodb;
 
 import static org.sagebionetworks.bridge.TestUtils.getNotificationRegistration;
 import static org.sagebionetworks.bridge.TestUtils.getNotificationTopic;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -12,13 +11,12 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.notifications.NotificationProtocol;
 import org.sagebionetworks.bridge.models.notifications.NotificationRegistration;
@@ -31,7 +29,6 @@ import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoTopicSubscriptionDaoTest {
     private static final String ENDPOINT_ARN = "endpoint-arn";
     private static final AmazonServiceException EXCEPTION = new AmazonServiceException("Somethin' bad happened [test]");
@@ -61,8 +58,9 @@ public class DynamoTopicSubscriptionDaoTest {
     @Captor
     private ArgumentCaptor<String> unsubscribeStringCaptor;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         subDao = new DynamoTopicSubscriptionDao();
         subDao.setTopicSubscriptionMapper(mockMapper);
         subDao.setSnsClient(mockSnsClient);
@@ -88,20 +86,20 @@ public class DynamoTopicSubscriptionDaoTest {
         verify(mockSnsClient).subscribe(subscribeRequestCaptor.capture());
         
         SubscribeRequest request = subscribeRequestCaptor.getValue();
-        assertEquals(TOPIC_ARN, request.getTopicArn());
-        assertEquals("application", request.getProtocol());
-        assertEquals(ENDPOINT_ARN, request.getEndpoint());
+        assertEquals(request.getTopicArn(), TOPIC_ARN);
+        assertEquals(request.getProtocol(), "application");
+        assertEquals(request.getEndpoint(), ENDPOINT_ARN);
         
         verify(mockMapper).save(subscriptionCaptor.capture());
         
         TopicSubscription saved = subscriptionCaptor.getValue();
-        assertEquals("registrationGuid", saved.getRegistrationGuid());
-        assertEquals("subscriptionARN", saved.getSubscriptionARN());
-        assertEquals("topicGuid", saved.getTopicGuid());
+        assertEquals(saved.getRegistrationGuid(), "registrationGuid");
+        assertEquals(saved.getSubscriptionARN(), "subscriptionARN");
+        assertEquals(saved.getTopicGuid(), "topicGuid");
         
-        assertEquals("registrationGuid", sub.getRegistrationGuid());
-        assertEquals("subscriptionARN", sub.getSubscriptionARN());
-        assertEquals("topicGuid", sub.getTopicGuid());
+        assertEquals(sub.getRegistrationGuid(), "registrationGuid");
+        assertEquals(sub.getSubscriptionARN(), "subscriptionARN");
+        assertEquals(sub.getTopicGuid(), "topicGuid");
     }
 
     @Test
@@ -123,9 +121,9 @@ public class DynamoTopicSubscriptionDaoTest {
 
         verify(mockSnsClient).subscribe(subscribeRequestCaptor.capture());
         SubscribeRequest request = subscribeRequestCaptor.getValue();
-        assertEquals(TOPIC_ARN, request.getTopicArn());
-        assertEquals("sms", request.getProtocol());
-        assertEquals(PHONE, request.getEndpoint());
+        assertEquals(request.getTopicArn(), TOPIC_ARN);
+        assertEquals(request.getProtocol(), "sms");
+        assertEquals(request.getEndpoint(), PHONE);
     }
 
     @Test
@@ -164,12 +162,12 @@ public class DynamoTopicSubscriptionDaoTest {
         verify(mockSnsClient).unsubscribe(unsubscribeStringCaptor.capture());
         
         TopicSubscription saved = subscriptionCaptor.getValue();
-        assertEquals("registrationGuid", saved.getRegistrationGuid());
-        assertEquals("subscriptionARN", saved.getSubscriptionARN());
-        assertEquals("topicGuid", saved.getTopicGuid());
+        assertEquals(saved.getRegistrationGuid(), "registrationGuid");
+        assertEquals(saved.getSubscriptionARN(), "subscriptionARN");
+        assertEquals(saved.getTopicGuid(), "topicGuid");
         
         String subscriptionARN = unsubscribeStringCaptor.getValue();
-        assertEquals("subscriptionARN", subscriptionARN);
+        assertEquals(subscriptionARN, "subscriptionARN");
     }
     
     @Test
@@ -189,15 +187,15 @@ public class DynamoTopicSubscriptionDaoTest {
         verify(mockMapper).delete(subscriptionCaptor.capture());
         
         DynamoTopicSubscription loadKey = subscriptionCaptor.getAllValues().get(0);
-        assertEquals("registrationGuid", loadKey.getRegistrationGuid());
-        assertEquals("topicGuid", loadKey.getTopicGuid());
+        assertEquals(loadKey.getRegistrationGuid(), "registrationGuid");
+        assertEquals(loadKey.getTopicGuid(), "topicGuid");
         
         String subscriptionARN = unsubscribeStringCaptor.getValue();
-        assertEquals("subscriptionARN", subscriptionARN);
+        assertEquals(subscriptionARN, "subscriptionARN");
         
         DynamoTopicSubscription deleteObj = subscriptionCaptor.getAllValues().get(1);
-        assertEquals("registrationGuid", deleteObj.getRegistrationGuid());
-        assertEquals("topicGuid", deleteObj.getTopicGuid());
+        assertEquals(deleteObj.getRegistrationGuid(), "registrationGuid");
+        assertEquals(deleteObj.getTopicGuid(), "topicGuid");
     }
     
     @Test
@@ -223,11 +221,11 @@ public class DynamoTopicSubscriptionDaoTest {
         verify(mockMapper, never()).delete(subscriptionCaptor.capture());
         
         DynamoTopicSubscription loadKey = subscriptionCaptor.getAllValues().get(0);
-        assertEquals("registrationGuid", loadKey.getRegistrationGuid());
-        assertEquals("topicGuid", loadKey.getTopicGuid());
+        assertEquals(loadKey.getRegistrationGuid(), "registrationGuid");
+        assertEquals(loadKey.getTopicGuid(), "topicGuid");
         
         String subscriptionARN = unsubscribeStringCaptor.getValue();
-        assertEquals("subscriptionARN", subscriptionARN);
+        assertEquals(subscriptionARN, "subscriptionARN");
     }
     
     @Test
@@ -253,14 +251,14 @@ public class DynamoTopicSubscriptionDaoTest {
         verify(mockMapper).delete(subscriptionCaptor.capture());
         
         DynamoTopicSubscription loadKey = subscriptionCaptor.getAllValues().get(0);
-        assertEquals("registrationGuid", loadKey.getRegistrationGuid());
-        assertEquals("topicGuid", loadKey.getTopicGuid());
+        assertEquals(loadKey.getRegistrationGuid(), "registrationGuid");
+        assertEquals(loadKey.getTopicGuid(), "topicGuid");
         
         String subscriptionARN = unsubscribeStringCaptor.getValue();
-        assertEquals("subscriptionARN", subscriptionARN);
+        assertEquals(subscriptionARN, "subscriptionARN");
         
         DynamoTopicSubscription deleteObj = subscriptionCaptor.getAllValues().get(1);
-        assertEquals("registrationGuid", deleteObj.getRegistrationGuid());
+        assertEquals(deleteObj.getRegistrationGuid(), "registrationGuid");
         
         // This leaves no SNS topic subscription, but a record in DDB. This is okay and we will
         // attempt to clean this up from the service any time the user updates their subscriptions.
@@ -275,11 +273,11 @@ public class DynamoTopicSubscriptionDaoTest {
         
         verify(mockSnsClient).unsubscribe(unsubscribeStringCaptor.capture());
         String subscriptionARN = unsubscribeStringCaptor.getValue();
-        assertEquals("subscriptionARN", subscriptionARN);
+        assertEquals(subscriptionARN, "subscriptionARN");
         
         verify(mockMapper).delete(subscriptionCaptor.capture());
         DynamoTopicSubscription capturedSub = subscriptionCaptor.getValue();
-        assertEquals(subscription, capturedSub);
+        assertEquals(capturedSub, subscription);
     }
     
     @Test
@@ -298,10 +296,10 @@ public class DynamoTopicSubscriptionDaoTest {
         
         verify(mockSnsClient).unsubscribe(unsubscribeStringCaptor.capture());
         String subscriptionARN = unsubscribeStringCaptor.getValue();
-        assertEquals("subscriptionARN", subscriptionARN);
+        assertEquals(subscriptionARN, "subscriptionARN");
         
         verify(mockMapper).delete(subscriptionCaptor.capture());
         DynamoTopicSubscription capturedSub = subscriptionCaptor.getValue();
-        assertEquals(subscription, capturedSub);
+        assertEquals(capturedSub, subscription);
     }
 }

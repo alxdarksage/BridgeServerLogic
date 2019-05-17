@@ -1,13 +1,14 @@
 package org.sagebionetworks.bridge.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.models.subpopulations.ConsentSignature;
 import org.sagebionetworks.bridge.models.surveys.Survey;
 import org.sagebionetworks.bridge.models.surveys.TestSurvey;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -27,10 +28,10 @@ public class BridgeObjectMapperTest {
         BridgeObjectMapper mapper = new BridgeObjectMapper();
         
         JsonNode node = mapper.valueToTree(new NotAnnotated());
-        assertEquals("Type is NotAnnotated", "NotAnnotated", node.get("type").asText());
+        assertEquals(node.get("type").asText(), "NotAnnotated", "Type is NotAnnotated");
         
         node = mapper.valueToTree(new Annotated());
-        assertEquals("Type is AnnotationName", "AnnotationName", node.get("type").asText());
+        assertEquals(node.get("type").asText(), "AnnotationName", "Type is AnnotationName");
     }
     
     // TODO: The serializer doubles up the type property on objects that have a filter. I 
@@ -72,7 +73,7 @@ public class BridgeObjectMapperTest {
         BridgeObjectMapper mapper = new BridgeObjectMapper();
         
         JsonNode node = mapper.valueToTree(new NotAnnotated("ThisIsTheName"));
-        assertEquals("Type is ThisIsTheName", "ThisIsTheName", node.get("type").asText());
+        assertEquals(node.get("type").asText(), "ThisIsTheName", "Type is ThisIsTheName");
     }
         
     /**
@@ -88,14 +89,14 @@ public class BridgeObjectMapperTest {
         String json = "{\"createdOn\":null,\"modifiedOn\":null}";
         
         Survey survey = new BridgeObjectMapper().readValue(json, Survey.class);
-        assertEquals(0, survey.getCreatedOn());
-        assertEquals(0, survey.getModifiedOn());
+        assertEquals(survey.getCreatedOn(), 0);
+        assertEquals(survey.getModifiedOn(), 0);
         
         // No field works as well
         json = "{}";
         survey = new BridgeObjectMapper().readValue(json, Survey.class);
-        assertEquals(0, survey.getCreatedOn());
-        assertEquals(0, survey.getModifiedOn());
+        assertEquals(survey.getCreatedOn(), 0);
+        assertEquals(survey.getModifiedOn(), 0);
         
         // If you were to supply zeroes, you do get a deserialization error, as you would any other 
         // value not recognizable as a date.

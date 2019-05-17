@@ -1,12 +1,13 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,7 +20,7 @@ public class JsonNodeAttributeConverterTest {
     
     private static JsonNodeAttributeConverter converter;
     
-    @Before
+    @BeforeMethod
     public void before() throws IOException {
         converter = new JsonNodeAttributeConverter();
         node = new ObjectMapper().readTree(JSON);
@@ -27,12 +28,12 @@ public class JsonNodeAttributeConverterTest {
     
     @Test
     public void convertToDatabaseColumn() {
-        assertEquals(JSON, converter.convertToDatabaseColumn(node));
+        assertEquals(converter.convertToDatabaseColumn(node), JSON);
     }
 
     @Test
     public void convertToEntityAttribute() {
-        assertEquals(node, converter.convertToEntityAttribute(JSON));
+        assertEquals(converter.convertToEntityAttribute(JSON), node);
     }
     
     @Test

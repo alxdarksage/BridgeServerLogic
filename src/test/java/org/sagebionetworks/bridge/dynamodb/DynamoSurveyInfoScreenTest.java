@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.surveys.Image;
 import org.sagebionetworks.bridge.models.surveys.SurveyInfoScreen;
 import org.sagebionetworks.bridge.models.surveys.SurveyRule;
 import org.sagebionetworks.bridge.models.surveys.SurveyRule.Operator;
+
+import static org.testng.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -31,17 +31,17 @@ public class DynamoSurveyInfoScreenTest {
         screen.setAfterRules(Lists.newArrayList(afterRule));
 
         SurveyInfoScreen copy = new DynamoSurveyInfoScreen(screen);
-        assertEquals("prompt", copy.getPrompt());
-        assertEquals("promptDetail", copy.getPromptDetail());
-        assertEquals("title", copy.getTitle());
-        assertEquals(screen.getImage(), copy.getImage());
-        assertEquals("surveyCompoundKey", copy.getSurveyCompoundKey());
-        assertEquals("guid", copy.getGuid());
-        assertEquals("identifier", copy.getIdentifier());
-        assertEquals("SurveyInfoScreen", copy.getType());
-        assertEquals(1, copy.getBeforeRules().size());
-        assertEquals(beforeRule, copy.getBeforeRules().get(0));
-        assertEquals(1, copy.getAfterRules().size());
-        assertEquals(afterRule, copy.getAfterRules().get(0));
+        assertEquals(copy.getPrompt(), "prompt");
+        assertEquals(copy.getPromptDetail(), "promptDetail");
+        assertEquals(copy.getTitle(), "title");
+        assertEquals(copy.getImage(), screen.getImage());
+        assertEquals(copy.getSurveyCompoundKey(), "surveyCompoundKey");
+        assertEquals(copy.getGuid(), "guid");
+        assertEquals(copy.getIdentifier(), "identifier");
+        assertEquals(copy.getType(), "SurveyInfoScreen");
+        assertEquals(copy.getBeforeRules().size(), 1);
+        assertEquals(copy.getBeforeRules().get(0), beforeRule);
+        assertEquals(copy.getAfterRules().size(), 1);
+        assertEquals(copy.getAfterRules().get(0), afterRule);
     }
 }
