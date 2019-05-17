@@ -12,6 +12,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Charsets;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +37,11 @@ public class UploadFileHelper {
 
     // Package-scoped for unit tests.
     static final String ATTACHMENT_BUCKET = BridgeConfigFactory.getConfig().getProperty("attachment.bucket");
+    static final String KEY_CUSTOM_CONTENT_MD5 = "Custom-Content-MD5";
 
     private FileHelper fileHelper;
     private int inlineFileSizeLimit = UploadUtil.FILE_SIZE_LIMIT_INLINE_FIELD;
+    private DigestUtils md5DigestUtils;
     private int parsedJsonFileSizeLimit = UploadUtil.FILE_SIZE_LIMIT_PARSED_JSON;
     private int parsedJsonWarningLimit = UploadUtil.WARNING_LIMIT_PARSED_JSON;
     private S3Helper s3Helper;
@@ -51,6 +55,12 @@ public class UploadFileHelper {
     /** Sets the file size limit for inline files. This setter is to allow unit tests to override. */
     final void setInlineFileSizeLimit(@SuppressWarnings("SameParameterValue") int inlineFileSizeLimit) {
         this.inlineFileSizeLimit = inlineFileSizeLimit;
+    }
+
+    /** Used to calculate the MD5 hash, used to submit S3 file metadata. */
+    @Resource(name = "md5DigestUtils")
+    public final void setMd5DigestUtils(DigestUtils md5DigestUtils) {
+        this.md5DigestUtils = md5DigestUtils;
     }
 
     /** Sets the file size limit for parsed JSON files. This setter is to allow unit tests to override. */
@@ -105,10 +115,13 @@ public class UploadFileHelper {
                     // Case 1a: The whole file is an attachment. Upload the file. Field JSON is attachment filename.
                     String attachmentFilename = uploadId + '-' + fieldName;
                     fieldNode = TextNode.valueOf(attachmentFilename);
-                    
-                    ObjectMetadata metadata = new ObjectMetadata();
-                    metadata.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
-                    s3Helper.writeFileToS3(ATTACHMENT_BUCKET, attachmentFilename, fieldFile, metadata);
+
+                    try {
+                        uploadFileAsAttachment(attachmentFilename, fieldFile);
+                    } catch (IOException ex) {
+                        throw new UploadValidationException("Error uploading file as attachment, uploadId=" +
+                                uploadId + ", fieldName=" + fieldName, ex);
+                    }
                 } else {
                     // Case 1b: The file is an empty attachment. Skip and return null.
                     fieldNode = null;
@@ -218,14 +231,41 @@ public class UploadFileHelper {
         String filename = uploadId + '-' + fieldName;
         String jsonText = node.toString();
         
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
         try {
-            s3Helper.writeBytesToS3(ATTACHMENT_BUCKET, filename, jsonText.getBytes(Charsets.UTF_8), metadata);
+            uploadBytesAsAttachment(filename, jsonText.getBytes(Charsets.UTF_8));
         } catch (IOException ex) {
             throw new UploadValidationException("Error writing attachment to S3, uploadId=" + uploadId +
                     ", fieldName=" + fieldName, ex);
         }
         return TextNode.valueOf(filename);
+    }
+
+    /** Upload bytes to the attachment bucket and apply the correct metadata. */
+    public void uploadBytesAsAttachment(String filename, byte[] bytes) throws IOException {
+        // Calculate MD5 (base64-encoded).
+        byte[] md5 = md5DigestUtils.digest(bytes);
+        String md5Base64Encoded = Base64.encodeBase64String(md5);
+
+        // S3 Metadata must include encryption and MD5. Note that for some reason setContentMD5() doesn't work, so we
+        // have to use addUserMetadata().
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.addUserMetadata(KEY_CUSTOM_CONTENT_MD5, md5Base64Encoded);
+        metadata.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+        s3Helper.writeBytesToS3(ATTACHMENT_BUCKET, filename, bytes, metadata);
+    }
+
+    /** Upload a file to the attachment bucket and apply the correct metadata. */
+    public void uploadFileAsAttachment(String filename, File file) throws IOException {
+        // Calculate MD5 (base64-encoded).
+        byte[] md5 = md5DigestUtils.digest(file);
+        String md5Base64Encoded = Base64.encodeBase64String(md5);
+
+        // S3 Metadata must include encryption and MD5. Note that for some reason setContentMD5() doesn't work, so we
+        // have to use addUserMetadata().
+        ObjectMetadata metadata = new ObjectMetadata();
+        LOG.info("Writing MD5 for attachment " + filename + ": " + md5Base64Encoded);
+        metadata.addUserMetadata(KEY_CUSTOM_CONTENT_MD5, md5Base64Encoded);
+        metadata.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+        s3Helper.writeFileToS3(ATTACHMENT_BUCKET, filename, file, metadata);
     }
 }

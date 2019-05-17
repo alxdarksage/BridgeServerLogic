@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
@@ -165,7 +166,7 @@ public class UploadHandlersEndToEndTest {
         DateTimeUtils.setCurrentMillisSystem();
     }
 
-    private void test(UploadSchema schema, Survey survey, Map<String, String> fileMap) {
+    private void test(UploadSchema schema, Survey survey, Map<String, String> fileMap) throws Exception {
         // fileMap is in strings. Convert to bytes so we can use the Zipper.
         Map<String, byte[]> fileBytesMap = new HashMap<>();
         for (Map.Entry<String, String> oneFile : fileMap.entrySet()) {
@@ -184,8 +185,13 @@ public class UploadHandlersEndToEndTest {
         zippedFile = unzipService.zip(fileBytesMap);
 
         // Set up UploadFileHelper
+        DigestUtils mockMd5DigestUtils = mock(DigestUtils.class);
+        when(mockMd5DigestUtils.digest(any(File.class))).thenReturn(TestConstants.MOCK_MD5);
+        when(mockMd5DigestUtils.digest(any(byte[].class))).thenReturn(TestConstants.MOCK_MD5);
+
         UploadFileHelper uploadFileHelper = new UploadFileHelper();
         uploadFileHelper.setFileHelper(inMemoryFileHelper);
+        uploadFileHelper.setMd5DigestUtils(mockMd5DigestUtils);
         uploadFileHelper.setS3Helper(mockS3UploadHelper);
 
         // set up S3DownloadHandler - mock S3 Helper
@@ -280,7 +286,7 @@ public class UploadHandlersEndToEndTest {
 
         // Set up UploadRawZipHandler.
         UploadRawZipHandler uploadRawZipHandler = new UploadRawZipHandler();
-        uploadRawZipHandler.setS3Helper(mockS3UploadHelper);
+        uploadRawZipHandler.setUploadFileHelper(uploadFileHelper);
 
         // set up UploadArtifactsHandler
         UploadArtifactsHandler uploadArtifactsHandler = new UploadArtifactsHandler();

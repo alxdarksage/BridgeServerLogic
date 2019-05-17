@@ -6,17 +6,21 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Charsets;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.s3.S3Helper;
 
 public class UploadFileHelperUploadJsonAttachmentTest {
@@ -28,9 +32,15 @@ public class UploadFileHelperUploadJsonAttachmentTest {
     private UploadFileHelper uploadFileHelper;
 
     @Before
-    public void before() {
+    public void before() throws Exception {
+        DigestUtils mockMd5DigestUtils = mock(DigestUtils.class);
+        when(mockMd5DigestUtils.digest(any(File.class))).thenReturn(TestConstants.MOCK_MD5);
+        when(mockMd5DigestUtils.digest(any(byte[].class))).thenReturn(TestConstants.MOCK_MD5);
+
         mockS3Helper = mock(S3Helper.class);
+
         uploadFileHelper = new UploadFileHelper();
+        uploadFileHelper.setMd5DigestUtils(mockMd5DigestUtils);
         uploadFileHelper.setS3Helper(mockS3Helper);
     }
 
@@ -46,8 +56,11 @@ public class UploadFileHelperUploadJsonAttachmentTest {
         // string.
         verify(mockS3Helper).writeBytesToS3(eq(UploadFileHelper.ATTACHMENT_BUCKET), eq(EXPECTED_ATTACHMENT_NAME),
                 eq("\"dummy content\"".getBytes(Charsets.UTF_8)), metadataCaptor.capture());
-        
-        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadataCaptor.getValue().getSSEAlgorithm());
+
+        ObjectMetadata metadata = metadataCaptor.getValue();
+        assertEquals(TestConstants.MOCK_MD5_BASE64_ENCODED, metadata.getUserMetaDataOf(
+                UploadFileHelper.KEY_CUSTOM_CONTENT_MD5));
+        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadata.getSSEAlgorithm());
     }
 
     @Test(expected = UploadValidationException.class)

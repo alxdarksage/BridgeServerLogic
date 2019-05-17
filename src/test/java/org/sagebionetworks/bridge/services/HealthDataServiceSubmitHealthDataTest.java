@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -42,7 +41,6 @@ import org.sagebionetworks.bridge.models.surveys.Survey;
 import org.sagebionetworks.bridge.models.upload.UploadFieldDefinition;
 import org.sagebionetworks.bridge.models.upload.UploadFieldType;
 import org.sagebionetworks.bridge.models.upload.UploadSchema;
-import org.sagebionetworks.bridge.s3.S3Helper;
 import org.sagebionetworks.bridge.upload.StrictValidationHandler;
 import org.sagebionetworks.bridge.upload.TranscribeConsentHandler;
 import org.sagebionetworks.bridge.upload.UploadArtifactsHandler;
@@ -74,7 +72,6 @@ public class HealthDataServiceSubmitHealthDataTest {
             .build();
 
     private HealthDataRecord createdRecord;
-    private S3Helper mockS3Helper;
     private SurveyService mockSurveyService;
     private StrictValidationHandler mockStrictValidationHandler;
     private TranscribeConsentHandler mockTranscribeConsentHandler;
@@ -123,7 +120,6 @@ public class HealthDataServiceSubmitHealthDataTest {
         when(mockUploadFileHelper.uploadJsonNodeAsAttachment(any(), any(), any())).thenReturn(ATTACHMENT_ID_NODE);
 
         // Mock other dependencies.
-        mockS3Helper = mock(S3Helper.class);
         mockStrictValidationHandler = mock(StrictValidationHandler.class);
         mockTranscribeConsentHandler = mock(TranscribeConsentHandler.class);
         mockUploadArtifactsHandler = mock(UploadArtifactsHandler.class);
@@ -139,7 +135,6 @@ public class HealthDataServiceSubmitHealthDataTest {
 
         // Set up service.
         svc = spy(new HealthDataService());
-        svc.setS3Helper(mockS3Helper);
         svc.setSchemaService(mockSchemaService);
         svc.setSurveyService(mockSurveyService);
         svc.setUploadFileHelper(mockUploadFileHelper);
@@ -254,16 +249,13 @@ public class HealthDataServiceSubmitHealthDataTest {
         // Validate raw data submitted to S3
         String expectedRawDataAttachmentId = uploadId + HealthDataService.RAW_ATTACHMENT_SUFFIX;
         ArgumentCaptor<byte[]> rawBytesCaptor = ArgumentCaptor.forClass(byte[].class);
-        ArgumentCaptor<ObjectMetadata> metadataCaptor = ArgumentCaptor.forClass(ObjectMetadata.class);
-        verify(mockS3Helper).writeBytesToS3(eq(HealthDataService.ATTACHMENT_BUCKET), eq(expectedRawDataAttachmentId),
-                rawBytesCaptor.capture(), metadataCaptor.capture());
+        verify(mockUploadFileHelper).uploadBytesAsAttachment(eq(expectedRawDataAttachmentId),
+                rawBytesCaptor.capture());
         assertEquals(expectedRawDataAttachmentId, contextRecord.getRawDataAttachmentId());
 
         byte[] rawBytes = rawBytesCaptor.getValue();
         JsonNode rawJsonNode = BridgeObjectMapper.get().readTree(rawBytes);
         assertEquals(inputData, rawJsonNode);
-        
-        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadataCaptor.getValue().getSSEAlgorithm());
 
         // validate the other handlers are called
         verify(mockTranscribeConsentHandler).handle(context);
