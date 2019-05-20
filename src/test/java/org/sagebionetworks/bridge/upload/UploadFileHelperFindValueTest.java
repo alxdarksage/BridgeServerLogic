@@ -1,10 +1,12 @@
 package org.sagebionetworks.bridge.upload;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -17,10 +19,12 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mockito.ArgumentCaptor;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.file.InMemoryFileHelper;
 import org.sagebionetworks.bridge.models.upload.UploadFieldDefinition;
 import org.sagebionetworks.bridge.models.upload.UploadFieldType;
@@ -38,13 +42,17 @@ public class UploadFileHelperFindValueTest {
     private ArgumentCaptor<ObjectMetadata> metadataCaptor;
 
     @BeforeMethod
-    public void before() {
+    public void before() throws Exception {
         // Spy file helper, so we can check to see how many times we read the disk later. Also make a dummy temp dir,
         // as an in-memory place we can put files into.
         inMemoryFileHelper = spy(new InMemoryFileHelper());
         tmpDir = inMemoryFileHelper.createTempDir();
 
         // Mock dependencies.
+        DigestUtils mockMd5DigestUtils = mock(DigestUtils.class);
+        when(mockMd5DigestUtils.digest(any(File.class))).thenReturn(TestConstants.MOCK_MD5);
+        when(mockMd5DigestUtils.digest(any(byte[].class))).thenReturn(TestConstants.MOCK_MD5);
+
         mockS3Helper = mock(S3Helper.class);
 
         metadataCaptor = ArgumentCaptor.forClass(ObjectMetadata.class);
@@ -52,6 +60,7 @@ public class UploadFileHelperFindValueTest {
         // Create UploadFileHelper.
         uploadFileHelper = new UploadFileHelper();
         uploadFileHelper.setFileHelper(inMemoryFileHelper);
+        uploadFileHelper.setMd5DigestUtils(mockMd5DigestUtils);
         uploadFileHelper.setS3Helper(mockS3Helper);
     }
 
@@ -73,8 +82,11 @@ public class UploadFileHelperFindValueTest {
         // Verify uploaded file
         verify(mockS3Helper).writeFileToS3(eq(UploadFileHelper.ATTACHMENT_BUCKET), eq(expectedAttachmentFilename),
                 eq(recordJsonFile), metadataCaptor.capture());
-        
-        assertEquals(metadataCaptor.getValue().getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+
+        ObjectMetadata metadata = metadataCaptor.getValue();
+        assertEquals(metadata.getUserMetaDataOf(UploadFileHelper.KEY_CUSTOM_CONTENT_MD5),
+                TestConstants.MOCK_MD5_BASE64_ENCODED);
+        assertEquals(metadata.getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
     }
 
     @Test
@@ -175,8 +187,11 @@ public class UploadFileHelperFindValueTest {
         // Verify uploaded file
         verify(mockS3Helper).writeBytesToS3(eq(UploadFileHelper.ATTACHMENT_BUCKET), eq(expectedAttachmentFilename),
                 eq("\"record-value\"".getBytes(Charsets.UTF_8)), metadataCaptor.capture());
-        
-        assertEquals(metadataCaptor.getValue().getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+
+        ObjectMetadata metadata = metadataCaptor.getValue();
+        assertEquals(TestConstants.MOCK_MD5_BASE64_ENCODED, metadata.getUserMetaDataOf(
+                UploadFileHelper.KEY_CUSTOM_CONTENT_MD5));
+        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadata.getSSEAlgorithm());
     }
 
     @Test

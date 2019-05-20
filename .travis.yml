@@ -1,9 +1,4 @@
 language: java
 jdk: oraclejdk8
 sudo: false
-script: mvn clean verify
-deploy:
-  provider: script
-  script: mvn deploy
-  on:
-    branch: release
+script: mvn clean deploy
