@@ -27,6 +27,9 @@ public class TestConstants {
     
     public static final String DUMMY_IMAGE_DATA = "VGhpcyBpc24ndCBhIHJlYWwgaW1hZ2Uu";
 
+    public static final byte[] MOCK_MD5 = { 29, -23, 101, -93, -27, -88, -82, 87, 126 };
+    public static final String MOCK_MD5_BASE64_ENCODED = "Hello+World+";
+
     public static final String TEST_STUDY_IDENTIFIER = "api";
     public static final StudyIdentifier TEST_STUDY = new StudyIdentifierImpl(TEST_STUDY_IDENTIFIER);
     public static final CriteriaContext TEST_CONTEXT = new CriteriaContext.Builder()

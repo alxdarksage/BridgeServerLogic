@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
@@ -15,7 +14,6 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sagebionetworks.bridge.BridgeUtils;
-import org.sagebionetworks.bridge.config.BridgeConfigFactory;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
 import org.sagebionetworks.bridge.exceptions.NotFoundException;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -31,7 +29,6 @@ import org.sagebionetworks.bridge.models.upload.Upload;
 import org.sagebionetworks.bridge.models.upload.UploadFieldDefinition;
 import org.sagebionetworks.bridge.models.upload.UploadFieldType;
 import org.sagebionetworks.bridge.models.upload.UploadSchema;
-import org.sagebionetworks.bridge.s3.S3Helper;
 import org.sagebionetworks.bridge.schema.SchemaUtils;
 import org.sagebionetworks.bridge.upload.StrictValidationHandler;
 import org.sagebionetworks.bridge.upload.TranscribeConsentHandler;
@@ -55,19 +52,16 @@ import org.sagebionetworks.bridge.validators.HealthDataRecordValidator;
 import org.sagebionetworks.bridge.validators.Validate;
 import org.springframework.validation.Validator;
 
-
 /** Service handler for health data APIs. */
 @Component
 public class HealthDataService {
     private static final int MAX_DATE_RANGE_DAYS = 15;
 
     // Package-scoped for unit tests.
-    static final String ATTACHMENT_BUCKET = BridgeConfigFactory.getConfig().getProperty("attachment.bucket");
     static final long CREATED_ON_OFFSET_MILLIS = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS);
     static final String RAW_ATTACHMENT_SUFFIX = "-raw.json";
 
     private HealthDataDao healthDataDao;
-    private S3Helper s3Helper;
     private SurveyService surveyService;
     private UploadSchemaService schemaService;
     private UploadFileHelper uploadFileHelper;
@@ -84,12 +78,6 @@ public class HealthDataService {
     @Autowired
     public final void setHealthDataDao(HealthDataDao healthDataDao) {
         this.healthDataDao = healthDataDao;
-    }
-
-    /** S3 Helper, used to submit raw JSON as an attachment. */
-    @Autowired
-    public void setS3Helper(S3Helper s3Helper) {
-        this.s3Helper = s3Helper;
     }
 
     /** Survey service, if we're submitting a survey response. */
@@ -190,11 +178,8 @@ public class HealthDataService {
         String rawDataValue = BridgeObjectMapper.get().writerWithDefaultPrettyPrinter().writeValueAsString(
                 healthDataSubmission.getData());
         byte[] rawDataBytes = rawDataValue.getBytes(Charsets.UTF_8);
-        
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
-        
-        s3Helper.writeBytesToS3(ATTACHMENT_BUCKET, rawDataAttachmentId, rawDataBytes, metadata);
+
+        uploadFileHelper.uploadBytesAsAttachment(rawDataAttachmentId, rawDataBytes);
 
         record.setRawDataAttachmentId(rawDataAttachmentId);
 
