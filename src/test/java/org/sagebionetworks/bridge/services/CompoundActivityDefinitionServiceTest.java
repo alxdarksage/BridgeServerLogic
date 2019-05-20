@@ -1,21 +1,21 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -42,7 +42,7 @@ public class CompoundActivityDefinitionServiceTest {
     private CompoundActivityDefinitionDao dao;
     private CompoundActivityDefinitionService service;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         dao = mock(CompoundActivityDefinitionDao.class);
         schedulePlanService = mock(SchedulePlanService.class);
@@ -69,10 +69,10 @@ public class CompoundActivityDefinitionServiceTest {
         // validate dao input - It's the same as the service input, but we also set the study ID.
         CompoundActivityDefinition daoInput = daoInputCaptor.getValue();
         assertSame(serviceInput, daoInput);
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, daoInput.getStudyId());
+        assertEquals(daoInput.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
 
         // Validate that the service result is the same as the dao result.
-        assertSame(daoResult, serviceResult);
+        assertSame(serviceResult, daoResult);
     }
 
     @Test
@@ -137,10 +137,10 @@ public class CompoundActivityDefinitionServiceTest {
             service.deleteCompoundActivityDefinition(TestConstants.TEST_STUDY, TASK_ID);
             fail("Shoud have thrown exception");
         } catch(ConstraintViolationException e) {
-            assertEquals("GGG", e.getReferrerKeys().get("guid"));
-            assertEquals("SchedulePlan", e.getReferrerKeys().get("type"));
-            assertEquals(TASK_ID, e.getEntityKeys().get("taskId"));
-            assertEquals("CompoundActivityDefinition", e.getEntityKeys().get("type"));
+            assertEquals(e.getReferrerKeys().get("guid"), "GGG");
+            assertEquals(e.getReferrerKeys().get("type"), "SchedulePlan");
+            assertEquals(e.getEntityKeys().get("taskId"), TASK_ID);
+            assertEquals(e.getEntityKeys().get("type"), "CompoundActivityDefinition");
         }
     }
 
@@ -150,7 +150,7 @@ public class CompoundActivityDefinitionServiceTest {
             service.deleteCompoundActivityDefinition(TestConstants.TEST_STUDY, taskId);
             fail("expected exception");
         } catch (BadRequestException ex) {
-            assertEquals("taskId must be specified", ex.getMessage());
+            assertEquals(ex.getMessage(), "taskId must be specified");
         }
 
         // verify dao is never called
@@ -181,7 +181,7 @@ public class CompoundActivityDefinitionServiceTest {
                 TestConstants.TEST_STUDY);
 
         // Validate that the service result is the same as the dao result.
-        assertSame(daoResultList, serviceResultList);
+        assertSame(serviceResultList, daoResultList);
     }
 
     // GET
@@ -197,7 +197,7 @@ public class CompoundActivityDefinitionServiceTest {
                 TASK_ID);
 
         // Validate that the service result is the same as the dao result.
-        assertSame(daoResult, serviceResult);
+        assertSame(serviceResult, daoResult);
     }
 
     @Test
@@ -221,7 +221,7 @@ public class CompoundActivityDefinitionServiceTest {
             service.getCompoundActivityDefinition(TestConstants.TEST_STUDY, taskId);
             fail("expected exception");
         } catch (BadRequestException ex) {
-            assertEquals("taskId must be specified", ex.getMessage());
+            assertEquals(ex.getMessage(), "taskId must be specified");
         }
 
         // verify dao is never called
@@ -245,12 +245,12 @@ public class CompoundActivityDefinitionServiceTest {
 
         // validate dao input - It's the same as the service input, but we also set the study ID.
         CompoundActivityDefinition daoInput = daoInputCaptor.getValue();
-        assertSame(serviceInput, daoInput);
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, daoInput.getStudyId());
-        assertEquals(TASK_ID, daoInput.getTaskId());
+        assertSame(daoInput, serviceInput);
+        assertEquals(daoInput.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(daoInput.getTaskId(), TASK_ID);
 
         // Validate that the service result is the same as the dao result.
-        assertSame(daoResult, serviceResult);
+        assertSame(serviceResult, daoResult);
     }
 
     @Test
@@ -293,7 +293,7 @@ public class CompoundActivityDefinitionServiceTest {
             service.updateCompoundActivityDefinition(TestConstants.TEST_STUDY, taskId, makeValidDef());
             fail("expected exception");
         } catch (BadRequestException ex) {
-            assertEquals("taskId must be specified", ex.getMessage());
+            assertEquals(ex.getMessage(), "taskId must be specified");
         }
 
         // verify dao is never called

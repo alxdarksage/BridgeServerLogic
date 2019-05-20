@@ -10,8 +10,8 @@ import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoSurvey;
@@ -52,7 +52,7 @@ public class SurveySaveValidatorTest {
 
     private SurveySaveValidator validator;
 
-    @Before
+    @BeforeMethod
     public void before() {
         
         survey = new TestSurvey(SurveySaveValidatorTest.class, true);

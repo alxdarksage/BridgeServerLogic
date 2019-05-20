@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -27,7 +27,7 @@ public class ConsentStatusTest {
     private static final DateTime TIMESTAMP = DateTime.now(DateTimeZone.UTC);
     private Map<SubpopulationGuid,ConsentStatus> statuses;
     
-    @Before
+    @BeforeMethod
     public void before() {
         statuses = Maps.newHashMap();
     }
@@ -47,16 +47,16 @@ public class ConsentStatusTest {
         String json = BridgeObjectMapper.get().writeValueAsString(status);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("Name", node.get("name").textValue());
-        assertEquals("GUID", node.get("subpopulationGuid").textValue());
+        assertEquals(node.get("name").textValue(), "Name");
+        assertEquals(node.get("subpopulationGuid").textValue(), "GUID");
         assertTrue(node.get("required").booleanValue());
         assertTrue(node.get("consented").booleanValue());
         assertTrue(node.get("signedMostRecentConsent").booleanValue());
-        assertEquals(TIMESTAMP.toString(), node.get("signedOn").textValue());
-        assertEquals("ConsentStatus", node.get("type").textValue());
+        assertEquals(node.get("signedOn").textValue(), TIMESTAMP.toString());
+        assertEquals(node.get("type").textValue(), "ConsentStatus");
         
         ConsentStatus status2 = BridgeObjectMapper.get().readValue(json, ConsentStatus.class);
-        assertEquals(status, status2);
+        assertEquals(status2, status);
     }
     
     @Test
@@ -81,7 +81,7 @@ public class ConsentStatusTest {
         statuses.put(subpop.getGuid(), status1);
         statuses.put(subpop.getGuid(), status2);
         
-        assertEquals(status2, statuses.get(subpop.getGuid()));
+        assertEquals(statuses.get(subpop.getGuid()), status2);
     }
     
     private void add(ConsentStatus status) {

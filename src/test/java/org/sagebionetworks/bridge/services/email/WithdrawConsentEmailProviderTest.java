@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.services.email;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
 import javax.mail.internet.MimeBodyPart;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.accounts.Account;
 import org.sagebionetworks.bridge.models.accounts.Withdrawal;
@@ -25,7 +25,7 @@ public class WithdrawConsentEmailProviderTest {
     private Study study;
     private Account account;
     
-    @Before
+    @BeforeMethod
     public void before() {
         study = mock(Study.class);
         
@@ -44,19 +44,20 @@ public class WithdrawConsentEmailProviderTest {
 
         provider = new WithdrawConsentEmailProvider(study, account, new Withdrawal(null), UNIX_TIMESTAMP);
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals(EmailType.WITHDRAW_CONSENT, email.getType());
+        assertEquals(email.getType(), EmailType.WITHDRAW_CONSENT);
         
         List<String> recipients = email.getRecipientAddresses();
-        assertEquals(1, recipients.size());
-        assertEquals("a@a.com", recipients.get(0));
+        assertEquals(recipients.size(), 1);
+        assertEquals(recipients.get(0), "a@a.com");
         
         String sender = email.getSenderAddress();
-        assertEquals("\"Study Name\" <c@c.com>", sender);
+        assertEquals(sender, "\"Study Name\" <c@c.com>");
         
-        assertEquals("Notification of consent withdrawal for Study Name", email.getSubject());
+        assertEquals(email.getSubject(), "Notification of consent withdrawal for Study Name");
         
         MimeBodyPart body = email.getMessageParts().get(0);
-        assertEquals("<p>User   &lt;d@d.com&gt; withdrew from the study on October 28, 2015. </p><p>Reason:</p><p><i>No reason given.</i></p>", body.getContent());
+        assertEquals(body.getContent(),
+                "<p>User   &lt;d@d.com&gt; withdrew from the study on October 28, 2015. </p><p>Reason:</p><p><i>No reason given.</i></p>");
     }
 
     @Test
@@ -70,20 +71,21 @@ public class WithdrawConsentEmailProviderTest {
 
         provider = new WithdrawConsentEmailProvider(study, account, WITHDRAWAL, UNIX_TIMESTAMP);
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals(EmailType.WITHDRAW_CONSENT, email.getType());
+        assertEquals(email.getType(), EmailType.WITHDRAW_CONSENT);
 
         List<String> recipients = email.getRecipientAddresses();
-        assertEquals(2, recipients.size());
-        assertEquals("a@a.com", recipients.get(0));
-        assertEquals("b@b.com", recipients.get(1));
+        assertEquals(recipients.size(), 2);
+        assertEquals(recipients.get(0), "a@a.com");
+        assertEquals(recipients.get(1), "b@b.com");
         
         String sender = email.getSenderAddress();
-        assertEquals("\"Study Name\" <c@c.com>", sender);
+        assertEquals(sender, "\"Study Name\" <c@c.com>");
         
-        assertEquals("Notification of consent withdrawal for Study Name", email.getSubject());
+        assertEquals(email.getSubject(), "Notification of consent withdrawal for Study Name");
         
         MimeBodyPart body = email.getMessageParts().get(0);
-        assertEquals("<p>User Jack Aubrey &lt;d@d.com&gt; withdrew from the study on October 28, 2015. </p><p>Reason:</p><p>Because, reasons.</p>", body.getContent());
+        assertEquals(body.getContent(),
+                "<p>User Jack Aubrey &lt;d@d.com&gt; withdrew from the study on October 28, 2015. </p><p>Reason:</p><p>Because, reasons.</p>");
     }
     
     @Test

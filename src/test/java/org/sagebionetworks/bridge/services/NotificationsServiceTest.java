@@ -3,9 +3,8 @@ package org.sagebionetworks.bridge.services;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestUtils.getNotificationMessage;
 import static org.sagebionetworks.bridge.TestUtils.getNotificationRegistration;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -16,13 +15,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.NotificationRegistrationDao;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
@@ -45,7 +44,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-@RunWith(MockitoJUnitRunner.class)
 public class NotificationsServiceTest {
     private static final StudyIdentifier STUDY_ID = new StudyIdentifierImpl("test-study");
     private static final String USER_ID = "user-id";
@@ -83,8 +81,10 @@ public class NotificationsServiceTest {
 
     private NotificationsService service;
 
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service = new NotificationsService();
         service.setNotificationTopicService(mockNotificationTopicService);
         service.setParticipantService(mockParticipantService);
@@ -107,7 +107,7 @@ public class NotificationsServiceTest {
         List<NotificationRegistration> result = service.listRegistrations(HEALTH_CODE);
         
         verify(mockRegistrationDao).listRegistrations(HEALTH_CODE);
-        assertEquals(list, result);
+        assertEquals(result, list);
     }
     
     @Test
@@ -117,7 +117,7 @@ public class NotificationsServiceTest {
         
         NotificationRegistration result = service.getRegistration(HEALTH_CODE, GUID);
         verify(mockRegistrationDao).getRegistration(HEALTH_CODE, GUID);
-        assertEquals(registration, result);
+        assertEquals(result, registration);
     }
     
     @Test
@@ -131,7 +131,7 @@ public class NotificationsServiceTest {
         // Execute and validate.
         NotificationRegistration result = service.createRegistration(STUDY_ID, DUMMY_CONTEXT, registration);
         verify(mockRegistrationDao).createPushNotificationRegistration(PLATFORM_ARN, registration);
-        assertEquals(registration, result);
+        assertEquals(result, registration);
 
         // We also manage criteria-based topics.
         verify(mockNotificationTopicService).manageCriteriaBasedSubscriptions(STUDY_ID, DUMMY_CONTEXT, HEALTH_CODE);
@@ -151,13 +151,13 @@ public class NotificationsServiceTest {
         // Execute and validate.
         NotificationRegistration result = service.createRegistration(STUDY_ID, DUMMY_CONTEXT, registration);
         verify(mockRegistrationDao).createRegistration(registration);
-        assertEquals(registration, result);
+        assertEquals(result, registration);
 
         // We also manage criteria-based topics.
         verify(mockNotificationTopicService).manageCriteriaBasedSubscriptions(STUDY_ID, DUMMY_CONTEXT, HEALTH_CODE);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createRegistration_SmsNotificationPhoneNotVerified() {
         // Mock participant DAO w/ unverified phone number.
         StudyParticipant participant = new StudyParticipant.Builder().withId(USER_ID).withPhone(TestConstants.PHONE)
@@ -168,7 +168,7 @@ public class NotificationsServiceTest {
         service.createRegistration(STUDY_ID, DUMMY_CONTEXT, getSmsNotificationRegistration());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createRegistration_SmsNotificationPhoneDoesNotMatch() {
         // Mock participant DAO w/ wrong phone number.
         StudyParticipant participant = new StudyParticipant.Builder().withId(USER_ID).withPhone(TestConstants.PHONE)
@@ -189,7 +189,7 @@ public class NotificationsServiceTest {
         
         NotificationRegistration result = service.updateRegistration(STUDY_ID, registration);
         verify(mockRegistrationDao).updateRegistration(registration);
-        assertEquals(registration, result);
+        assertEquals(result, registration);
     }
 
     @Test
@@ -231,7 +231,7 @@ public class NotificationsServiceTest {
         doReturn(registration).when(mockRegistrationDao).createPushNotificationRegistration(PLATFORM_ARN, registration);
 
         NotificationRegistration result = service.createRegistration(STUDY_ID, DUMMY_CONTEXT, registration);
-        assertEquals(OperatingSystem.IOS, result.getOsName());
+        assertEquals(result.getOsName(), OperatingSystem.IOS);
     }
     
     @Test
@@ -241,10 +241,10 @@ public class NotificationsServiceTest {
         doReturn(registration).when(mockRegistrationDao).updateRegistration(registration);
         
         NotificationRegistration result = service.updateRegistration(STUDY_ID, registration);
-        assertEquals(OperatingSystem.IOS, result.getOsName());
+        assertEquals(result.getOsName(), OperatingSystem.IOS);
     }
     
-    @Test(expected = NotImplementedException.class)
+    @Test(expectedExceptions = NotImplementedException.class)
     public void throwsUnimplementedExceptionIfPlatformHasNoARN() {
         NotificationRegistration registration = getNotificationRegistration();
         registration.setOsName(OperatingSystem.ANDROID);
@@ -268,9 +268,9 @@ public class NotificationsServiceTest {
         verify(mockSnsClient).publish(requestCaptor.capture());
         
         PublishRequest request = requestCaptor.getValue();
-        assertEquals(message.getSubject(), request.getSubject());
-        assertEquals(message.getMessage(), request.getMessage());
-        assertEquals("endpointARN", request.getTargetArn());
+        assertEquals(request.getSubject(), message.getSubject());
+        assertEquals(request.getMessage(), message.getMessage());
+        assertEquals(request.getTargetArn(), "endpointARN");
     }
     
     @Test
@@ -282,7 +282,7 @@ public class NotificationsServiceTest {
             service.sendNotificationToUser(STUDY_ID, HEALTH_CODE, message);
             fail("Should have thrown exception.");
         } catch(BadRequestException e) {
-            assertEquals("Participant has not registered to receive push notifications.", e.getMessage());
+            assertEquals(e.getMessage(), "Participant has not registered to receive push notifications.");
         }
     }
     
@@ -302,13 +302,13 @@ public class NotificationsServiceTest {
         
         NotificationMessage message = getNotificationMessage();
         Set<String> erroredNotifications = service.sendNotificationToUser(STUDY_ID, HEALTH_CODE, message);
-        assertEquals(1, erroredNotifications.size());
-        assertEquals("registrationGuid2", Iterables.getFirst(erroredNotifications, null));        
+        assertEquals(erroredNotifications.size(), 1);
+        assertEquals(Iterables.getFirst(erroredNotifications, null), "registrationGuid2");        
     }
     
     // Publish to two devices, where all the devices fail. This should throw an exception as nothing 
     // was successfully returned to the user.
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void sendNotificationAmazonExceptionConverted() {
         NotificationRegistration reg1 = getNotificationRegistration();
         NotificationRegistration reg2 = getNotificationRegistration();

@@ -1,9 +1,9 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
@@ -16,15 +16,15 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -50,7 +50,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AppConfigServiceTest {
     
     private static final List<AppConfig>  RESULTS = Lists.newArrayList();
@@ -108,8 +107,10 @@ public class AppConfigServiceTest {
 
     private Study study;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service.setAppConfigDao(mockDao);
         service.setStudyService(mockStudyService);
         service.setSurveyService(mockSurveyService);
@@ -136,7 +137,7 @@ public class AppConfigServiceTest {
         study.setIdentifier(TEST_STUDY.getIdentifier());
     }
     
-    @After
+    @AfterMethod
     public void after() {
         RESULTS.clear();
     }
@@ -181,7 +182,7 @@ public class AppConfigServiceTest {
         when(mockDao.getAppConfigs(TEST_STUDY, false)).thenReturn(RESULTS);
         
         List<AppConfig> results = service.getAppConfigs(TEST_STUDY, false);
-        assertEquals(RESULTS, results);
+        assertEquals(results, RESULTS);
         
         verify(mockDao).getAppConfigs(TEST_STUDY, false);
     }
@@ -209,10 +210,10 @@ public class AppConfigServiceTest {
         AppConfig appConfig2 = setupConfigsForUser();
         
         AppConfig match = service.getAppConfigForUser(context, true);
-        assertEquals(appConfig2, match);
+        assertEquals(match, appConfig2);
         
         // Verify that we called the resolver on this as well
-        assertEquals("theIdentifier", match.getSurveyReferences().get(0).getIdentifier());
+        assertEquals(match.getSurveyReferences().get(0).getIdentifier(), "theIdentifier");
     }
     
     @Test
@@ -247,16 +248,16 @@ public class AppConfigServiceTest {
         
         AppConfig match = service.getAppConfigForUser(context, true);
         
-        assertEquals(2, match.getConfigElements().size());
-        assertEquals(clientData1, match.getConfigElements().get("id1"));
-        assertEquals(clientData2, match.getConfigElements().get("id2"));
+        assertEquals(match.getConfigElements().size(), 2);
+        assertEquals(match.getConfigElements().get("id1"), clientData1);
+        assertEquals(match.getConfigElements().get("id2"), clientData2);
         
         // The references are still there. They list the versions being used
-        assertEquals(2, match.getConfigReferences().size());
-        assertEquals("id1", match.getConfigReferences().get(0).getId());
-        assertEquals(new Long(1), match.getConfigReferences().get(0).getRevision());
-        assertEquals("id2", match.getConfigReferences().get(1).getId());
-        assertEquals(new Long(2), match.getConfigReferences().get(1).getRevision());
+        assertEquals(match.getConfigReferences().size(), 2);
+        assertEquals(match.getConfigReferences().get(0).getId(), "id1");
+        assertEquals(match.getConfigReferences().get(0).getRevision(), new Long(1));
+        assertEquals(match.getConfigReferences().get(1).getId(), "id2");
+        assertEquals(match.getConfigReferences().get(1).getRevision(), new Long(2));
     }
     
     @Test
@@ -285,10 +286,10 @@ public class AppConfigServiceTest {
         
         AppConfig match = service.getAppConfigForUser(context, true);
         
-        assertEquals(1, match.getConfigElements().size());
+        assertEquals(match.getConfigElements().size(), 1);
         // id1 is not included but this does not prevent id2 from being included.
         assertNull(match.getConfigElements().get("id1"));
-        assertEquals(clientData2, match.getConfigElements().get("id2"));
+        assertEquals(match.getConfigElements().get("id2"), clientData2);
         
         verify(service).logError("AppConfig[guid=abc-def] references missing AppConfigElement[id=id1, revision=1]");
     }
@@ -315,7 +316,7 @@ public class AppConfigServiceTest {
         
         AppConfig appConfig = service.getAppConfigForUser(context, false);
 
-        assertEquals(appConfig2, appConfig);
+        assertEquals(appConfig, appConfig2);
     }
     
     // This should not actually ever happen. We're suppressing exceptions if the survey is missing.
@@ -328,9 +329,9 @@ public class AppConfigServiceTest {
         AppConfig appConfig2 = setupConfigsForUser();
         
         AppConfig match = service.getAppConfigForUser(context, true);
-        assertEquals(appConfig2, match);
+        assertEquals(match, appConfig2);
         
-        assertEquals(SURVEY_REF_LIST.get(0), match.getSurveyReferences().get(0));        
+        assertEquals(match.getSurveyReferences().get(0), SURVEY_REF_LIST.get(0));        
     }
     
     @Test
@@ -344,11 +345,11 @@ public class AppConfigServiceTest {
         
         AppConfig match = service.getAppConfigForUser(context, true);
         
-        assertEquals("anIdentifier", match.getSurveyReferences().get(0).getIdentifier());
+        assertEquals(match.getSurveyReferences().get(0).getIdentifier(), "anIdentifier");
         verify(mockSurveyService, never()).getSurvey(eq(TestConstants.TEST_STUDY), any(), eq(false), eq(true));
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getAppConfigForUserThrowsException() {
         CriteriaContext context = new CriteriaContext.Builder()
                 .withClientInfo(ClientInfo.fromUserAgentCache("app/21 (Motorola Flip-Phone; Android/14) BridgeJavaSDK/10"))
@@ -383,8 +384,8 @@ public class AppConfigServiceTest {
         
         setupConfigsForUser();
         AppConfig appConfig = service.getAppConfigForUser(context, true);
-        assertEquals(EARLIER_TIMESTAMP, appConfig.getCreatedOn());
-        assertEquals("theIdentifier", appConfig.getSurveyReferences().get(0).getIdentifier());
+        assertEquals(appConfig.getCreatedOn(), EARLIER_TIMESTAMP);
+        assertEquals(appConfig.getSurveyReferences().get(0).getIdentifier(), "theIdentifier");
     }
     
     @Test
@@ -404,22 +405,22 @@ public class AppConfigServiceTest {
         
         AppConfig returnValue = service.createAppConfig(TEST_STUDY, newConfig);
         
-        assertEquals(TIMESTAMP.getMillis(), returnValue.getCreatedOn());
-        assertEquals(TIMESTAMP.getMillis(), returnValue.getModifiedOn());
-        assertEquals(GUID, returnValue.getGuid());
-        assertEquals(newConfig.getLabel(), returnValue.getLabel()); //
-        assertEquals(TEST_STUDY.getIdentifier(), returnValue.getStudyId()); //
-        assertEquals(TestUtils.getClientData(), returnValue.getClientData());
-        assertEquals(SURVEY_REF_LIST, returnValue.getSurveyReferences());
-        assertEquals(SCHEMA_REF_LIST, returnValue.getSchemaReferences());
-        assertEquals(CONFIG_REF_LIST, returnValue.getConfigReferences());
+        assertEquals(returnValue.getCreatedOn(), TIMESTAMP.getMillis());
+        assertEquals(returnValue.getModifiedOn(), TIMESTAMP.getMillis());
+        assertEquals(returnValue.getGuid(), GUID);
+        assertEquals(returnValue.getLabel(), newConfig.getLabel()); //
+        assertEquals(returnValue.getStudyId(), TEST_STUDY.getIdentifier()); //
+        assertEquals(returnValue.getClientData(), TestUtils.getClientData());
+        assertEquals(returnValue.getSurveyReferences(), SURVEY_REF_LIST);
+        assertEquals(returnValue.getSchemaReferences(), SCHEMA_REF_LIST);
+        assertEquals(returnValue.getConfigReferences(), CONFIG_REF_LIST);
         
         verify(mockDao).createAppConfig(appConfigCaptor.capture());
         
         AppConfig captured = appConfigCaptor.getValue();
-        assertEquals(TIMESTAMP.getMillis(), captured.getCreatedOn());
-        assertEquals(TIMESTAMP.getMillis(), captured.getModifiedOn());
-        assertEquals(GUID, captured.getGuid());
+        assertEquals(captured.getCreatedOn(), TIMESTAMP.getMillis());
+        assertEquals(captured.getModifiedOn(), TIMESTAMP.getMillis());
+        assertEquals(captured.getGuid(), GUID);
         
         verify(substudyService).getSubstudyIds(TEST_STUDY);
     }
@@ -434,25 +435,25 @@ public class AppConfigServiceTest {
         oldConfig.setGuid(GUID);
         AppConfig returnValue = service.updateAppConfig(TEST_STUDY, oldConfig);
         
-        assertEquals(TIMESTAMP.getMillis(), returnValue.getCreatedOn());
-        assertEquals(TIMESTAMP.getMillis(), returnValue.getModifiedOn());
+        assertEquals(returnValue.getCreatedOn(), TIMESTAMP.getMillis());
+        assertEquals(returnValue.getModifiedOn(), TIMESTAMP.getMillis());
         
         verify(mockDao).updateAppConfig(appConfigCaptor.capture());
-        assertEquals(oldConfig, appConfigCaptor.getValue());
+        assertEquals(appConfigCaptor.getValue(), oldConfig);
         
         verify(substudyService).getSubstudyIds(TEST_STUDY);
 
-        assertEquals(returnValue, oldConfig);
+        assertEquals(oldConfig, returnValue);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void createAppConfigValidates() {
         when(mockStudyService.getStudy(TEST_STUDY)).thenReturn(study);
         
         service.createAppConfig(TEST_STUDY, AppConfig.create());
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void updateAppConfigValidates() {
         when(mockStudyService.getStudy(TEST_STUDY)).thenReturn(study);
         

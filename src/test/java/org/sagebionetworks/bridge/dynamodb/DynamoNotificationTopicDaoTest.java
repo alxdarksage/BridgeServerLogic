@@ -138,7 +138,7 @@ public class DynamoNotificationTopicDaoTest {
         assertTrue(captured.getCreatedOn() > 0);
         assertTrue(captured.getModifiedOn() > 0);
         // This was set by the methods. Can't be set by the caller.
-        assertNotEquals(getNotificationTopic().getGuid(), captured.getGuid());
+        assertNotEquals(captured.getGuid(), getNotificationTopic().getGuid());
 
         // This topic has no criteria.
         assertNull(captured.getCriteria());
@@ -415,7 +415,7 @@ public class DynamoNotificationTopicDaoTest {
         assertEquals(updated.getName(), "The updated name");
         assertEquals(updated.getDescription(), "The updated description");
         assertEquals(updated.getCreatedOn(), timestamp);
-        assertNotEquals(timestamp, updated.getModifiedOn());
+        assertNotEquals(updated.getModifiedOn(), timestamp);
         
         verify(mockMapper).save(topicCaptor.capture());
         NotificationTopic captured = topicCaptor.getValue();

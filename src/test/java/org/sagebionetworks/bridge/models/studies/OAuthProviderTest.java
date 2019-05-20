@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.models.studies;
 
-import static org.junit.Assert.assertEquals;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -23,17 +24,17 @@ public class OAuthProviderTest {
         OAuthProvider provider = new OAuthProvider("clientId", "secret", "endpoint", CALLBACK_URL);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(provider);
-        assertEquals("clientId", node.get("clientId").textValue());
-        assertEquals("secret", node.get("secret").textValue());
-        assertEquals("endpoint", node.get("endpoint").textValue());
-        assertEquals(CALLBACK_URL, node.get("callbackUrl").textValue());
-        assertEquals("OAuthProvider", node.get("type").textValue());
-        assertEquals(5, node.size());
+        assertEquals(node.get("clientId").textValue(), "clientId");
+        assertEquals(node.get("secret").textValue(), "secret");
+        assertEquals(node.get("endpoint").textValue(), "endpoint");
+        assertEquals(node.get("callbackUrl").textValue(), CALLBACK_URL);
+        assertEquals(node.get("type").textValue(), "OAuthProvider");
+        assertEquals(node.size(), 5);
         
         OAuthProvider deser = BridgeObjectMapper.get().readValue(node.toString(), OAuthProvider.class);
-        assertEquals("clientId", deser.getClientId());
-        assertEquals("secret", deser.getSecret());
-        assertEquals("endpoint", deser.getEndpoint());
-        assertEquals(CALLBACK_URL, deser.getCallbackUrl());
+        assertEquals(deser.getClientId(), "clientId");
+        assertEquals(deser.getSecret(), "secret");
+        assertEquals(deser.getEndpoint(), "endpoint");
+        assertEquals(deser.getCallbackUrl(), CALLBACK_URL);
     }
 }

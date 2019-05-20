@@ -1,10 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.eq;
@@ -13,14 +8,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dao.SchedulePlanDao;
@@ -55,7 +56,7 @@ public class SchedulePlanServiceMockTest {
     private SurveyService mockSurveyService;
     private SubstudyService mockSubstudyService;
     
-    @Before
+    @BeforeMethod
     public void before() {
         study = new DynamoStudy();
         study.setIdentifier(TEST_STUDY_IDENTIFIER);
@@ -94,9 +95,9 @@ public class SchedulePlanServiceMockTest {
         verify(mockSchedulePlanDao).createSchedulePlan(any(), spCaptor.capture());
         
         List<Activity> activities = spCaptor.getValue().getStrategy().getAllPossibleSchedules().get(0).getActivities();
-        assertEquals("identifier1", activities.get(0).getSurvey().getIdentifier());
+        assertEquals(activities.get(0).getSurvey().getIdentifier(), "identifier1");
         assertNotNull(activities.get(1).getTask());
-        assertEquals("identifier2", activities.get(2).getSurvey().getIdentifier());
+        assertEquals(activities.get(2).getSurvey().getIdentifier(), "identifier2");
     }
     
     @Test
@@ -114,9 +115,9 @@ public class SchedulePlanServiceMockTest {
         verify(mockSchedulePlanDao).updateSchedulePlan(any(), spCaptor.capture());
         
         List<Activity> activities = spCaptor.getValue().getStrategy().getAllPossibleSchedules().get(0).getActivities();
-        assertEquals("identifier1", activities.get(0).getSurvey().getIdentifier());
+        assertEquals(activities.get(0).getSurvey().getIdentifier(), "identifier1");
         assertNotNull(activities.get(1).getTask());
-        assertEquals("identifier2", activities.get(2).getSurvey().getIdentifier());
+        assertEquals(activities.get(2).getSurvey().getIdentifier(), "identifier2");
     }
 
     @Test
@@ -133,7 +134,7 @@ public class SchedulePlanServiceMockTest {
         // Verify that this was set.
         String identifier = plan.getStrategy().getAllPossibleSchedules().get(0).getActivities().get(0)
                 .getSurvey().getIdentifier();
-        assertEquals("junkIdentifier", identifier);
+        assertEquals(identifier, "junkIdentifier");
         
         ArgumentCaptor<SchedulePlan> spCaptor = ArgumentCaptor.forClass(SchedulePlan.class);
         when(mockSchedulePlanDao.updateSchedulePlan(any(), any())).thenReturn(plan);
@@ -147,7 +148,7 @@ public class SchedulePlanServiceMockTest {
         // It was not used.
         identifier = spCaptor.getValue().getStrategy().getAllPossibleSchedules().get(0).getActivities().get(0)
                 .getSurvey().getIdentifier();
-        assertNotEquals("junkIdentifier", identifier);
+        assertNotEquals(identifier, "junkIdentifier");
         
     }
     
@@ -169,8 +170,8 @@ public class SchedulePlanServiceMockTest {
         verify(mockSchedulePlanDao).createSchedulePlan(any(), spCaptor.capture());
         
         SchedulePlan updatedPlan = spCaptor.getValue();
-        assertNotEquals("AAA", updatedPlan.getGuid());
-        assertNotEquals(new Long(2L), updatedPlan.getVersion());
+        assertNotEquals(updatedPlan.getGuid(), "AAA");
+        assertNotEquals(updatedPlan.getVersion(), new Long(2L));
         for (Schedule schedule : plan.getStrategy().getAllPossibleSchedules()) {
             for (Activity activity : schedule.getActivities()) {
                 assertFalse( existingActivityGUIDs.contains(activity.getGuid()) );
@@ -186,7 +187,7 @@ public class SchedulePlanServiceMockTest {
         when(mockSchedulePlanDao.createSchedulePlan(any(), any())).thenReturn(plan);
         
         plan = service.createSchedulePlan(anotherStudy, plan);
-        assertEquals("another-study", plan.getStudyKey());
+        assertEquals(plan.getStudyKey(), "another-study");
     }
     
     @Test
@@ -198,7 +199,7 @@ public class SchedulePlanServiceMockTest {
         when(mockSchedulePlanDao.updateSchedulePlan(any(), any())).thenReturn(plan);
         
         plan = service.updateSchedulePlan(anotherStudy, plan);
-        assertEquals("another-study", plan.getStudyKey());
+        assertEquals(plan.getStudyKey(), "another-study");
     }
     
     @Test
@@ -209,9 +210,13 @@ public class SchedulePlanServiceMockTest {
             service.createSchedulePlan(study, plan);
             fail("Should have thrown exception");
         } catch(InvalidEntityException e) {
-            assertEquals("strategy.scheduleCriteria[0].schedule.activities[0].task.identifier 'DDD' is not in enumeration: taskGuid, CCC, tapTest", e.getErrors().get("strategy.scheduleCriteria[0].schedule.activities[0].task.identifier").get(0));
-            assertEquals("strategy.scheduleCriteria[0].criteria.allOfGroups 'FFF' is not in enumeration: AAA", e.getErrors().get("strategy.scheduleCriteria[0].criteria.allOfGroups").get(0));
-            assertEquals("strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds 'substudyD' is not in enumeration: <empty>", e.getErrors().get("strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds").get(0));
+            assertEquals(
+                    e.getErrors().get("strategy.scheduleCriteria[0].schedule.activities[0].task.identifier").get(0),
+                    "strategy.scheduleCriteria[0].schedule.activities[0].task.identifier 'DDD' is not in enumeration: taskGuid, CCC, tapTest");
+            assertEquals(e.getErrors().get("strategy.scheduleCriteria[0].criteria.allOfGroups").get(0),
+                    "strategy.scheduleCriteria[0].criteria.allOfGroups 'FFF' is not in enumeration: AAA");
+            assertEquals(e.getErrors().get("strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds").get(0),
+                    "strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds 'substudyD' is not in enumeration: <empty>");
         }
     }
 
@@ -224,9 +229,13 @@ public class SchedulePlanServiceMockTest {
             service.updateSchedulePlan(study, plan);
             fail("Should have thrown exception");
         } catch(InvalidEntityException e) {
-            assertEquals("strategy.scheduleCriteria[0].schedule.activities[0].task.identifier 'DDD' is not in enumeration: taskGuid, CCC, tapTest", e.getErrors().get("strategy.scheduleCriteria[0].schedule.activities[0].task.identifier").get(0));
-            assertEquals("strategy.scheduleCriteria[0].criteria.allOfGroups 'FFF' is not in enumeration: AAA", e.getErrors().get("strategy.scheduleCriteria[0].criteria.allOfGroups").get(0));
-            assertEquals("strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds 'substudyD' is not in enumeration: <empty>", e.getErrors().get("strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds").get(0));
+            assertEquals(
+                    e.getErrors().get("strategy.scheduleCriteria[0].schedule.activities[0].task.identifier").get(0),
+                    "strategy.scheduleCriteria[0].schedule.activities[0].task.identifier 'DDD' is not in enumeration: taskGuid, CCC, tapTest");
+            assertEquals(e.getErrors().get("strategy.scheduleCriteria[0].criteria.allOfGroups").get(0),
+                    "strategy.scheduleCriteria[0].criteria.allOfGroups 'FFF' is not in enumeration: AAA");
+            assertEquals(e.getErrors().get("strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds").get(0),
+                    "strategy.scheduleCriteria[0].criteria.noneOfSubstudyIds 'substudyD' is not in enumeration: <empty>");
         }
     }
     
@@ -236,7 +245,7 @@ public class SchedulePlanServiceMockTest {
         when(mockSchedulePlanDao.getSchedulePlans(ClientInfo.UNKNOWN_CLIENT, TestConstants.TEST_STUDY, false)).thenReturn(plans);
         
         List<SchedulePlan> returned = service.getSchedulePlans(ClientInfo.UNKNOWN_CLIENT, TestConstants.TEST_STUDY, false);
-        assertEquals(plans, returned);
+        assertEquals(returned, plans);
         
         verify(mockSchedulePlanDao).getSchedulePlans(ClientInfo.UNKNOWN_CLIENT, TestConstants.TEST_STUDY, false);
     }
@@ -247,7 +256,7 @@ public class SchedulePlanServiceMockTest {
         when(mockSchedulePlanDao.getSchedulePlans(ClientInfo.UNKNOWN_CLIENT, TestConstants.TEST_STUDY, true)).thenReturn(plans);
         
         List<SchedulePlan> returned = service.getSchedulePlans(ClientInfo.UNKNOWN_CLIENT, TestConstants.TEST_STUDY, true);
-        assertEquals(plans, returned);
+        assertEquals(returned, plans);
         
         verify(mockSchedulePlanDao).getSchedulePlans(ClientInfo.UNKNOWN_CLIENT, TestConstants.TEST_STUDY, true);
     }

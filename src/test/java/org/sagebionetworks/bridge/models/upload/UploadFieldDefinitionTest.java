@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.models.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,8 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.json.JsonUtils;
@@ -21,27 +22,27 @@ public class UploadFieldDefinitionTest {
     public void testBuilder() {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("test-field")
                 .withType(UploadFieldType.ATTACHMENT_BLOB).build();
-        assertEquals("test-field", fieldDef.getName());
+        assertEquals(fieldDef.getName(), "test-field");
         assertTrue(fieldDef.isRequired());
-        assertEquals(UploadFieldType.ATTACHMENT_BLOB, fieldDef.getType());
+        assertEquals(fieldDef.getType(), UploadFieldType.ATTACHMENT_BLOB);
     }
 
     @Test
     public void testRequiredTrue() {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("test-field")
                 .withRequired(true).withType(UploadFieldType.ATTACHMENT_BLOB).build();
-        assertEquals("test-field", fieldDef.getName());
+        assertEquals(fieldDef.getName(), "test-field");
         assertTrue(fieldDef.isRequired());
-        assertEquals(UploadFieldType.ATTACHMENT_BLOB, fieldDef.getType());
+        assertEquals(fieldDef.getType(), UploadFieldType.ATTACHMENT_BLOB);
     }
 
     @Test
     public void testRequiredFalse() {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("test-field")
                 .withRequired(false).withType(UploadFieldType.ATTACHMENT_BLOB).build();
-        assertEquals("test-field", fieldDef.getName());
+        assertEquals(fieldDef.getName(), "test-field");
         assertFalse(fieldDef.isRequired());
-        assertEquals(UploadFieldType.ATTACHMENT_BLOB, fieldDef.getType());
+        assertEquals(fieldDef.getType(), UploadFieldType.ATTACHMENT_BLOB);
     }
 
     @Test
@@ -55,18 +56,18 @@ public class UploadFieldDefinitionTest {
         List<String> expectedAnswerList = ImmutableList.of("first", "second");
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("multi-choice-field")
                 .withType(UploadFieldType.MULTI_CHOICE).withMultiChoiceAnswerList(originalAnswerList).build();
-        assertEquals(expectedAnswerList, fieldDef.getMultiChoiceAnswerList());
+        assertEquals(fieldDef.getMultiChoiceAnswerList(), expectedAnswerList);
 
         // modify original list, verify that field def stays the same
         originalAnswerList.add("third");
-        assertEquals(expectedAnswerList, fieldDef.getMultiChoiceAnswerList());
+        assertEquals(fieldDef.getMultiChoiceAnswerList(), expectedAnswerList);
     }
 
     @Test
     public void testMultiChoiceAnswerVarargs() {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("multi-choice-field")
                 .withType(UploadFieldType.MULTI_CHOICE).withMultiChoiceAnswerList("aa", "bb", "cc").build();
-        assertEquals(ImmutableList.of("aa", "bb", "cc"), fieldDef.getMultiChoiceAnswerList());
+        assertEquals(fieldDef.getMultiChoiceAnswerList(), ImmutableList.of("aa", "bb", "cc"));
     }
 
     @Test
@@ -92,18 +93,18 @@ public class UploadFieldDefinitionTest {
                 .withMaxLength(128).withMultiChoiceAnswerList(multiChoiceAnswerList).withName("optional-stuff")
                 .withRequired(false).withType(UploadFieldType.STRING).withUnboundedText(true).build();
         assertTrue(fieldDef.getAllowOtherChoices());
-        assertEquals(".test", fieldDef.getFileExtension());
-        assertEquals("text/plain", fieldDef.getMimeType());
-        assertEquals(128, fieldDef.getMaxLength().intValue());
-        assertEquals(multiChoiceAnswerList, fieldDef.getMultiChoiceAnswerList());
-        assertEquals("optional-stuff", fieldDef.getName());
+        assertEquals(fieldDef.getFileExtension(), ".test");
+        assertEquals(fieldDef.getMimeType(), "text/plain");
+        assertEquals(fieldDef.getMaxLength().intValue(), 128);
+        assertEquals(fieldDef.getMultiChoiceAnswerList(), multiChoiceAnswerList);
+        assertEquals(fieldDef.getName(), "optional-stuff");
         assertFalse(fieldDef.isRequired());
-        assertEquals(UploadFieldType.STRING, fieldDef.getType());
+        assertEquals(fieldDef.getType(), UploadFieldType.STRING);
         assertTrue(fieldDef.isUnboundedText());
 
         // Also test copy constructor.
         UploadFieldDefinition copy = new UploadFieldDefinition.Builder().copyOf(fieldDef).build();
-        assertEquals(fieldDef, copy);
+        assertEquals(copy, fieldDef);
     }
 
     @Test
@@ -125,13 +126,13 @@ public class UploadFieldDefinitionTest {
         List<String> expectedMultiChoiceAnswerList = ImmutableList.of("asdf", "jkl");
         UploadFieldDefinition fieldDef = BridgeObjectMapper.get().readValue(jsonText, UploadFieldDefinition.class);
         assertTrue(fieldDef.getAllowOtherChoices());
-        assertEquals(".json", fieldDef.getFileExtension());
-        assertEquals("text/json", fieldDef.getMimeType());
-        assertEquals(24, fieldDef.getMaxLength().intValue());
-        assertEquals(expectedMultiChoiceAnswerList, fieldDef.getMultiChoiceAnswerList());
-        assertEquals("test-field", fieldDef.getName());
+        assertEquals(fieldDef.getFileExtension(), ".json");
+        assertEquals(fieldDef.getMimeType(), "text/json");
+        assertEquals(fieldDef.getMaxLength().intValue(), 24);
+        assertEquals(fieldDef.getMultiChoiceAnswerList(), expectedMultiChoiceAnswerList);
+        assertEquals(fieldDef.getName(), "test-field");
         assertFalse(fieldDef.isRequired());
-        assertEquals(UploadFieldType.INT, fieldDef.getType());
+        assertEquals(fieldDef.getType(), UploadFieldType.INT);
         assertTrue(fieldDef.isUnboundedText());
 
         // convert back to JSON
@@ -139,15 +140,15 @@ public class UploadFieldDefinitionTest {
 
         // then convert to a map so we can validate the raw JSON
         Map<String, Object> jsonMap = BridgeObjectMapper.get().readValue(convertedJson, JsonUtils.TYPE_REF_RAW_MAP);
-        assertEquals(9, jsonMap.size());
+        assertEquals(jsonMap.size(), 9);
         assertTrue((boolean) jsonMap.get("allowOtherChoices"));
-        assertEquals(".json", jsonMap.get("fileExtension"));
-        assertEquals("text/json", jsonMap.get("mimeType"));
-        assertEquals(24, jsonMap.get("maxLength"));
-        assertEquals(expectedMultiChoiceAnswerList, jsonMap.get("multiChoiceAnswerList"));
-        assertEquals("test-field", jsonMap.get("name"));
+        assertEquals(jsonMap.get("fileExtension"), ".json");
+        assertEquals(jsonMap.get("mimeType"), "text/json");
+        assertEquals(jsonMap.get("maxLength"), 24);
+        assertEquals(jsonMap.get("multiChoiceAnswerList"), expectedMultiChoiceAnswerList);
+        assertEquals(jsonMap.get("name"), "test-field");
         assertFalse((boolean) jsonMap.get("required"));
-        assertEquals("int", jsonMap.get("type"));
+        assertEquals(jsonMap.get("type"), "int");
         assertTrue((boolean) jsonMap.get("unboundedText"));
     }
 

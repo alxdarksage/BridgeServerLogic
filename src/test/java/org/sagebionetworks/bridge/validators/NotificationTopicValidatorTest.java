@@ -2,9 +2,9 @@ package org.sagebionetworks.bridge.validators;
 
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.validation.Validator;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.notifications.NotificationTopic;
 
@@ -14,7 +14,7 @@ public class NotificationTopicValidatorTest {
     
     private NotificationTopic topic;
     
-    @Before
+    @BeforeMethod
     public void before() {
         topic = NotificationTopic.create();
         topic.setGuid("ABC-DEF");

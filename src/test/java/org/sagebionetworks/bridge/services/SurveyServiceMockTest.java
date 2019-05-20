@@ -1,12 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
@@ -17,6 +10,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.services.SharedModuleMetadataServiceTest.makeValidMetadata;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
@@ -25,13 +25,13 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dao.SurveyDao;
@@ -60,7 +60,6 @@ import org.sagebionetworks.bridge.models.surveys.SurveyInfoScreen;
 import org.sagebionetworks.bridge.models.surveys.TestSurvey;
 import org.sagebionetworks.bridge.validators.SurveyPublishValidator;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SurveyServiceMockTest {
 
     private static final StudyIdentifier OTHER_STUDY = new StudyIdentifierImpl("other-study");
@@ -99,8 +98,9 @@ public class SurveyServiceMockTest {
     
     SurveyService service;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         // Mock dependencies.
         when(mockStudyService.getStudy(TestConstants.TEST_STUDY_IDENTIFIER)).thenReturn(TestUtils.getValidStudy(
                 SurveyServiceMockTest.class));
@@ -123,7 +123,7 @@ public class SurveyServiceMockTest {
 
         // Execute and verify.
         Survey returnedSurvey = service.createSurvey(survey);
-        assertSame(survey, returnedSurvey);
+        assertSame(returnedSurvey, survey);
         assertNotNull(survey.getGuid());
         assertFalse(survey.getElements().isEmpty());
 
@@ -135,7 +135,7 @@ public class SurveyServiceMockTest {
         verify(mockSurveyDao).createSurvey(survey);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void createSurvey_InvalidSurvey() {
         // Create invalid survey. A survey without an identifier is invalid.
         Survey survey = makeSurveyWithElements();
@@ -158,10 +158,10 @@ public class SurveyServiceMockTest {
             service.createSurvey(survey);
             fail("expected exception");
         } catch (EntityAlreadyExistsException ex) {
-            assertEquals("Survey", ex.getEntityClass());
-            assertEquals("Survey identifier " + SURVEY_ID + " is already used by survey " + SURVEY_GUID,
-                    ex.getMessage());
-            assertEquals(SURVEY_ID, ex.getEntityKeys().get(SurveyService.KEY_IDENTIFIER));
+            assertEquals(ex.getEntityClass(), "Survey");
+            assertEquals(ex.getMessage(),
+                    "Survey identifier " + SURVEY_ID + " is already used by survey " + SURVEY_GUID);
+            assertEquals(ex.getEntityKeys().get(SurveyService.KEY_IDENTIFIER), SURVEY_ID);
         }
 
         // Verify DAO.
@@ -206,10 +206,10 @@ public class SurveyServiceMockTest {
 
         // execute and validate
         Survey retval = service.publishSurvey(TEST_STUDY, SURVEY_KEYS, true);
-        assertSame(survey, retval);
+        assertSame(retval, survey);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void publishSurveyDeleted() {
         
         Survey survey = new DynamoSurvey();
@@ -219,7 +219,7 @@ public class SurveyServiceMockTest {
         service.publishSurvey(TEST_STUDY, SURVEY_KEYS, true);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void publishSurveyDoesNotExist() {
         when(mockSurveyDao.getSurvey(SURVEY_KEYS, true)).thenReturn(null);
         
@@ -245,13 +245,13 @@ public class SurveyServiceMockTest {
                 paramsCaptor.capture(), eq(null), eq(true));
 
         String queryStr = queryCaptor.getValue();
-        assertEquals("surveyGuid=:surveyGuid AND surveyCreatedOn=:surveyCreatedOn", queryStr);
+        assertEquals(queryStr, "surveyGuid=:surveyGuid AND surveyCreatedOn=:surveyCreatedOn");
 
-        assertEquals(survey.getGuid(), paramsCaptor.getValue().get("surveyGuid"));
-        assertEquals(survey.getCreatedOn(), paramsCaptor.getValue().get("surveyCreatedOn"));        
+        assertEquals(paramsCaptor.getValue().get("surveyGuid"), survey.getGuid());
+        assertEquals(paramsCaptor.getValue().get("surveyCreatedOn"), survey.getCreatedOn());        
         
         verify(mockSurveyDao).deleteSurvey(surveyCaptor.capture());
-        assertEquals(survey, surveyCaptor.getValue());
+        assertEquals(surveyCaptor.getValue(), survey);
     }
     
     @Test
@@ -274,15 +274,15 @@ public class SurveyServiceMockTest {
                 paramsCaptor.capture(), eq(null), eq(true));
 
         String queryStr = queryCaptor.getValue();
-        assertEquals("surveyGuid=:surveyGuid AND surveyCreatedOn=:surveyCreatedOn", queryStr);
-        assertEquals(survey.getGuid(), paramsCaptor.getValue().get("surveyGuid"));
-        assertEquals(survey.getCreatedOn(), paramsCaptor.getValue().get("surveyCreatedOn"));
+        assertEquals(queryStr, "surveyGuid=:surveyGuid AND surveyCreatedOn=:surveyCreatedOn");
+        assertEquals(paramsCaptor.getValue().get("surveyGuid"), survey.getGuid());
+        assertEquals(paramsCaptor.getValue().get("surveyCreatedOn"), survey.getCreatedOn());
         
         verify(mockSurveyDao).deleteSurveyPermanently(keysCaptor.capture());
-        assertEquals(survey, keysCaptor.getValue());
+        assertEquals(keysCaptor.getValue(), survey);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void logicallyDeleteSurveyNotEmptySharedModules() {
         when(mockSharedModuleMetadataService.queryAllMetadata(anyBoolean(), anyBoolean(), anyString(), any(),
                 any(), anyBoolean())).thenReturn(ImmutableList.of(makeValidMetadata()));
@@ -293,7 +293,7 @@ public class SurveyServiceMockTest {
         service.deleteSurvey(TestConstants.TEST_STUDY, survey);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void physicallyDeleteSurveyNotEmptySharedModules() {
         when(mockSharedModuleMetadataService.queryAllMetadata(anyBoolean(), anyBoolean(), anyString(), any(),
                 any(), anyBoolean())).thenReturn(ImmutableList.of(makeValidMetadata()));
@@ -357,11 +357,11 @@ public class SurveyServiceMockTest {
             fail("Should have thrown exception");
         } catch(ConstraintViolationException e) {
             assertTrue(e.getMessage().contains("Cannot delete survey: it is referenced by a schedule plan that is still accessible through the API"));
-            assertEquals(SCHEDULE_PLAN_GUID, e.getReferrerKeys().get("guid"));
-            assertEquals("SchedulePlan", e.getReferrerKeys().get("type"));
-            assertEquals(SURVEY_GUID, e.getEntityKeys().get("guid"));
-            assertEquals(SURVEY_CREATED_ON.toString(), e.getEntityKeys().get("createdOn"));
-            assertEquals("Survey", e.getEntityKeys().get("type"));
+            assertEquals(e.getReferrerKeys().get("guid"), SCHEDULE_PLAN_GUID);
+            assertEquals(e.getReferrerKeys().get("type"), "SchedulePlan");
+            assertEquals(e.getEntityKeys().get("guid"), SURVEY_GUID);
+            assertEquals(e.getEntityKeys().get("createdOn"), SURVEY_CREATED_ON.toString());
+            assertEquals(e.getEntityKeys().get("type"), "Survey");
         }
     }
     
@@ -383,11 +383,11 @@ public class SurveyServiceMockTest {
             fail("Should have thrown exception");
         } catch(ConstraintViolationException e) {
             assertTrue(e.getMessage().contains("Cannot delete survey: it is referenced by a schedule plan that is still accessible through the API"));
-            assertEquals(SCHEDULE_PLAN_GUID, e.getReferrerKeys().get("guid"));
-            assertEquals("SchedulePlan", e.getReferrerKeys().get("type"));
-            assertEquals(SURVEY_GUID, e.getEntityKeys().get("guid"));
-            assertEquals(SURVEY_CREATED_ON.toString(), e.getEntityKeys().get("createdOn"));
-            assertEquals("Survey", e.getEntityKeys().get("type"));
+            assertEquals(e.getReferrerKeys().get("guid"), SCHEDULE_PLAN_GUID);
+            assertEquals(e.getReferrerKeys().get("type"), "SchedulePlan");
+            assertEquals(e.getEntityKeys().get("guid"), SURVEY_GUID);
+            assertEquals(e.getEntityKeys().get("createdOn"), SURVEY_CREATED_ON.toString());
+            assertEquals(e.getEntityKeys().get("type"), "Survey");
         }
     }
 
@@ -407,11 +407,11 @@ public class SurveyServiceMockTest {
             fail("Should have thrown exception");
         } catch(ConstraintViolationException e) {
             assertTrue(e.getMessage().contains("Cannot delete survey: it is referenced by a schedule plan that is still accessible through the API"));
-            assertEquals(SCHEDULE_PLAN_GUID, e.getReferrerKeys().get("guid"));
-            assertEquals("SchedulePlan", e.getReferrerKeys().get("type"));
-            assertEquals(SURVEY_GUID, e.getEntityKeys().get("guid"));
-            assertEquals(SURVEY_CREATED_ON.toString(), e.getEntityKeys().get("createdOn"));
-            assertEquals("Survey", e.getEntityKeys().get("type"));
+            assertEquals(e.getReferrerKeys().get("guid"), SCHEDULE_PLAN_GUID);
+            assertEquals(e.getReferrerKeys().get("type"), "SchedulePlan");
+            assertEquals(e.getEntityKeys().get("guid"), SURVEY_GUID);
+            assertEquals(e.getEntityKeys().get("createdOn"), SURVEY_CREATED_ON.toString());
+            assertEquals(e.getEntityKeys().get("type"), "Survey");
         }
     }
     
@@ -461,11 +461,11 @@ public class SurveyServiceMockTest {
             fail("Should have thrown exception");
         } catch(ConstraintViolationException e) {
             assertTrue(e.getMessage().contains("Cannot delete survey: it is referenced by a schedule plan that is still accessible through the API"));
-            assertEquals(SCHEDULE_PLAN_GUID, e.getReferrerKeys().get("guid"));
-            assertEquals("SchedulePlan", e.getReferrerKeys().get("type"));
-            assertEquals(SURVEY_GUID, e.getEntityKeys().get("guid"));
-            assertEquals(SURVEY_CREATED_ON.toString(), e.getEntityKeys().get("createdOn"));
-            assertEquals("Survey", e.getEntityKeys().get("type"));
+            assertEquals(e.getReferrerKeys().get("guid"), SCHEDULE_PLAN_GUID);
+            assertEquals(e.getReferrerKeys().get("type"), "SchedulePlan");
+            assertEquals(e.getEntityKeys().get("guid"), SURVEY_GUID);
+            assertEquals(e.getEntityKeys().get("createdOn"), SURVEY_CREATED_ON.toString());
+            assertEquals(e.getEntityKeys().get("type"), "Survey");
         }
     }
     
@@ -487,11 +487,11 @@ public class SurveyServiceMockTest {
             fail("Should have thrown exception");
         } catch(ConstraintViolationException e) {
             assertTrue(e.getMessage().contains("Cannot delete survey: it is referenced by a schedule plan that is still accessible through the API"));
-            assertEquals(SCHEDULE_PLAN_GUID, e.getReferrerKeys().get("guid"));
-            assertEquals("SchedulePlan", e.getReferrerKeys().get("type"));
-            assertEquals(SURVEY_GUID, e.getEntityKeys().get("guid"));
-            assertEquals(SURVEY_CREATED_ON.toString(), e.getEntityKeys().get("createdOn"));
-            assertEquals("Survey", e.getEntityKeys().get("type"));
+            assertEquals(e.getReferrerKeys().get("guid"), SCHEDULE_PLAN_GUID);
+            assertEquals(e.getReferrerKeys().get("type"), "SchedulePlan");
+            assertEquals(e.getEntityKeys().get("guid"), SURVEY_GUID);
+            assertEquals(e.getEntityKeys().get("createdOn"), SURVEY_CREATED_ON.toString());
+            assertEquals(e.getEntityKeys().get("type"), "Survey");
         }
     }
     
@@ -507,7 +507,7 @@ public class SurveyServiceMockTest {
         service.deleteSurveyPermanently(TEST_STUDY, survey);
     }   
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateSurveyFailsOnDeletedSurvey() throws Exception {
         Survey existing = Survey.create();
         existing.setDeleted(true);
@@ -520,7 +520,7 @@ public class SurveyServiceMockTest {
         service.updateSurvey(TestConstants.TEST_STUDY, update);
     }
     
-    @Test(expected=EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateSurveyFailsOnMissingSurvey() throws Exception {
         when(mockSurveyDao.getSurvey(any(), anyBoolean())).thenReturn(null);
         
@@ -530,7 +530,7 @@ public class SurveyServiceMockTest {
         service.updateSurvey(TestConstants.TEST_STUDY, update);
     }
     
-    @Test(expected = PublishedSurveyException.class)
+    @Test(expectedExceptions = PublishedSurveyException.class)
     public void updateSurveyAlreadyPublishedThrowsException() {
         Survey existing = Survey.create();
         existing.setStudyIdentifier(TestConstants.TEST_STUDY_IDENTIFIER);
@@ -566,7 +566,7 @@ public class SurveyServiceMockTest {
         assertFalse(surveyCaptor.getValue().isDeleted());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void versionSurveyFailsOnDeletedSurvey() throws Exception {
         Survey survey = Survey.create();
         survey.setDeleted(true);
@@ -576,26 +576,26 @@ public class SurveyServiceMockTest {
         service.versionSurvey(TestConstants.TEST_STUDY, SURVEY_KEYS);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void versionSurveyFailsOnMissingSurvey() throws Exception {
         when(mockSurveyDao.getSurvey(any(), eq(false))).thenReturn(null);
         
         service.versionSurvey(TestConstants.TEST_STUDY, SURVEY_KEYS);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteSurveyPermanentlyFailsOnMissingSurvey() {
         when(mockSurveyDao.getSurvey(any(), eq(false))).thenReturn(null);
         
         service.deleteSurveyPermanently(TEST_STUDY, SURVEY_KEYS);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyAllVersionsThrowsException() {
         service.getSurveyAllVersions(TestConstants.TEST_STUDY, "GUID", true);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyInOtherStudyThrowsException() {
         Survey survey = Survey.create();
         survey.setStudyIdentifier(TestConstants.TEST_STUDY_IDENTIFIER);
@@ -616,7 +616,7 @@ public class SurveyServiceMockTest {
         verify(mockSurveyDao).getSurvey(SURVEY_KEYS, false);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyThrowsException() {
         service.getSurvey(TestConstants.TEST_STUDY, SURVEY_KEYS, false, true);
     }
@@ -700,7 +700,7 @@ public class SurveyServiceMockTest {
         verify(mockSurveyDao, never()).deleteSurveyPermanently(any());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyMostRecentlyPublishedVersionInOtherStudy() {
         Survey survey = Survey.create();
         survey.setStudyIdentifier(TestConstants.TEST_STUDY_IDENTIFIER);
@@ -720,12 +720,12 @@ public class SurveyServiceMockTest {
         service.getSurvey(null, SURVEY_KEYS, true, true);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyMostRecentlyPublishedVersionMissingSurvey() {
         service.getSurveyMostRecentlyPublishedVersion(OTHER_STUDY, SURVEY_GUID, true);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyMostRecentVersionInOtherStudy() {
         Survey survey = Survey.create();
         survey.setStudyIdentifier(TestConstants.TEST_STUDY_IDENTIFIER);
@@ -734,7 +734,7 @@ public class SurveyServiceMockTest {
         service.getSurveyMostRecentVersion(OTHER_STUDY, SURVEY_GUID);    
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyMostRecentVersionMissingSurvey() {
         service.getSurveyMostRecentVersion(OTHER_STUDY, SURVEY_GUID);    
     }

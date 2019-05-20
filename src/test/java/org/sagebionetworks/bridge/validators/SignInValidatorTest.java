@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.validators;
 
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
-import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
+import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.accounts.Phone;

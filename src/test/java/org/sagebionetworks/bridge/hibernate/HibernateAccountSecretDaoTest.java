@@ -77,7 +77,7 @@ public class HibernateAccountSecretDaoTest {
         AccountSecret secret = secretCaptor.getValue();
         assertEquals(secret.getAccountId(), ACCOUNT_ID);
         assertEquals(secret.getAlgorithm(), PasswordAlgorithm.DEFAULT_PASSWORD_ALGORITHM);
-        assertNotEquals(TOKEN, secret.getHash());
+        assertNotEquals(secret.getHash(), TOKEN);
         assertEquals(secret.getType(), AccountSecretType.REAUTH);
         assertEquals(secret.getCreatedOn(), CREATED_ON);
     }

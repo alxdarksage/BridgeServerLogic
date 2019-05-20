@@ -177,7 +177,7 @@ public class DynamoUploadDaoMockTest {
 
         // execute
         Upload retVal = dao.getUpload("test-get-upload");
-        assertSame(upload, retVal);
+        assertSame(retVal, upload);
 
         // validate we passed in the expected key
         assertEquals(uploadCaptor.getValue().getUploadId(), "test-get-upload");

@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashMap;
 
@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import org.joda.time.DateTime;
-import org.junit.Test;
 import org.springframework.validation.MapBindingResult;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.healthdata.HealthDataSubmission;

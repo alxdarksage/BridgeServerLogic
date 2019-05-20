@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.models.Criteria;

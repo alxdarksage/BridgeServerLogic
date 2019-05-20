@@ -1,7 +1,7 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -15,8 +15,8 @@ import java.io.InputStream;
 import com.google.common.base.Charsets;
 
 import com.google.common.io.ByteStreams;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoStudy;
@@ -58,12 +58,12 @@ public class DecryptHandlerTest {
         // execute and validate
         handler.handle(ctx);
         byte[] decryptedContent = fileHelper.getBytes(ctx.getDecryptedDataFile());
-        assertEquals("decrypted test data", new String(decryptedContent, Charsets.UTF_8));
+        assertEquals(new String(decryptedContent, Charsets.UTF_8), "decrypted test data");
 
         // Verify the correct file data was passed into the decryptor.
         ArgumentCaptor<InputStream> encryptedInputStreamCaptor = ArgumentCaptor.forClass(InputStream.class);
         verify(mockSvc).decrypt(eq(study.getIdentifier()), encryptedInputStreamCaptor.capture());
         InputStream encryptedInputStream = encryptedInputStreamCaptor.getValue();
-        assertArrayEquals(dataFileContent, ByteStreams.toByteArray(encryptedInputStream));
+        assertArrayEquals(ByteStreams.toByteArray(encryptedInputStream), dataFileContent);
     }
 }

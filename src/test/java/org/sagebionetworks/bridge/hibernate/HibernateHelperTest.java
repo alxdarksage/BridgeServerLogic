@@ -130,7 +130,7 @@ public class HibernateHelperTest {
             helper.create(testObj, null);
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, testObj);
     }
@@ -154,7 +154,7 @@ public class HibernateHelperTest {
 
         // execute and validate
         Object helperOutput = helper.getById(Object.class, "test-id");
-        assertSame(hibernateOutput, helperOutput);
+        assertSame(helperOutput, hibernateOutput);
     }
 
     @Test
@@ -210,7 +210,7 @@ public class HibernateHelperTest {
 
         // execute and validate
         List<Object> helperOutputList = helper.queryGet(QUERY, null, null, null, Object.class);
-        assertSame(hibernateOutputList, helperOutputList);
+        assertSame(helperOutputList, hibernateOutputList);
     }
 
     @Test
@@ -238,7 +238,7 @@ public class HibernateHelperTest {
 
         // execute and validate
         List<Object> helperOutputList = helper.queryGet(QUERY, PARAMETERS, null, null, Object.class);
-        assertSame(hibernateOutputList, helperOutputList);
+        assertSame(helperOutputList, hibernateOutputList);
         
         verify(mockQuery).setParameter("studyId", "study-test");
         verify(mockQuery).setParameter("id", 10L);
@@ -290,7 +290,7 @@ public class HibernateHelperTest {
     public void update() {
         Object testObj = new Object();
         Object received = helper.update(testObj, null);
-        assertSame(testObj, received);
+        assertSame(received, testObj);
         verify(mockSession).update(testObj);
     }
 
@@ -355,7 +355,7 @@ public class HibernateHelperTest {
 
         // execute and validate
         Object helperOutput = helper.executeWithExceptionHandling(null, mockFunction);
-        assertSame(functionOutput, helperOutput);
+        assertSame(helperOutput, functionOutput);
 
         inOrder.verify(mockSessionFactory).openSession();
         inOrder.verify(mockSession).beginTransaction();
@@ -383,7 +383,7 @@ public class HibernateHelperTest {
             helper.create(account, null);
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, account);
     }
@@ -404,7 +404,7 @@ public class HibernateHelperTest {
             helper.deleteById(HibernateAccount.class, "whatever");
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, null);
     }
@@ -425,7 +425,7 @@ public class HibernateHelperTest {
             helper.getById(HibernateAccount.class, "whatever");
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, null);
     }
@@ -446,7 +446,7 @@ public class HibernateHelperTest {
             helper.queryCount("query string", ImmutableMap.of());
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, null);
     }
@@ -467,7 +467,7 @@ public class HibernateHelperTest {
             helper.queryGet("query string", ImmutableMap.of(), 0, 20, HibernateAccount.class);
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, null);
     }
@@ -491,7 +491,7 @@ public class HibernateHelperTest {
             helper.queryUpdate("query string", ImmutableMap.of());
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, null);
     }
@@ -516,7 +516,7 @@ public class HibernateHelperTest {
             helper.update(account, null);
             fail("Should have thrown exception");
         } catch(Exception e) {
-            assertSame(TEST_EXCEPTION, e);
+            assertSame(e, TEST_EXCEPTION);
         }
         verify(mockExceptionConverter).convert(ex, account);
     }
@@ -540,7 +540,7 @@ public class HibernateHelperTest {
             fail("Should have thrown exception");
         } catch(BridgeServiceException e) {
             // So we wrap it with a BridgeServiceException
-            assertSame(pe, e.getCause());
+            assertSame(e.getCause(), pe);
         }
     }
  

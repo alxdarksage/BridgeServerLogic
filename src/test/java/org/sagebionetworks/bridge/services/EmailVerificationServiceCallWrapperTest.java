@@ -1,18 +1,19 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
 import java.util.concurrent.Callable;
 
 import com.amazonaws.AmazonServiceException;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
 
@@ -24,7 +25,7 @@ public class EmailVerificationServiceCallWrapperTest {
     private Callable<String> mockCallable;
     private EmailVerificationService.AsyncSnsTopicHandler asyncHandler;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         // Set up service. For testing purposes, set to 2 tries and a large rate limit.
         EmailVerificationService service = new EmailVerificationService();
@@ -42,7 +43,7 @@ public class EmailVerificationServiceCallWrapperTest {
     public void immediateSuccess() throws Exception {
         when(mockCallable.call()).thenReturn(HELLO_WORLD);
         String result = asyncHandler.callWrapper(mockCallable);
-        assertEquals(HELLO_WORLD, result);
+        assertEquals(result, HELLO_WORLD);
         verify(mockCallable, times(1)).call();
     }
 
@@ -59,7 +60,7 @@ public class EmailVerificationServiceCallWrapperTest {
             fail("expected exception");
         } catch (BridgeServiceException thrownEx) {
             // Make sure the second error is the one that is propagated.
-            assertSame(ex2, thrownEx.getCause());
+            assertSame(thrownEx.getCause(), ex2);
         }
 
         // We call the callable twice.
@@ -79,7 +80,7 @@ public class EmailVerificationServiceCallWrapperTest {
             fail("expected exception");
         } catch (BridgeServiceException thrownEx) {
             // Make sure the second error is the one that is propagated.
-            assertSame(ex2, thrownEx.getCause());
+            assertSame(thrownEx.getCause(), ex2);
         }
 
         // We call the callable twice.
@@ -98,7 +99,7 @@ public class EmailVerificationServiceCallWrapperTest {
             fail("expected exception");
         } catch (BridgeServiceException thrownEx) {
             // Only 1 error thrown.
-            assertSame(awsEx, thrownEx.getCause());
+            assertSame(thrownEx.getCause(), awsEx);
         }
 
         // We call the callable once.
@@ -117,7 +118,7 @@ public class EmailVerificationServiceCallWrapperTest {
             fail("expected exception");
         } catch (BridgeServiceException thrownEx) {
             // Only 1 error thrown.
-            assertSame(otherEx, thrownEx.getCause());
+            assertSame(thrownEx.getCause(), otherEx);
         }
 
         // We call the callable once.

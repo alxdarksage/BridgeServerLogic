@@ -11,8 +11,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestUtils;
@@ -44,7 +45,7 @@ public class StudyValidatorTest {
 
     private DynamoStudy study;
     
-    @Before
+    @BeforeMethod
     public void createValidStudy() {
         study = TestUtils.getValidStudy(StudyValidatorTest.class);
     }

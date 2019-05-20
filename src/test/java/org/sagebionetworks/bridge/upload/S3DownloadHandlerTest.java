@@ -1,15 +1,16 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.testng.Assert.assertEquals;
 
 import java.io.File;
 
 import com.google.common.base.Charsets;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
@@ -50,6 +51,6 @@ public class S3DownloadHandlerTest {
         // execute and validate
         handler.handle(ctx);
         byte[] dataFileContent = inMemoryFileHelper.getBytes(ctx.getDataFile());
-        assertEquals("test data", new String(dataFileContent, Charsets.UTF_8));
+        assertEquals(new String(dataFileContent, Charsets.UTF_8), "test data");
     }
 }

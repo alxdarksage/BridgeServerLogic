@@ -1,16 +1,15 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.function.Consumer;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
 import org.sagebionetworks.bridge.models.accounts.PasswordReset;
@@ -18,7 +17,6 @@ import org.sagebionetworks.bridge.models.studies.PasswordPolicy;
 import org.sagebionetworks.bridge.models.studies.Study;
 import org.sagebionetworks.bridge.services.StudyService;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PasswordResetValidatorTest {
     
     PasswordResetValidator validator;
@@ -29,8 +27,10 @@ public class PasswordResetValidatorTest {
     @Mock
     Study study;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         doReturn(PasswordPolicy.DEFAULT_PASSWORD_POLICY).when(study).getPasswordPolicy();
         doReturn(study).when(studyService).getStudy("api");
         
@@ -92,7 +92,7 @@ public class PasswordResetValidatorTest {
     private void assertError(InvalidEntityException e, String fieldName, String... messages) {
         for (int i=0; i < messages.length; i++) {
             String message = messages[i];
-            assertEquals(fieldName + " " + message, e.getErrors().get(fieldName).get(i));
+            assertEquals(e.getErrors().get(fieldName).get(i), fieldName + " " + message);
         }
     }
 }

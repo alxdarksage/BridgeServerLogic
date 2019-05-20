@@ -68,8 +68,8 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // validate data flow
         SharedModuleMetadata hibernateInputMetadata = hibernateInputMetadataCaptor.getValue();
-        assertSame(daoInputMetadata, hibernateInputMetadata);
-        assertSame(hibernateInputMetadata, daoOutputMetadata);
+        assertSame(hibernateInputMetadata, daoInputMetadata);
+        assertSame(daoOutputMetadata, hibernateInputMetadata);
     }
 
     @Test(expectedExceptions = ConcurrentModificationException.class)
@@ -153,7 +153,7 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // execute and validate
         SharedModuleMetadata daoOutputMetadata = dao.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION);
-        assertSame(hibernateOutputMetadata, daoOutputMetadata);
+        assertSame(daoOutputMetadata, hibernateOutputMetadata);
 
         // validate backends
         verifySessionAndTransaction();
@@ -171,7 +171,7 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // execute and validate
         List<SharedModuleMetadata> daoOutputMetadataList = dao.queryMetadata("foo='bar'", null);
-        assertSame(hibernateOutputMetadataList, daoOutputMetadataList);
+        assertSame(daoOutputMetadataList, hibernateOutputMetadataList);
 
         // validate backends
         verifySessionAndTransaction();
@@ -189,7 +189,7 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // execute and validate
         List<SharedModuleMetadata> daoOutputMetadataList = dao.queryMetadata(null, null);
-        assertSame(hibernateOutputMetadataList, daoOutputMetadataList);
+        assertSame(daoOutputMetadataList, hibernateOutputMetadataList);
 
         // validate backends
         verifySessionAndTransaction();
@@ -223,8 +223,8 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // validate data flow
         SharedModuleMetadata hibernateInputMetadata = hibernateInputMetadataCaptor.getValue();
-        assertSame(daoInputMetadata, hibernateInputMetadata);
-        assertSame(hibernateInputMetadata, daoOutputMetadata);
+        assertSame(hibernateInputMetadata, daoInputMetadata);
+        assertSame(daoOutputMetadata, hibernateInputMetadata);
     }
     
     @Test

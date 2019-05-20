@@ -1,13 +1,14 @@
 package org.sagebionetworks.bridge.models.itp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.sagebionetworks.bridge.TestConstants.EMAIL;
 import static org.sagebionetworks.bridge.TestConstants.PHONE;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.OperatingSystem;
 import org.sagebionetworks.bridge.models.accounts.Phone;
@@ -31,51 +32,51 @@ public class IntentToParticipateTest {
                 .withOsName("iOS").withConsentSignature(consentSignature).build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(itp);
-        assertEquals("studyId", node.get("studyId").textValue());
-        assertEquals(EMAIL, node.get("email").textValue());
-        assertEquals("subpopGuid", node.get("subpopGuid").textValue());
-        assertEquals("all_qualified_researchers", node.get("scope").textValue());
-        assertEquals("iPhone OS", node.get("osName").textValue());
-        assertEquals("IntentToParticipate", node.get("type").textValue());
-        assertEquals(8, node.size());
+        assertEquals(node.get("studyId").textValue(), "studyId");
+        assertEquals(node.get("email").textValue(), EMAIL);
+        assertEquals(node.get("subpopGuid").textValue(), "subpopGuid");
+        assertEquals(node.get("scope").textValue(), "all_qualified_researchers");
+        assertEquals(node.get("osName").textValue(), "iPhone OS");
+        assertEquals(node.get("type").textValue(), "IntentToParticipate");
+        assertEquals(node.size(), 8);
         
         JsonNode phoneNode = node.get("phone");
-        assertEquals(PHONE.getNumber(), phoneNode.get("number").textValue());
-        assertEquals("US", phoneNode.get("regionCode").textValue());
-        assertEquals(PHONE.getNationalFormat(), phoneNode.get("nationalFormat").textValue());
-        assertEquals("Phone", phoneNode.get("type").textValue());
-        assertEquals(4, phoneNode.size());
+        assertEquals(phoneNode.get("number").textValue(), PHONE.getNumber());
+        assertEquals(phoneNode.get("regionCode").textValue(), "US");
+        assertEquals(phoneNode.get("nationalFormat").textValue(), PHONE.getNationalFormat());
+        assertEquals(phoneNode.get("type").textValue(), "Phone");
+        assertEquals(phoneNode.size(), 4);
         
         JsonNode consentNode = node.get("consentSignature");
-        assertEquals("Consent Name", consentNode.get("name").textValue());
-        assertEquals("1980-10-10", consentNode.get("birthdate").textValue());
-        assertEquals("image-data", consentNode.get("imageData").textValue());
-        assertEquals("image/png", consentNode.get("imageMimeType").textValue());
-        assertEquals(TIMESTAMP.toString(), consentNode.get("consentCreatedOn").textValue());
-        assertEquals(TIMESTAMP.toString(), consentNode.get("signedOn").textValue());
-        assertEquals("ConsentSignature", consentNode.get("type").textValue());
-        assertEquals(7, consentNode.size());
+        assertEquals(consentNode.get("name").textValue(), "Consent Name");
+        assertEquals(consentNode.get("birthdate").textValue(), "1980-10-10");
+        assertEquals(consentNode.get("imageData").textValue(), "image-data");
+        assertEquals(consentNode.get("imageMimeType").textValue(), "image/png");
+        assertEquals(consentNode.get("consentCreatedOn").textValue(), TIMESTAMP.toString());
+        assertEquals(consentNode.get("signedOn").textValue(), TIMESTAMP.toString());
+        assertEquals(consentNode.get("type").textValue(), "ConsentSignature");
+        assertEquals(consentNode.size(), 7);
         
         IntentToParticipate deser = BridgeObjectMapper.get().readValue(node.toString(), IntentToParticipate.class);
-        assertEquals("studyId", deser.getStudyId());
-        assertEquals(PHONE.getNationalFormat(), deser.getPhone().getNationalFormat());
-        assertEquals(EMAIL, deser.getEmail());
-        assertEquals("subpopGuid", deser.getSubpopGuid());
-        assertEquals("iPhone OS", deser.getOsName());
-        assertEquals(SharingScope.ALL_QUALIFIED_RESEARCHERS, deser.getScope());
+        assertEquals(deser.getStudyId(), "studyId");
+        assertEquals(deser.getPhone().getNationalFormat(), PHONE.getNationalFormat());
+        assertEquals(deser.getEmail(), EMAIL);
+        assertEquals(deser.getSubpopGuid(), "subpopGuid");
+        assertEquals(deser.getOsName(), "iPhone OS");
+        assertEquals(deser.getScope(), SharingScope.ALL_QUALIFIED_RESEARCHERS);
 
         ConsentSignature consentDeser = deser.getConsentSignature();
-        assertEquals("Consent Name", consentDeser.getName());
-        assertEquals("1980-10-10", consentDeser.getBirthdate());
-        assertEquals("image-data", consentDeser.getImageData());
-        assertEquals("image/png", consentDeser.getImageMimeType());
-        assertEquals(TIMESTAMP.getMillis(), consentDeser.getConsentCreatedOn());
-        assertEquals(TIMESTAMP.getMillis(), consentDeser.getSignedOn());
+        assertEquals(consentDeser.getName(), "Consent Name");
+        assertEquals(consentDeser.getBirthdate(), "1980-10-10");
+        assertEquals(consentDeser.getImageData(), "image-data");
+        assertEquals(consentDeser.getImageMimeType(), "image/png");
+        assertEquals(consentDeser.getConsentCreatedOn(), TIMESTAMP.getMillis());
+        assertEquals(consentDeser.getSignedOn(), TIMESTAMP.getMillis());
         
         Phone deserPhone = deser.getPhone();
-        assertEquals(PHONE.getNumber(), deserPhone.getNumber());
-        assertEquals("US", deserPhone.getRegionCode());
-        assertEquals(PHONE.getNationalFormat(), deserPhone.getNationalFormat());
+        assertEquals(deserPhone.getNumber(), PHONE.getNumber());
+        assertEquals(deserPhone.getRegionCode(), "US");
+        assertEquals(deserPhone.getNationalFormat(), PHONE.getNationalFormat());
     }
     
     @Test
@@ -89,13 +90,13 @@ public class IntentToParticipateTest {
                 .withOsName("iOS").withConsentSignature(consentSignature).build();
 
         IntentToParticipate copy = new IntentToParticipate.Builder().copyOf(itp).build();
-        assertEquals(itp.getStudyId(), copy.getStudyId());
-        assertEquals(itp.getPhone().getNumber(), copy.getPhone().getNumber());
-        assertEquals(itp.getEmail(), copy.getEmail());
-        assertEquals(itp.getSubpopGuid(), copy.getSubpopGuid());
-        assertEquals(itp.getScope(), copy.getScope());
-        assertEquals(itp.getOsName(), copy.getOsName());
-        assertEquals(itp.getConsentSignature(), copy.getConsentSignature());
+        assertEquals(copy.getStudyId(), itp.getStudyId());
+        assertEquals(copy.getPhone().getNumber(), itp.getPhone().getNumber());
+        assertEquals(copy.getEmail(), itp.getEmail());
+        assertEquals(copy.getSubpopGuid(), itp.getSubpopGuid());
+        assertEquals(copy.getScope(), itp.getScope());
+        assertEquals(copy.getOsName(), itp.getOsName());
+        assertEquals(copy.getConsentSignature(), itp.getConsentSignature());
     }
     
     @Test
@@ -108,7 +109,7 @@ public class IntentToParticipateTest {
                 .withSubpopGuid("subpopGuid").withScope(SharingScope.ALL_QUALIFIED_RESEARCHERS).withOsName("iOS")
                 .withConsentSignature(consentSignature).build();
         
-        assertNotEquals(OperatingSystem.IOS, "iOS"); // iOS is a synonym...
-        assertEquals(OperatingSystem.IOS, itp.getOsName()); // ... it is translated to the standard constant.
+        assertNotEquals("iOS", OperatingSystem.IOS); // iOS is a synonym...
+        assertEquals(itp.getOsName(), OperatingSystem.IOS); // ... it is translated to the standard constant.
     }
 }

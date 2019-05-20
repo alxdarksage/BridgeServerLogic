@@ -81,15 +81,15 @@ public class HibernateAccountTest {
 
         Map<HibernateAccountConsentKey, HibernateAccountConsent> gettedConsentMap1 = account.getConsents();
         assertEquals(gettedConsentMap1.size(), 1);
-        assertSame(fooConsent, gettedConsentMap1.get(fooConsentKey));
+        assertSame(gettedConsentMap1.get(fooConsentKey), fooConsent);
 
         // Putting values in the map reflect through to the account object.
         gettedConsentMap1.put(barConsentKey, barConsent);
 
         Map<HibernateAccountConsentKey, HibernateAccountConsent> gettedConsentMap2 = account.getConsents();
         assertEquals(gettedConsentMap2.size(), 2);
-        assertSame(fooConsent, gettedConsentMap2.get(fooConsentKey));
-        assertSame(barConsent, gettedConsentMap2.get(barConsentKey));
+        assertSame(gettedConsentMap2.get(fooConsentKey), fooConsent);
+        assertSame(gettedConsentMap2.get(barConsentKey), barConsent);
 
         // Setting to null clears the map. Getting again initializes a new empty map.
         account.setConsents(null);
@@ -102,7 +102,7 @@ public class HibernateAccountTest {
 
         Map<HibernateAccountConsentKey, HibernateAccountConsent> gettedConsentMap4 = account.getConsents();
         assertEquals(gettedConsentMap4.size(), 1);
-        assertSame(bazConsent, gettedConsentMap4.get(bazConsentKey));
+        assertSame(gettedConsentMap4.get(bazConsentKey), bazConsent);
     }
 
     @Test

@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.BridgeConstants.API_STUDY_ID;
 import static org.sagebionetworks.bridge.models.accounts.SharingScope.ALL_QUALIFIED_RESEARCHERS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.util.List;
 import java.util.Map;
@@ -16,11 +16,11 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.cache.CacheProvider;
 import org.sagebionetworks.bridge.models.CriteriaContext;
@@ -35,7 +35,6 @@ import org.sagebionetworks.bridge.models.subpopulations.SubpopulationGuid;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SessionUpdateServiceTest {
     private static final String HEALTH_CODE = "health-code";
     private static final StudyParticipant EMPTY_PARTICIPANT = new StudyParticipant.Builder()
@@ -61,8 +60,10 @@ public class SessionUpdateServiceTest {
     
     private SessionUpdateService service;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service = new SessionUpdateService();
         service.setConsentService(mockConsentService);
         service.setCacheProvider(mockCacheProvider);
@@ -77,7 +78,7 @@ public class SessionUpdateServiceTest {
         service.updateTimeZone(session, timeZone);
         
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals(timeZone, session.getParticipant().getTimeZone());
+        assertEquals(session.getParticipant().getTimeZone(), timeZone);
     }
     
     @Test
@@ -101,8 +102,8 @@ public class SessionUpdateServiceTest {
 
         // Verify saved session.
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals("es", session.getParticipant().getLanguages().iterator().next());
-        assertSame(CONSENT_STATUS_MAP, session.getConsentStatuses());
+        assertEquals(session.getParticipant().getLanguages().iterator().next(), "es");
+        assertSame(session.getConsentStatuses(), CONSENT_STATUS_MAP);
 
         // Verify notification service.
         verify(mockNotificationTopicService).manageCriteriaBasedSubscriptions(API_STUDY_ID, context, HEALTH_CODE);
@@ -116,7 +117,7 @@ public class SessionUpdateServiceTest {
         service.updateExternalId(session, externalId);
         
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals("someExternalId", session.getParticipant().getExternalId());
+        assertEquals(session.getParticipant().getExternalId(), "someExternalId");
     }
     
     @Test
@@ -138,8 +139,8 @@ public class SessionUpdateServiceTest {
 
         // Verify saved session.
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals(EMPTY_PARTICIPANT, session.getParticipant());
-        assertSame(CONSENT_STATUS_MAP, session.getConsentStatuses());
+        assertEquals(session.getParticipant(), EMPTY_PARTICIPANT);
+        assertSame(session.getConsentStatuses(), CONSENT_STATUS_MAP);
 
         // Verify notification service.
         verify(mockNotificationTopicService).manageCriteriaBasedSubscriptions(API_STUDY_ID, context, HEALTH_CODE);
@@ -157,8 +158,8 @@ public class SessionUpdateServiceTest {
         service.updateParticipant(session, context, participant);
         
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals(participant, session.getParticipant());
-        assertEquals(statuses, session.getConsentStatuses());
+        assertEquals(session.getParticipant(), participant);
+        assertEquals(session.getConsentStatuses(), statuses);
     }
     
     @Test
@@ -183,8 +184,8 @@ public class SessionUpdateServiceTest {
 
         // Verify saved session.
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals(dataGroups, session.getParticipant().getDataGroups());
-        assertSame(CONSENT_STATUS_MAP, session.getConsentStatuses());
+        assertEquals(session.getParticipant().getDataGroups(), dataGroups);
+        assertSame(session.getConsentStatuses(), CONSENT_STATUS_MAP);
 
         // Verify notification service.
         verify(mockNotificationTopicService).manageCriteriaBasedSubscriptions(API_STUDY_ID, context, HEALTH_CODE);
@@ -200,7 +201,7 @@ public class SessionUpdateServiceTest {
         service.updateStudy(session, newStudy);
         
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals(newStudy, session.getStudyIdentifier());
+        assertEquals(session.getStudyIdentifier(), newStudy);
     }
     
     @Test
@@ -226,6 +227,6 @@ public class SessionUpdateServiceTest {
         service.updateSharingScope(session, ALL_QUALIFIED_RESEARCHERS);
         
         verify(mockCacheProvider).setUserSession(session);
-        assertEquals(ALL_QUALIFIED_RESEARCHERS, session.getParticipant().getSharingScope());
+        assertEquals(session.getParticipant().getSharingScope(), ALL_QUALIFIED_RESEARCHERS);
     }
 }

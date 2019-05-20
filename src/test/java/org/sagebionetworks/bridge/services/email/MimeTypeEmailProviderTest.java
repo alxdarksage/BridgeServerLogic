@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.services.email;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import javax.mail.MessagingException;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.studies.Study;
 
@@ -26,8 +26,8 @@ public class MimeTypeEmailProviderTest {
         
         MimeTypeEmailProvider provider = new MimeTypeEmailProviderImpl(study);
         
-        assertEquals("support@support.com", provider.getPlainSenderEmail());
-        assertEquals("Very Useful Study 🐶 <support@support.com>", provider.getFormattedSenderEmail());
+        assertEquals(provider.getPlainSenderEmail(), "support@support.com");
+        assertEquals(provider.getFormattedSenderEmail(), "Very Useful Study 🐶 <support@support.com>");
     }
     
     @Test
@@ -38,7 +38,7 @@ public class MimeTypeEmailProviderTest {
         
         MimeTypeEmailProvider provider = new MimeTypeEmailProviderImpl(study);
         
-        assertEquals("support@support.com", provider.getPlainSenderEmail());
-        assertEquals("Very Useful Study 🐶 <support@support.com>", provider.getFormattedSenderEmail());
+        assertEquals(provider.getPlainSenderEmail(), "support@support.com");
+        assertEquals(provider.getFormattedSenderEmail(), "Very Useful Study 🐶 <support@support.com>");
     }
 }

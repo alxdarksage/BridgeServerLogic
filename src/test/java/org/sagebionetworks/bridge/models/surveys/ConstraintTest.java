@@ -1,8 +1,9 @@
 package org.sagebionetworks.bridge.models.surveys;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
 public class ConstraintTest {
@@ -18,10 +19,10 @@ public class ConstraintTest {
         String json = BridgeObjectMapper.get().writeValueAsString(c);
         c = BridgeObjectMapper.get().readValue(json, IntegerConstraints.class);
         
-        assertEquals(DataType.INTEGER, c.getDataType());
-        assertEquals(Unit.MILLILITERS, c.getUnit());
-        assertEquals(new Double(1.0d), c.getMinValue());
-        assertEquals(new Double(10000000d), c.getMaxValue());
+        assertEquals(c.getDataType(), DataType.INTEGER);
+        assertEquals(c.getUnit(), Unit.MILLILITERS);
+        assertEquals(c.getMinValue(), new Double(1.0d));
+        assertEquals(c.getMaxValue(), new Double(10000000d));
     }
     
 }

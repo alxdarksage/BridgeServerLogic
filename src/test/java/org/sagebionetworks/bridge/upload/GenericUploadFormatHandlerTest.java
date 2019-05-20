@@ -1,8 +1,5 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -10,6 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Map;
@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.file.InMemoryFileHelper;
@@ -55,7 +55,7 @@ public class GenericUploadFormatHandlerTest {
     private UploadSchemaService mockSchemaService;
     private File tmpDir;
 
-    @Before
+    @BeforeMethod
     public void setup() throws Exception {
         // Set up InMemoryFileHelper with tmp dir
         inMemoryFileHelper = new InMemoryFileHelper();
@@ -100,16 +100,16 @@ public class GenericUploadFormatHandlerTest {
         validateCommonProps(context);
 
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(1, dataMap.size());
-        assertEquals(ATTACHMENT_ID, dataMap.get("sanitize____attachment.txt").textValue());
+        assertEquals(dataMap.size(), 1);
+        assertEquals(dataMap.get("sanitize____attachment.txt").textValue(), ATTACHMENT_ID);
 
         ArgumentCaptor<Map> sanitizedFileMapCaptor = ArgumentCaptor.forClass(Map.class);
         verify(mockUploadFileHelper).findValueForField(eq(UPLOAD_ID), sanitizedFileMapCaptor.capture(),
                 eq(sanitizeAttachmentTxtField), any());
 
         Map<String, File> sanitizedFileMap = sanitizedFileMapCaptor.getValue();
-        assertEquals(1, sanitizedFileMap.size());
-        assertSame(sanitizeAttachmentTxtFile, sanitizedFileMap.get("sanitize____attachment.txt"));
+        assertEquals(sanitizedFileMap.size(), 1);
+        assertSame(sanitizedFileMap.get("sanitize____attachment.txt"), sanitizeAttachmentTxtFile);
     }
 
     @Test
@@ -153,10 +153,10 @@ public class GenericUploadFormatHandlerTest {
         validateCommonProps(context);
 
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(3, dataMap.size());
-        assertEquals("foo-value", dataMap.get("foo").textValue());
-        assertEquals("data-file-attachment-id", dataMap.get("bar").textValue());
-        assertEquals(ATTACHMENT_ID, dataMap.get("sanitize____attachment.txt").textValue());
+        assertEquals(dataMap.size(), 3);
+        assertEquals(dataMap.get("foo").textValue(), "foo-value");
+        assertEquals(dataMap.get("bar").textValue(), "data-file-attachment-id");
+        assertEquals(dataMap.get("sanitize____attachment.txt").textValue(), ATTACHMENT_ID);
 
         // Verify calls to UploadFileHelper.
         verify(mockUploadFileHelper).uploadJsonNodeAsAttachment(TextNode.valueOf("bar is an attachment"), UPLOAD_ID,
@@ -167,9 +167,9 @@ public class GenericUploadFormatHandlerTest {
                 eq(sanitizeAttachmentTxtField), any());
 
         Map<String, File> sanitizedFileMap = sanitizedFileMapCaptor.getValue();
-        assertEquals(2, sanitizedFileMap.size());
-        assertSame(recordJsonFile, sanitizedFileMap.get("record.json"));
-        assertSame(sanitizeAttachmentTxtFile, sanitizedFileMap.get("sanitize____attachment.txt"));
+        assertEquals(sanitizedFileMap.size(), 2);
+        assertSame(sanitizedFileMap.get("record.json"), recordJsonFile);
+        assertSame(sanitizedFileMap.get("sanitize____attachment.txt"), sanitizeAttachmentTxtFile);
 
         // We don't call mockUploadFileHelper for any other field.
         verifyNoMoreInteractions(mockUploadFileHelper);
@@ -210,7 +210,7 @@ public class GenericUploadFormatHandlerTest {
 
         // Data map is empty.
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(0, dataMap.size());
+        assertEquals(dataMap.size(), 0);
 
         // Since we skipped the data file (too large), we asked the file helper (which didn't find any results).
         verify(mockUploadFileHelper).findValueForField(eq(UPLOAD_ID), any(), eq(fooFieldDef), any());
@@ -248,8 +248,8 @@ public class GenericUploadFormatHandlerTest {
         validateCommonProps(context);
 
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(1, dataMap.size());
-        assertEquals("answers-attachment-id", dataMap.get(UploadUtil.FIELD_ANSWERS).textValue());
+        assertEquals(dataMap.size(), 1);
+        assertEquals(dataMap.get(UploadUtil.FIELD_ANSWERS).textValue(), "answers-attachment-id");
 
         // Verify answers attachment.
         ArgumentCaptor<JsonNode> answersNodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
@@ -257,9 +257,9 @@ public class GenericUploadFormatHandlerTest {
                 eq(UploadUtil.FIELD_ANSWERS));
 
         JsonNode answersNode = answersNodeCaptor.getValue();
-        assertEquals(2, answersNode.size());
-        assertEquals("foo-value", answersNode.get("foo").textValue());
-        assertEquals("bar-value", answersNode.get("bar").textValue());
+        assertEquals(answersNode.size(), 2);
+        assertEquals(answersNode.get("foo").textValue(), "foo-value");
+        assertEquals(answersNode.get("bar").textValue(), "bar-value");
     }
 
     @Test
@@ -290,12 +290,12 @@ public class GenericUploadFormatHandlerTest {
         validateCommonProps(context);
 
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(1, dataMap.size());
+        assertEquals(dataMap.size(), 1);
 
         JsonNode answersNode = dataMap.get(UploadUtil.FIELD_ANSWERS);
-        assertEquals(2, answersNode.size());
-        assertEquals("foo-value", answersNode.get("foo").textValue());
-        assertEquals("bar-value", answersNode.get("bar").textValue());
+        assertEquals(answersNode.size(), 2);
+        assertEquals(answersNode.get("foo").textValue(), "foo-value");
+        assertEquals(answersNode.get("bar").textValue(), "bar-value");
 
         // We don't upload anything.
         verify(mockUploadFileHelper, never()).uploadJsonNodeAsAttachment(any(), any(), any());
@@ -319,7 +319,7 @@ public class GenericUploadFormatHandlerTest {
         validateCommonProps(context);
 
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(0, dataMap.size());
+        assertEquals(dataMap.size(), 0);
 
         // We don't upload anything.
         verify(mockUploadFileHelper, never()).uploadJsonNodeAsAttachment(any(), any(), any());
@@ -356,8 +356,8 @@ public class GenericUploadFormatHandlerTest {
         validateCommonProps(context);
 
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(1, dataMap.size());
-        assertEquals("answers-attachment-id", dataMap.get(UploadUtil.FIELD_ANSWERS).textValue());
+        assertEquals(dataMap.size(), 1);
+        assertEquals(dataMap.get(UploadUtil.FIELD_ANSWERS).textValue(), "answers-attachment-id");
 
         // Verify answers attachment.
         ArgumentCaptor<JsonNode> answersNodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
@@ -365,9 +365,9 @@ public class GenericUploadFormatHandlerTest {
                 eq(UploadUtil.FIELD_ANSWERS));
 
         JsonNode answersNode = answersNodeCaptor.getValue();
-        assertEquals(2, answersNode.size());
-        assertEquals("overriden foo", answersNode.get("foo").textValue());
-        assertEquals("overriden bar", answersNode.get("bar").textValue());
+        assertEquals(answersNode.size(), 2);
+        assertEquals(answersNode.get("foo").textValue(), "overriden foo");
+        assertEquals(answersNode.get("bar").textValue(), "overriden bar");
     }
 
     @Test
@@ -400,8 +400,8 @@ public class GenericUploadFormatHandlerTest {
         validateCommonProps(context);
 
         JsonNode dataMap = context.getHealthDataRecord().getData();
-        assertEquals(1, dataMap.size());
-        assertEquals(ATTACHMENT_ID, dataMap.get(UploadUtil.FIELD_ANSWERS).textValue());
+        assertEquals(dataMap.size(), 1);
+        assertEquals(dataMap.get(UploadUtil.FIELD_ANSWERS).textValue(), ATTACHMENT_ID);
 
         // Verify call to findValueForField. This passes in both "answers" and "record.json".
         ArgumentCaptor<Map> sanitizedFileMapCaptor = ArgumentCaptor.forClass(Map.class);
@@ -409,9 +409,9 @@ public class GenericUploadFormatHandlerTest {
                 eq(UploadUtil.ANSWERS_FIELD_DEF), any());
 
         Map<String, File> sanitizedFileMap = sanitizedFileMapCaptor.getValue();
-        assertEquals(2, sanitizedFileMap.size());
-        assertSame(answersFile, sanitizedFileMap.get(UploadUtil.FIELD_ANSWERS));
-        assertSame(recordJsonFile, sanitizedFileMap.get("record.json"));
+        assertEquals(sanitizedFileMap.size(), 2);
+        assertSame(sanitizedFileMap.get(UploadUtil.FIELD_ANSWERS), answersFile);
+        assertSame(sanitizedFileMap.get("record.json"), recordJsonFile);
 
         // We don't upload anything.
         verify(mockUploadFileHelper, never()).uploadJsonNodeAsAttachment(any(), any(), any());
@@ -464,10 +464,10 @@ public class GenericUploadFormatHandlerTest {
     private static void validateCommonProps(UploadValidationContext context) {
         // Validate common health data record props.
         HealthDataRecord record = context.getHealthDataRecord();
-        assertEquals(CREATED_ON_MILLIS, record.getCreatedOn().longValue());
-        assertEquals(CREATED_ON_TIMEZONE, record.getCreatedOnTimeZone());
-        assertEquals(SCHEMA_ID, record.getSchemaId());
-        assertEquals(SCHEMA_REV, record.getSchemaRevision());
+        assertEquals(record.getCreatedOn().longValue(), CREATED_ON_MILLIS);
+        assertEquals(record.getCreatedOnTimeZone(), CREATED_ON_TIMEZONE);
+        assertEquals(record.getSchemaId(), SCHEMA_ID);
+        assertEquals(record.getSchemaRevision(), SCHEMA_REV);
 
         // No messages.
         assertTrue(context.getMessageList().isEmpty());

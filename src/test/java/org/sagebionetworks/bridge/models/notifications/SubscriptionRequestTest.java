@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.notifications;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.util.Set;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -22,10 +22,10 @@ public class SubscriptionRequestTest {
         JsonNode node = BridgeObjectMapper.get().valueToTree(request);
         Set<String> serializedTopicGuids = Sets.newHashSet(node.get("topicGuids").get(0).asText(), node.get("topicGuids").get(1).asText());
         
-        assertEquals(topicGuids, serializedTopicGuids);
-        assertEquals("SubscriptionRequest", node.get("type").asText());
+        assertEquals(serializedTopicGuids, topicGuids);
+        assertEquals(node.get("type").asText(), "SubscriptionRequest");
         
         SubscriptionRequest deser = BridgeObjectMapper.get().readValue(node.toString(), SubscriptionRequest.class);
-        assertEquals(topicGuids, deser.getTopicGuids());
+        assertEquals(deser.getTopicGuids(), topicGuids);
     }
 }

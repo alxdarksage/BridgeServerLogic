@@ -1,10 +1,12 @@
 package org.sagebionetworks.bridge.models.studies;
 
-import static org.junit.Assert.assertEquals;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +26,7 @@ public class EmailTemplateTest {
         String json = "{\"subject\":\"${studyName} sign in link\",\"body\":\"<p>${host}/${token}</p>\",\"mimeType\":\"HTML\"}";
         
         EmailTemplate template = new ObjectMapper().readValue(json, EmailTemplate.class);
-        assertEquals(MimeType.HTML, template.getMimeType());
+        assertEquals(template.getMimeType(), MimeType.HTML);
     }
     
     @Test
@@ -34,17 +36,17 @@ public class EmailTemplateTest {
         String json = BridgeObjectMapper.get().writeValueAsString(template);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("Subject", node.get("subject").asText());
-        assertEquals("Body", node.get("body").asText());
-        assertEquals("EmailTemplate", node.get("type").asText());
+        assertEquals(node.get("subject").asText(), "Subject");
+        assertEquals(node.get("body").asText(), "Body");
+        assertEquals(node.get("type").asText(), "EmailTemplate");
         
         EmailTemplate template2 = BridgeObjectMapper.get().readValue(json, EmailTemplate.class);
-        assertEquals(template, template2);
+        assertEquals(template2, template);
     }
 
     @Test
     public void mimeTypeHasDefault() {
         EmailTemplate template = new EmailTemplate("Subject", "Body", null);
-        assertEquals(MimeType.HTML, template.getMimeType());
+        assertEquals(template.getMimeType(), MimeType.HTML);
     }
 }

@@ -1,14 +1,15 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -20,13 +21,13 @@ public class ConsentSignatureValidatorTest {
     private static final long SIGNED_ON_TIMESTAMP = DateUtils.getCurrentMillisFromEpoch();
     private ConsentSignatureValidator validator;
     
-    @Before
+    @BeforeMethod
     public void before() {
         DateTimeUtils.setCurrentMillisFixed(NOW.getMillis());
         validator = new ConsentSignatureValidator(0);
     }
 
-    @After
+    @AfterMethod
     public void after() {
         DateTimeUtils.setCurrentMillisSystem();
     }

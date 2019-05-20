@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpStatus;
-import org.junit.Test;
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.upload.UploadRequest;
 import org.springframework.validation.Validator;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -25,7 +25,7 @@ public class UploadValidatorTest {
         BridgeObjectMapper mapper = new BridgeObjectMapper();
         
         JsonNode node = mapper.valueToTree(new UploadRequest());
-        assertEquals("Type is UploadRequest", "UploadRequest", node.get("type").asText());
+        assertEquals("UploadRequest", node.get("type").asText(), "Type is UploadRequest");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class UploadValidatorTest {
             
             Validate.entityThrowingException(validator, uploadRequest);
         } catch (BridgeServiceException e) {
-            assertEquals("Name missing", HttpStatus.SC_BAD_REQUEST, e.getStatusCode());
+            assertEquals(e.getStatusCode(), HttpStatus.SC_BAD_REQUEST, "Name missing");
         }
 
         try {
@@ -66,7 +66,7 @@ public class UploadValidatorTest {
             
             Validate.entityThrowingException(validator, uploadRequest);
         } catch (BridgeServiceException e) {
-            assertEquals("Content type missing", HttpStatus.SC_BAD_REQUEST, e.getStatusCode());
+            assertEquals(e.getStatusCode(), HttpStatus.SC_BAD_REQUEST, "Content type missing");
         }
 
         try {
@@ -78,7 +78,7 @@ public class UploadValidatorTest {
             
             Validate.entityThrowingException(validator, uploadRequest);
         } catch (BridgeServiceException e) {
-            assertEquals("Content length missing", HttpStatus.SC_BAD_REQUEST, e.getStatusCode());
+            assertEquals(e.getStatusCode(), HttpStatus.SC_BAD_REQUEST, "Content length missing");
         }
 
         try {
@@ -91,7 +91,7 @@ public class UploadValidatorTest {
             
             Validate.entityThrowingException(validator, uploadRequest);
         } catch (BridgeServiceException e) {
-            assertEquals("Content length > 10 MB", HttpStatus.SC_BAD_REQUEST, e.getStatusCode());
+            assertEquals(e.getStatusCode(), HttpStatus.SC_BAD_REQUEST, "Content length > 10 MB");
         }
 
         try {
@@ -104,7 +104,7 @@ public class UploadValidatorTest {
             
             Validate.entityThrowingException(validator, uploadRequest);
         } catch (BridgeServiceException e) {
-            assertEquals("MD5 not base64 encoded", HttpStatus.SC_BAD_REQUEST, e.getStatusCode());
+            assertEquals(e.getStatusCode(), HttpStatus.SC_BAD_REQUEST, "MD5 not base64 encoded");
         }
     }
 }

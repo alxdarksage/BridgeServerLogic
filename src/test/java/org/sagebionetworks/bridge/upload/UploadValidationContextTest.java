@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
 
 import java.io.File;
 import java.util.Map;
@@ -12,7 +12,8 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -34,7 +35,7 @@ public class UploadValidationContextTest {
         DynamoUpload2 upload = new DynamoUpload2();
         upload.setUploadId(UPLOAD_ID);
         context.setUpload(upload);
-        assertEquals(UPLOAD_ID, context.getUploadId());
+        assertEquals(context.getUploadId(), UPLOAD_ID);
     }
 
     @Test
@@ -67,36 +68,36 @@ public class UploadValidationContextTest {
 
         // copy and validate
         UploadValidationContext copy = original.shallowCopy();
-        assertEquals(HEALTH_CODE, copy.getHealthCode());
-        assertSame(study, copy.getStudy());
-        assertSame(upload, copy.getUpload());
+        assertEquals(copy.getHealthCode(), HEALTH_CODE);
+        assertSame(copy.getStudy(), study);
+        assertSame(copy.getUpload(), upload);
         assertFalse(copy.getSuccess());
-        assertSame(tempDir, copy.getTempDir());
-        assertSame(dataFile, copy.getDataFile());
-        assertSame(decryptedDataFile, copy.getDecryptedDataFile());
-        assertEquals(unzippedDataFileMap, copy.getUnzippedDataFileMap());
-        assertSame(infoJsonNode, copy.getInfoJsonNode());
-        assertSame(record, copy.getHealthDataRecord());
-        assertEquals("test-record", copy.getRecordId());
+        assertSame(copy.getTempDir(), tempDir);
+        assertSame(copy.getDataFile(), dataFile);
+        assertSame(copy.getDecryptedDataFile(), decryptedDataFile);
+        assertEquals(copy.getUnzippedDataFileMap(), unzippedDataFileMap);
+        assertSame(copy.getInfoJsonNode(), infoJsonNode);
+        assertSame(copy.getHealthDataRecord(), record);
+        assertEquals(copy.getRecordId(), "test-record");
 
-        assertEquals(1, copy.getMessageList().size());
-        assertEquals("common message", copy.getMessageList().get(0));
+        assertEquals(copy.getMessageList().size(), 1);
+        assertEquals(copy.getMessageList().get(0), "common message");
 
         // modify original and validate copy unchanged
         original.setHealthCode("new-health-code");
         original.addMessage("original message");
 
-        assertEquals(HEALTH_CODE, copy.getHealthCode());
-        assertEquals(1, copy.getMessageList().size());
-        assertEquals("common message", copy.getMessageList().get(0));
+        assertEquals(copy.getHealthCode(), HEALTH_CODE);
+        assertEquals(copy.getMessageList().size(), 1);
+        assertEquals(copy.getMessageList().get(0), "common message");
 
         // modify copy and validate original unchanged
         copy.setRecordId("new-record-id");
         copy.addMessage("copy message");
 
-        assertEquals("test-record", original.getRecordId());
-        assertEquals(2, original.getMessageList().size());
-        assertEquals("common message", original.getMessageList().get(0));
-        assertEquals("original message", original.getMessageList().get(1));
+        assertEquals(original.getRecordId(), "test-record");
+        assertEquals(original.getMessageList().size(), 2);
+        assertEquals(original.getMessageList().get(0), "common message");
+        assertEquals(original.getMessageList().get(1), "original message");
     }
 }

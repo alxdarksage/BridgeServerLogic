@@ -1,16 +1,17 @@
 package org.sagebionetworks.bridge.services.backfill;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.dao.BackfillDao;
 import org.sagebionetworks.bridge.models.accounts.Account;
 import org.sagebionetworks.bridge.models.backfill.BackfillRecord;
@@ -48,11 +49,11 @@ public class BackfillRecordFactoryTest {
         when(task.getId()).thenReturn(taskId);
         final String message = "this is a message";
         BackfillRecord record = recordFactory.createOnly(task, message);
-        assertEquals(taskId, record.getTaskId());
+        assertEquals(record.getTaskId(), taskId);
         assertTrue(record.getTimestamp() <= DateTime.now(DateTimeZone.UTC).getMillis());
         JsonNode node = record.toJsonNode();
         assertNotNull(node);
-        assertEquals(message, node.asText());
+        assertEquals(node.asText(), message);
     }
 
     @Test
@@ -69,12 +70,12 @@ public class BackfillRecordFactoryTest {
         when(account.getId()).thenReturn(accountId);
         final String message = "message";
         BackfillRecord record = recordFactory.createOnly(task, study, account, message);
-        assertEquals(taskId, record.getTaskId());
+        assertEquals(record.getTaskId(), taskId);
         assertTrue(record.getTimestamp() <= DateTime.now(DateTimeZone.UTC).getMillis());
         JsonNode node = record.toJsonNode();
         assertNotNull(node);
-        assertEquals(studyId, node.get("study").asText());
-        assertEquals(accountId, node.get("account").asText());
-        assertEquals(message, node.get("message").asText());
+        assertEquals(node.get("study").asText(), studyId);
+        assertEquals(node.get("account").asText(), accountId);
+        assertEquals(node.get("message").asText(), message);
     }
 }

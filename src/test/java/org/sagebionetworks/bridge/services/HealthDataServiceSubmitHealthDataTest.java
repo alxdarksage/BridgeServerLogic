@@ -1,8 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -12,6 +9,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertSame;
 
 import java.util.List;
 
@@ -23,11 +23,11 @@ import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
@@ -94,7 +94,7 @@ public class HealthDataServiceSubmitHealthDataTest {
         DateTimeUtils.setCurrentMillisSystem();
     }
 
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
         // Mock Schema Service.
         schema = UploadSchema.create();
@@ -153,12 +153,12 @@ public class HealthDataServiceSubmitHealthDataTest {
         doReturn(createdRecord).when(svc).getRecordById(any());
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void nullSubmission() throws Exception {
         svc.submitHealthData(TestConstants.TEST_STUDY, PARTICIPANT, null);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void invalidSubmission() throws Exception {
         HealthDataSubmission submission = makeValidBuilderWithSchema().withData(null).build();
         svc.submitHealthData(TestConstants.TEST_STUDY, PARTICIPANT, submission);
@@ -197,7 +197,7 @@ public class HealthDataServiceSubmitHealthDataTest {
         HealthDataRecord svcOutputRecord = svc.submitHealthData(TestConstants.TEST_STUDY, PARTICIPANT, submission);
 
         // verify that we return the record returned by the internal getRecordById() call.
-        assertSame(createdRecord, svcOutputRecord);
+        assertSame(svcOutputRecord, createdRecord);
 
         // Verify strict validation handler called. While we're at it, verify that we constructed the context and
         // record correctly.
@@ -205,51 +205,51 @@ public class HealthDataServiceSubmitHealthDataTest {
         verify(mockStrictValidationHandler).handle(contextCaptor.capture());
 
         UploadValidationContext context = contextCaptor.getValue();
-        assertEquals(HEALTH_CODE, context.getHealthCode());
-        assertEquals(TestConstants.TEST_STUDY, context.getStudy());
+        assertEquals(context.getHealthCode(), HEALTH_CODE);
+        assertEquals(context.getStudy(), TestConstants.TEST_STUDY);
 
         // We generate an upload ID and use it for the record ID.
         String uploadId = context.getUploadId();
         assertNotNull(uploadId);
-        assertEquals(uploadId, context.getRecordId());
+        assertEquals(context.getRecordId(), uploadId);
 
         // We have one attachment. This is text because we passed in text. This will normally be arrays or objects.
         ArgumentCaptor<JsonNode> attachmentNodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
         verify(mockUploadFileHelper).uploadJsonNodeAsAttachment(attachmentNodeCaptor.capture(), eq(uploadId),
                 eq("attachment-field"));
         JsonNode attachmentNode = attachmentNodeCaptor.getValue();
-        assertEquals("attachment field value", attachmentNode.textValue());
+        assertEquals(attachmentNode.textValue(), "attachment field value");
 
         // validate the created record
         HealthDataRecord contextRecord = context.getHealthDataRecord();
-        assertEquals(APP_VERSION, contextRecord.getAppVersion());
-        assertEquals(PHONE_INFO, contextRecord.getPhoneInfo());
-        assertEquals(SCHEMA_ID, contextRecord.getSchemaId());
-        assertEquals(SCHEMA_REV, contextRecord.getSchemaRevision());
-        assertEquals(HEALTH_CODE, contextRecord.getHealthCode());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, contextRecord.getStudyId());
-        assertEquals(MOCK_NOW_DATE, contextRecord.getUploadDate());
-        assertEquals(MOCK_NOW_MILLIS, contextRecord.getUploadedOn().longValue());
-        assertEquals(CREATED_ON_MILLIS, contextRecord.getCreatedOn().longValue());
-        assertEquals(CREATED_ON_TIMEZONE, contextRecord.getCreatedOnTimeZone());
+        assertEquals(contextRecord.getAppVersion(), APP_VERSION);
+        assertEquals(contextRecord.getPhoneInfo(), PHONE_INFO);
+        assertEquals(contextRecord.getSchemaId(), SCHEMA_ID);
+        assertEquals(contextRecord.getSchemaRevision(), SCHEMA_REV);
+        assertEquals(contextRecord.getHealthCode(), HEALTH_CODE);
+        assertEquals(contextRecord.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(contextRecord.getUploadDate(), MOCK_NOW_DATE);
+        assertEquals(contextRecord.getUploadedOn().longValue(), MOCK_NOW_MILLIS);
+        assertEquals(contextRecord.getCreatedOn().longValue(), CREATED_ON_MILLIS);
+        assertEquals(contextRecord.getCreatedOnTimeZone(), CREATED_ON_TIMEZONE);
 
         // validate the sanitized data (includes attachments with attachment ID)
         JsonNode sanitizedData = contextRecord.getData();
-        assertEquals(3, sanitizedData.size());
-        assertEquals("sanitize this value", sanitizedData.get("sanitize____this").textValue());
-        assertEquals(ATTACHMENT_ID_NODE, sanitizedData.get("attachment-field"));
-        assertEquals("normal field value", sanitizedData.get("normal-field").textValue());
+        assertEquals(sanitizedData.size(), 3);
+        assertEquals(sanitizedData.get("sanitize____this").textValue(), "sanitize this value");
+        assertEquals(sanitizedData.get("attachment-field"), ATTACHMENT_ID_NODE);
+        assertEquals(sanitizedData.get("normal-field").textValue(), "normal field value");
 
         // validate app version and phone info in metadata
         JsonNode metadata = contextRecord.getMetadata();
-        assertEquals(2, metadata.size());
-        assertEquals(APP_VERSION, metadata.get(UploadUtil.FIELD_APP_VERSION).textValue());
-        assertEquals(PHONE_INFO, metadata.get(UploadUtil.FIELD_PHONE_INFO).textValue());
+        assertEquals(metadata.size(), 2);
+        assertEquals(metadata.get(UploadUtil.FIELD_APP_VERSION).textValue(), APP_VERSION);
+        assertEquals(metadata.get(UploadUtil.FIELD_PHONE_INFO).textValue(), PHONE_INFO);
 
         // validate client-submitted metadata (userMetadata)
         JsonNode userMetadata = contextRecord.getUserMetadata();
-        assertEquals(1, userMetadata.size());
-        assertEquals("sample-metadata-value", userMetadata.get("sample-metadata-key").textValue());
+        assertEquals(userMetadata.size(), 1);
+        assertEquals(userMetadata.get("sample-metadata-key").textValue(), "sample-metadata-value");
 
         // Validate raw data submitted to S3
         String expectedRawDataAttachmentId = uploadId + HealthDataService.RAW_ATTACHMENT_SUFFIX;
@@ -257,13 +257,13 @@ public class HealthDataServiceSubmitHealthDataTest {
         ArgumentCaptor<ObjectMetadata> metadataCaptor = ArgumentCaptor.forClass(ObjectMetadata.class);
         verify(mockS3Helper).writeBytesToS3(eq(HealthDataService.ATTACHMENT_BUCKET), eq(expectedRawDataAttachmentId),
                 rawBytesCaptor.capture(), metadataCaptor.capture());
-        assertEquals(expectedRawDataAttachmentId, contextRecord.getRawDataAttachmentId());
+        assertEquals(contextRecord.getRawDataAttachmentId(), expectedRawDataAttachmentId);
 
         byte[] rawBytes = rawBytesCaptor.getValue();
         JsonNode rawJsonNode = BridgeObjectMapper.get().readTree(rawBytes);
-        assertEquals(inputData, rawJsonNode);
+        assertEquals(rawJsonNode, inputData);
         
-        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadataCaptor.getValue().getSSEAlgorithm());
+        assertEquals(metadataCaptor.getValue().getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
 
         // validate the other handlers are called
         verify(mockTranscribeConsentHandler).handle(context);
@@ -299,29 +299,29 @@ public class HealthDataServiceSubmitHealthDataTest {
 
         UploadValidationContext context = contextCaptor.getValue();
         HealthDataRecord contextRecord = context.getHealthDataRecord();
-        assertEquals(SCHEMA_ID, contextRecord.getSchemaId());
-        assertEquals(SCHEMA_REV, contextRecord.getSchemaRevision());
+        assertEquals(contextRecord.getSchemaId(), SCHEMA_ID);
+        assertEquals(contextRecord.getSchemaRevision(), SCHEMA_REV);
 
         // validate that our record was parsed correctly
         JsonNode recordData = contextRecord.getData();
-        assertEquals(2, recordData.size());
-        assertEquals("C", recordData.get("answer-me").textValue());
-        assertEquals(ATTACHMENT_ID_NODE, recordData.get(UploadUtil.FIELD_ANSWERS));
+        assertEquals(recordData.size(), 2);
+        assertEquals(recordData.get("answer-me").textValue(), "C");
+        assertEquals(recordData.get(UploadUtil.FIELD_ANSWERS), ATTACHMENT_ID_NODE);
 
         // Verify "answers" survey answers attachment.
         ArgumentCaptor<JsonNode> answersNodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
         verify(mockUploadFileHelper).uploadJsonNodeAsAttachment(answersNodeCaptor.capture(),
                 eq(context.getUploadId()), eq(UploadUtil.FIELD_ANSWERS));
         JsonNode answersNode = answersNodeCaptor.getValue();
-        assertEquals(1, answersNode.size());
-        assertEquals("C", answersNode.get("answer-me").textValue());
+        assertEquals(answersNode.size(), 1);
+        assertEquals(answersNode.get("answer-me").textValue(), "C");
 
         // validate we did in fact call SurveyService
         verify(mockSurveyService).getSurvey(TestConstants.TEST_STUDY,
                 new GuidCreatedOnVersionHolderImpl(SURVEY_GUID, SURVEY_CREATED_ON_MILLIS), false, true);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void surveyWithoutSchema() throws Exception {
         // Survey has no schema.
         survey.setSchemaRevision(null);
@@ -335,7 +335,7 @@ public class HealthDataServiceSubmitHealthDataTest {
         svc.submitHealthData(TestConstants.TEST_STUDY, PARTICIPANT, submission);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void strictValidationThrows() throws Exception {
         // mock schema service
         List<UploadFieldDefinition> fieldDefList = ImmutableList.of(new UploadFieldDefinition.Builder()

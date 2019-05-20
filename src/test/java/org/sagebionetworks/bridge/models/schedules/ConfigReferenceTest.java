@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -21,8 +22,8 @@ public class ConfigReferenceTest {
     @Test
     public void normalCase() {
         ConfigReference configRef = new ConfigReference("config1", 7L);
-        assertEquals("config1", configRef.getId());
-        assertEquals(7, configRef.getRevision().intValue());
+        assertEquals(configRef.getId(), "config1");
+        assertEquals(configRef.getRevision().intValue(), 7);
     }
 
     @Test
@@ -39,14 +40,14 @@ public class ConfigReferenceTest {
 
         // convert to POJO
         ConfigReference configRef = BridgeObjectMapper.get().readValue(jsonText, ConfigReference.class);
-        assertEquals("test-config", configRef.getId());
-        assertEquals(7L, configRef.getRevision().longValue());
+        assertEquals(configRef.getId(), "test-config");
+        assertEquals(configRef.getRevision().longValue(), 7L);
 
         // convert back to JSON
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(configRef, JsonNode.class);
-        assertEquals(3, jsonNode.size());
-        assertEquals("test-config", jsonNode.get("id").textValue());
-        assertEquals(7, jsonNode.get("revision").longValue());
-        assertEquals("ConfigReference", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.size(), 3);
+        assertEquals(jsonNode.get("id").textValue(), "test-config");
+        assertEquals(jsonNode.get("revision").longValue(), 7);
+        assertEquals(jsonNode.get("type").textValue(), "ConfigReference");
     }
 }

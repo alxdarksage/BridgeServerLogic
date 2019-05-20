@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoExternalIdentifier;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -25,15 +26,15 @@ public class ExternalIdentifierTest {
         String json = TestUtils.createJson("{'identifier':'AAA','substudyId':'sub-study-id'}");
         
         ExternalIdentifier identifier = BridgeObjectMapper.get().readValue(json, ExternalIdentifier.class);
-        assertEquals("AAA", identifier.getIdentifier());
-        assertEquals("sub-study-id", identifier.getSubstudyId());
+        assertEquals(identifier.getIdentifier(), "AAA");
+        assertEquals(identifier.getSubstudyId(), "sub-study-id");
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(identifier);
         
-        assertEquals(3, node.size());
-        assertEquals("AAA", node.get("identifier").textValue());
-        assertEquals("sub-study-id", node.get("substudyId").textValue());
-        assertEquals("ExternalIdentifier", node.get("type").textValue());
+        assertEquals(node.size(), 3);
+        assertEquals(node.get("identifier").textValue(), "AAA");
+        assertEquals(node.get("substudyId").textValue(), "sub-study-id");
+        assertEquals(node.get("type").textValue(), "ExternalIdentifier");
     }
     
 }

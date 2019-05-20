@@ -71,7 +71,7 @@ public class DynamoNotificationTopicTest {
         assertEquals(deser.getGuid(), "ABC");
         assertEquals(deser.getName(), "My Test Topic");
         assertEquals(deser.getShortName(), "Test Topic");
-        assertNull("test-study", deser.getStudyId());
+        assertNull(deser.getStudyId(), "test-study");
         assertEquals(deser.getDescription(), "A description.");
         assertEquals(deser.getCreatedOn(), TIMESTAMP);
         assertEquals(deser.getModifiedOn(), TIMESTAMP);

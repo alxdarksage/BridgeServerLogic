@@ -1,15 +1,16 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
 import org.sagebionetworks.bridge.models.upload.UploadStatus;
@@ -20,7 +21,7 @@ public class UploadServicePollStatusTest {
 
     private UploadService svc;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         // Spy service, so we can mock a call to getValidationStatus() instead of tightly coupling to that logic.
         svc = spy(new UploadService());
@@ -34,7 +35,7 @@ public class UploadServicePollStatusTest {
     public void firstTry() {
         doReturn(makeValidationStatus(UploadStatus.SUCCEEDED)).when(svc).getUploadValidationStatus(UPLOAD_ID);
         UploadValidationStatus validationStatus = svc.pollUploadValidationStatusUntilComplete(UPLOAD_ID);
-        assertEquals(UploadStatus.SUCCEEDED, validationStatus.getStatus());
+        assertEquals(validationStatus.getStatus(), UploadStatus.SUCCEEDED);
         verify(svc, times(1)).getUploadValidationStatus(UPLOAD_ID);
     }
 
@@ -45,7 +46,7 @@ public class UploadServicePollStatusTest {
 
         doReturn(inProgressStatus).doReturn(succeededStatus).when(svc).getUploadValidationStatus(UPLOAD_ID);
         UploadValidationStatus validationStatus = svc.pollUploadValidationStatusUntilComplete(UPLOAD_ID);
-        assertEquals(UploadStatus.SUCCEEDED, validationStatus.getStatus());
+        assertEquals(validationStatus.getStatus(), UploadStatus.SUCCEEDED);
         verify(svc, times(2)).getUploadValidationStatus(UPLOAD_ID);
     }
 
@@ -58,7 +59,7 @@ public class UploadServicePollStatusTest {
             svc.pollUploadValidationStatusUntilComplete(UPLOAD_ID);
             fail("expected exception");
         } catch (BridgeServiceException ex) {
-            assertEquals("Timeout polling validation status for upload " + UPLOAD_ID, ex.getMessage());
+            assertEquals(ex.getMessage(), "Timeout polling validation status for upload " + UPLOAD_ID);
         }
         verify(svc, times(2)).getUploadValidationStatus(UPLOAD_ID);
     }

@@ -1,7 +1,7 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertNull;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
+import static org.testng.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.RequestContext;
 import org.sagebionetworks.bridge.Roles;
@@ -32,7 +32,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class StudyParticipantValidatorTest {
     
     private static final Set<String> STUDY_PROFILE_ATTRS = BridgeUtils.commaListToOrderedSet("attr1,attr2");
@@ -50,8 +49,10 @@ public class StudyParticipantValidatorTest {
     
     private Substudy substudy;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         substudy = Substudy.create();
         
         study = Study.create();
@@ -120,7 +121,7 @@ public class StudyParticipantValidatorTest {
         Validate.entityThrowingException(validator, withEmail("email@email.com"));
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validatesIdForExisting() {
         // not new, this should fail, as there's no ID in participant.
         validator = new StudyParticipantValidator(externalIdService, substudyService, study, false); 

@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.services.email;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.net.URLEncoder;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.config.BridgeConfigFactory;
@@ -45,10 +45,10 @@ public class EmailSignInEmailProviderTest {
         String finalBody = String.format("Click here to sign in: <a href=\"%s\">%s</a>", url, url);
         
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals("\"Study name\" <support@email.com>", email.getSenderAddress());
-        assertEquals(RECIPIENT_EMAIL, email.getRecipientAddresses().get(0));
-        assertEquals("Study name sign in link", email.getSubject());
-        assertEquals(finalBody, email.getMessageParts().get(0).getContent());
+        assertEquals(email.getSenderAddress(), "\"Study name\" <support@email.com>");
+        assertEquals(email.getRecipientAddresses().get(0), RECIPIENT_EMAIL);
+        assertEquals(email.getSubject(), "Study name sign in link");
+        assertEquals(email.getMessageParts().get(0).getContent(), finalBody);
     }
     
 }

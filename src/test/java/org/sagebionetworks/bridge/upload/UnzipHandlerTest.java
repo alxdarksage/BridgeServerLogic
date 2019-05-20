@@ -1,7 +1,7 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -17,8 +17,8 @@ import java.util.function.Function;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.file.InMemoryFileHelper;
 import org.sagebionetworks.bridge.services.UploadArchiveService;
@@ -76,11 +76,11 @@ public class UnzipHandlerTest {
         // execute and validate
         handler.handle(ctx);
         Map<String, File> unzippedFileMap = ctx.getUnzippedDataFileMap();
-        assertEquals(mockUnzippedDataMap.size(), unzippedFileMap.size());
+        assertEquals(unzippedFileMap.size(), mockUnzippedDataMap.size());
         for (String oneUnzippedFileName : mockUnzippedDataMap.keySet()) {
             File unzippedFile = unzippedFileMap.get(oneUnzippedFileName);
             byte[] unzippedFileContent = inMemoryFileHelper.getBytes(unzippedFile);
-            assertArrayEquals(mockUnzippedDataMap.get(oneUnzippedFileName), unzippedFileContent);
+            assertArrayEquals(unzippedFileContent, mockUnzippedDataMap.get(oneUnzippedFileName));
         }
 
         // verify stream passed into mockSvc
@@ -89,6 +89,6 @@ public class UnzipHandlerTest {
 
         InputStream zippedFileInputStream = zippedFileInputStreamCaptor.getValue();
         byte[] zippedFileInputStreamContent = ByteStreams.toByteArray(zippedFileInputStream);
-        assertArrayEquals(ZIPPED_FILE_DUMMY_CONTENT, zippedFileInputStreamContent);
+        assertArrayEquals(zippedFileInputStreamContent, ZIPPED_FILE_DUMMY_CONTENT);
     }
 }

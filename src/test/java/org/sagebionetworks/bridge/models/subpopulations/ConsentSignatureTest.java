@@ -1,19 +1,19 @@
 package org.sagebionetworks.bridge.models.subpopulations;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -22,12 +22,12 @@ public class ConsentSignatureTest {
     private static final DateTime SIGNED_ON_TIMESTAMP = DateTime.now(DateTimeZone.UTC);
     private static final DateTime WITHDREW_ON_TIMESTAMP = DateTime.now(DateTimeZone.UTC).plusDays(1);
     
-    @Before
+    @BeforeMethod
     public void before() {
         DateTimeUtils.setCurrentMillisFixed(SIGNED_ON_TIMESTAMP.getMillis());
     }
     
-    @After
+    @AfterMethod
     public void after() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -45,17 +45,15 @@ public class ConsentSignatureTest {
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
         assertNull(node.get("consentCreatedOn"));
-        assertEquals(WITHDREW_ON_TIMESTAMP.toString(),
-                node.get("withdrewOn").textValue());
-        assertEquals(SIGNED_ON_TIMESTAMP.toString(), 
-                node.get("signedOn").textValue());
-        assertEquals("ConsentSignature", node.get("type").textValue());
+        assertEquals(node.get("withdrewOn").textValue(), WITHDREW_ON_TIMESTAMP.toString());
+        assertEquals(node.get("signedOn").textValue(), SIGNED_ON_TIMESTAMP.toString());
+        assertEquals(node.get("type").textValue(), "ConsentSignature");
         
         ConsentSignature deser = ConsentSignature.fromJSON(node);
-        assertEquals("Dave Test", deser.getName());
-        assertEquals("1970-01-01", deser.getBirthdate());
-        assertEquals(SIGNED_ON_TIMESTAMP.getMillis(), deser.getSignedOn()); // this is set in the builder
-        assertEquals(0L, deser.getConsentCreatedOn());
+        assertEquals(deser.getName(), "Dave Test");
+        assertEquals(deser.getBirthdate(), "1970-01-01");
+        assertEquals(deser.getSignedOn(), SIGNED_ON_TIMESTAMP.getMillis()); // this is set in the builder
+        assertEquals(deser.getConsentCreatedOn(), 0L);
         assertNull(deser.getWithdrewOn());
     }
     
@@ -64,9 +62,9 @@ public class ConsentSignatureTest {
         ConsentSignature sig = new ConsentSignature.Builder().withName("test name").withBirthdate("1970-01-01")
                 .withConsentCreatedOn(CONSENT_CREATED_ON_TIMESTAMP.getMillis())
                 .withSignedOn(SIGNED_ON_TIMESTAMP.getMillis()).build();
-        assertEquals("test name", sig.getName());
-        assertEquals("1970-01-01", sig.getBirthdate());
-        assertEquals(CONSENT_CREATED_ON_TIMESTAMP.getMillis(), sig.getConsentCreatedOn());
+        assertEquals(sig.getName(), "test name");
+        assertEquals(sig.getBirthdate(), "1970-01-01");
+        assertEquals(sig.getConsentCreatedOn(), CONSENT_CREATED_ON_TIMESTAMP.getMillis());
         assertNull(sig.getImageData());
         assertNull(sig.getImageMimeType());
     }
@@ -76,18 +74,18 @@ public class ConsentSignatureTest {
         ConsentSignature sig = new ConsentSignature.Builder().withName("test name").withBirthdate("1970-01-01")
                 .withImageData(TestConstants.DUMMY_IMAGE_DATA).withImageMimeType("image/fake")
                 .withSignedOn(SIGNED_ON_TIMESTAMP.getMillis()).build();
-        assertEquals("test name", sig.getName());
-        assertEquals("1970-01-01", sig.getBirthdate());
-        assertEquals(TestConstants.DUMMY_IMAGE_DATA, sig.getImageData());
-        assertEquals("image/fake", sig.getImageMimeType());
+        assertEquals(sig.getName(), "test name");
+        assertEquals(sig.getBirthdate(), "1970-01-01");
+        assertEquals(sig.getImageData(), TestConstants.DUMMY_IMAGE_DATA);
+        assertEquals(sig.getImageMimeType(), "image/fake");
     }
 
     @Test
     public void jsonHappyCase() throws Exception {
         String jsonStr = "{\"name\":\"test name\", \"birthdate\":\"1970-01-01\"}";
         ConsentSignature sig = BridgeObjectMapper.get().readValue(jsonStr, ConsentSignature.class);
-        assertEquals("test name", sig.getName());
-        assertEquals("1970-01-01", sig.getBirthdate());
+        assertEquals(sig.getName(), "test name");
+        assertEquals(sig.getBirthdate(), "1970-01-01");
         assertNull(sig.getImageData());
         assertNull(sig.getImageMimeType());
     }
@@ -101,8 +99,8 @@ public class ConsentSignatureTest {
                 "   \"imageMimeType\":null\n" +
                 "}";
         ConsentSignature sig = BridgeObjectMapper.get().readValue(jsonStr, ConsentSignature.class);
-        assertEquals("test name", sig.getName());
-        assertEquals("1970-01-01", sig.getBirthdate());
+        assertEquals(sig.getName(), "test name");
+        assertEquals(sig.getBirthdate(), "1970-01-01");
         assertNull(sig.getImageData());
         assertNull(sig.getImageMimeType());
     }
@@ -116,20 +114,20 @@ public class ConsentSignatureTest {
                 "   \"imageMimeType\":\"image/fake\"\n" +
                 "}";
         ConsentSignature sig = BridgeObjectMapper.get().readValue(jsonStr, ConsentSignature.class);
-        assertEquals("test name", sig.getName());
-        assertEquals("1970-01-01", sig.getBirthdate());
-        assertEquals(TestConstants.DUMMY_IMAGE_DATA, sig.getImageData());
-        assertEquals("image/fake", sig.getImageMimeType());
-        assertEquals(SIGNED_ON_TIMESTAMP.getMillis(), sig.getSignedOn());
+        assertEquals(sig.getName(), "test name");
+        assertEquals(sig.getBirthdate(), "1970-01-01");
+        assertEquals(sig.getImageData(), TestConstants.DUMMY_IMAGE_DATA);
+        assertEquals(sig.getImageMimeType(), "image/fake");
+        assertEquals(sig.getSignedOn(), SIGNED_ON_TIMESTAMP.getMillis());
     }
     
     @Test
     public void existingSignatureJsonDeserializesWithoutSignedOn() throws Exception {
         String json = "{\"name\":\"test name\",\"birthdate\":\"1970-01-01\"}";
         ConsentSignature sig = BridgeObjectMapper.get().readValue(json, ConsentSignature.class);
-        assertEquals("test name", sig.getName());
-        assertEquals("1970-01-01", sig.getBirthdate());
-        assertEquals(SIGNED_ON_TIMESTAMP.getMillis(), sig.getSignedOn());
+        assertEquals(sig.getName(), "test name");
+        assertEquals(sig.getBirthdate(), "1970-01-01");
+        assertEquals(sig.getSignedOn(), SIGNED_ON_TIMESTAMP.getMillis());
     }
     
     @Test
@@ -139,14 +137,14 @@ public class ConsentSignatureTest {
 
         ConsentSignature updated = new ConsentSignature.Builder().withConsentSignature(sig)
                 .withSignedOn(SIGNED_ON_TIMESTAMP.getMillis()).build();
-        assertEquals("test name", updated.getName());
-        assertEquals("1970-01-01", updated.getBirthdate());
-        assertEquals(SIGNED_ON_TIMESTAMP.getMillis(), updated.getSignedOn());
+        assertEquals(updated.getName(), "test name");
+        assertEquals(updated.getBirthdate(), "1970-01-01");
+        assertEquals(updated.getSignedOn(), SIGNED_ON_TIMESTAMP.getMillis());
         
         json = "{\"name\":\"test name\",\"birthdate\":\"1970-01-01\",\"signedOn\":\"" + 
                 SIGNED_ON_TIMESTAMP.toString() + "\"}";
         sig = BridgeObjectMapper.get().readValue(json, ConsentSignature.class);
-        assertEquals(SIGNED_ON_TIMESTAMP.getMillis(), sig.getSignedOn());
+        assertEquals(sig.getSignedOn(), SIGNED_ON_TIMESTAMP.getMillis());
     }
     
     @Test

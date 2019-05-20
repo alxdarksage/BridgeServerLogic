@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +13,10 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.AppVersionHelper;
 import org.sagebionetworks.bridge.dynamodb.DynamoUploadSchema;
@@ -47,16 +49,16 @@ public class UploadSchemaTest {
         assertFieldDefListIsImmutable(schema.getFieldDefinitions());
         {
             List<UploadFieldDefinition> gettedFieldDefList = schema.getFieldDefinitions();
-            assertEquals(1, gettedFieldDefList.size());
-            assertEquals(fieldDef1, gettedFieldDefList.get(0));
+            assertEquals(gettedFieldDefList.size(), 1);
+            assertEquals(gettedFieldDefList.get(0), fieldDef1);
         }
 
         // Modify the original list. getFieldDefinitions() shouldn't reflect this change.
         fieldDefList.add(fieldDef2);
         {
             List<UploadFieldDefinition> gettedFieldDefList = schema.getFieldDefinitions();
-            assertEquals(1, gettedFieldDefList.size());
-            assertEquals(fieldDef1, gettedFieldDefList.get(0));
+            assertEquals(gettedFieldDefList.size(), 1);
+            assertEquals(gettedFieldDefList.get(0), fieldDef1);
         }
 
         // Set field def list to null. It'll come back as empty.
@@ -81,7 +83,7 @@ public class UploadSchemaTest {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setStudyId("api");
         ddbUploadSchema.setSchemaId("test");
-        assertEquals("api:test", ddbUploadSchema.getKey());
+        assertEquals(ddbUploadSchema.getKey(), "api:test");
     }
 
     @Test
@@ -134,35 +136,35 @@ public class UploadSchemaTest {
     public void getStudyAndSchemaFromKey() {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setKey("api:test");
-        assertEquals("api", ddbUploadSchema.getStudyId());
-        assertEquals("test", ddbUploadSchema.getSchemaId());
+        assertEquals(ddbUploadSchema.getStudyId(), "api");
+        assertEquals(ddbUploadSchema.getSchemaId(), "test");
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void nullKey() {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setKey(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void emptyKey() {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setKey("");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void keyWithOnePart() {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setKey("keyWithOnePart");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void keyWithEmptyStudy() {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setKey(":test");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void keyWithEmptySchema() {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setKey("api:");
@@ -173,15 +175,15 @@ public class UploadSchemaTest {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setStudyId("api");
         ddbUploadSchema.setSchemaId("test:schema");
-        assertEquals("api:test:schema", ddbUploadSchema.getKey());
+        assertEquals(ddbUploadSchema.getKey(), "api:test:schema");
     }
 
     @Test
     public void setKeyWithColonsInSchema() {
         DynamoUploadSchema ddbUploadSchema = new DynamoUploadSchema();
         ddbUploadSchema.setKey("api:test:schema");
-        assertEquals("api", ddbUploadSchema.getStudyId());
-        assertEquals("test:schema", ddbUploadSchema.getSchemaId());
+        assertEquals(ddbUploadSchema.getStudyId(), "api");
+        assertEquals(ddbUploadSchema.getSchemaId(), "test:schema");
     }
 
     @Test
@@ -195,7 +197,7 @@ public class UploadSchemaTest {
         schema.setStudyId("test-study");
         schema.setSchemaId("test-schema");
         schema.setRevision(7);
-        assertEquals("test-study-test-schema-v7", schema.getSchemaKey().toString());
+        assertEquals(schema.getSchemaKey().toString(), "test-study-test-schema-v7");
     }
 
     @Test
@@ -236,33 +238,33 @@ public class UploadSchemaTest {
 
         // convert to POJO
         UploadSchema uploadSchema = BridgeObjectMapper.get().readValue(jsonText, UploadSchema.class);
-        assertEquals(MODULE_ID, uploadSchema.getModuleId());
-        assertEquals(MODULE_VERSION, uploadSchema.getModuleVersion().intValue());
-        assertEquals("Test Schema", uploadSchema.getName());
-        assertEquals(3, uploadSchema.getRevision());
-        assertEquals("test-schema", uploadSchema.getSchemaId());
-        assertEquals(UploadSchemaType.IOS_SURVEY, uploadSchema.getSchemaType());
-        assertEquals("test-study", uploadSchema.getStudyId());
-        assertEquals("survey-guid", uploadSchema.getSurveyGuid());
-        assertEquals(surveyCreatedOnMillis, uploadSchema.getSurveyCreatedOn().longValue());
+        assertEquals(uploadSchema.getModuleId(), MODULE_ID);
+        assertEquals(uploadSchema.getModuleVersion().intValue(), MODULE_VERSION);
+        assertEquals(uploadSchema.getName(), "Test Schema");
+        assertEquals(uploadSchema.getRevision(), 3);
+        assertEquals(uploadSchema.getSchemaId(), "test-schema");
+        assertEquals(uploadSchema.getSchemaType(), UploadSchemaType.IOS_SURVEY);
+        assertEquals(uploadSchema.getStudyId(), "test-study");
+        assertEquals(uploadSchema.getSurveyGuid(), "survey-guid");
+        assertEquals(uploadSchema.getSurveyCreatedOn().longValue(), surveyCreatedOnMillis);
         assertTrue(uploadSchema.isDeleted());
-        assertEquals(6, ((DynamoUploadSchema) uploadSchema).getVersion().longValue());
+        assertEquals(((DynamoUploadSchema) uploadSchema).getVersion().longValue(), 6);
 
-        assertEquals(ImmutableSet.of("iOS", "Android"), uploadSchema.getAppVersionOperatingSystems());
-        assertEquals(13, uploadSchema.getMinAppVersion("iOS").intValue());
-        assertEquals(37, uploadSchema.getMaxAppVersion("iOS").intValue());
-        assertEquals(23, uploadSchema.getMinAppVersion("Android").intValue());
-        assertEquals(42, uploadSchema.getMaxAppVersion("Android").intValue());
+        assertEquals(uploadSchema.getAppVersionOperatingSystems(), ImmutableSet.of("iOS", "Android"));
+        assertEquals(uploadSchema.getMinAppVersion("iOS").intValue(), 13);
+        assertEquals(uploadSchema.getMaxAppVersion("iOS").intValue(), 37);
+        assertEquals(uploadSchema.getMinAppVersion("Android").intValue(), 23);
+        assertEquals(uploadSchema.getMaxAppVersion("Android").intValue(), 42);
 
         UploadFieldDefinition fooFieldDef = uploadSchema.getFieldDefinitions().get(0);
-        assertEquals("foo", fooFieldDef.getName());
+        assertEquals(fooFieldDef.getName(), "foo");
         assertTrue(fooFieldDef.isRequired());
-        assertEquals(UploadFieldType.INT, fooFieldDef.getType());
+        assertEquals(fooFieldDef.getType(), UploadFieldType.INT);
 
         UploadFieldDefinition barFieldDef = uploadSchema.getFieldDefinitions().get(1);
-        assertEquals("bar", barFieldDef.getName());
+        assertEquals(barFieldDef.getName(), "bar");
         assertFalse(barFieldDef.isRequired());
-        assertEquals(UploadFieldType.STRING, barFieldDef.getType());
+        assertEquals(barFieldDef.getType(), UploadFieldType.STRING);
 
         // Add study ID and verify that it doesn't get leaked into the JSON
         uploadSchema.setStudyId("test-study");
@@ -273,47 +275,47 @@ public class UploadSchemaTest {
         // for consistency in tests, we should do it the same way every time.
         String convertedJson = BridgeObjectMapper.get().writeValueAsString(uploadSchema);
         JsonNode jsonNode = BridgeObjectMapper.get().readTree(convertedJson);
-        assertEquals(15, jsonNode.size());
-        assertEquals(MODULE_ID, jsonNode.get("moduleId").textValue());
-        assertEquals(MODULE_VERSION, jsonNode.get("moduleVersion").intValue());
-        assertEquals("Test Schema", jsonNode.get("name").textValue());
-        assertEquals(3, jsonNode.get("revision").intValue());
-        assertEquals("test-schema", jsonNode.get("schemaId").textValue());
-        assertEquals("ios_survey", jsonNode.get("schemaType").textValue());
-        assertEquals("test-study", jsonNode.get("studyId").textValue());
-        assertEquals("survey-guid", jsonNode.get("surveyGuid").textValue());
-        assertEquals("UploadSchema", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.size(), 15);
+        assertEquals(jsonNode.get("moduleId").textValue(), MODULE_ID);
+        assertEquals(jsonNode.get("moduleVersion").intValue(), MODULE_VERSION);
+        assertEquals(jsonNode.get("name").textValue(), "Test Schema");
+        assertEquals(jsonNode.get("revision").intValue(), 3);
+        assertEquals(jsonNode.get("schemaId").textValue(), "test-schema");
+        assertEquals(jsonNode.get("schemaType").textValue(), "ios_survey");
+        assertEquals(jsonNode.get("studyId").textValue(), "test-study");
+        assertEquals(jsonNode.get("surveyGuid").textValue(), "survey-guid");
+        assertEquals(jsonNode.get("type").textValue(), "UploadSchema");
         assertTrue(jsonNode.get("deleted").booleanValue());
-        assertEquals(6,  jsonNode.get("version").intValue());
+        assertEquals(jsonNode.get("version").intValue(), 6);
         assertTrue(jsonNode.get("deleted").booleanValue());
 
         JsonNode maxAppVersionMap = jsonNode.get("maxAppVersions");
-        assertEquals(2, maxAppVersionMap.size());
-        assertEquals(37, maxAppVersionMap.get("iOS").intValue());
-        assertEquals(42, maxAppVersionMap.get("Android").intValue());
+        assertEquals(maxAppVersionMap.size(), 2);
+        assertEquals(maxAppVersionMap.get("iOS").intValue(), 37);
+        assertEquals(maxAppVersionMap.get("Android").intValue(), 42);
 
         JsonNode minAppVersionMap = jsonNode.get("minAppVersions");
-        assertEquals(2, minAppVersionMap.size());
-        assertEquals(13, minAppVersionMap.get("iOS").intValue());
-        assertEquals(23, minAppVersionMap.get("Android").intValue());
+        assertEquals(minAppVersionMap.size(), 2);
+        assertEquals(minAppVersionMap.get("iOS").intValue(), 13);
+        assertEquals(minAppVersionMap.get("Android").intValue(), 23);
 
         // The createdOn time is converted into ISO timestamp, but might be in a different timezone. Ensure that it
         // still refers to the correct instant in time, down to the millisecond.
         long resultSurveyCreatedOnMillis = DateTime.parse(jsonNode.get("surveyCreatedOn").textValue()).getMillis();
-        assertEquals(surveyCreatedOnMillis, resultSurveyCreatedOnMillis);
+        assertEquals(resultSurveyCreatedOnMillis, surveyCreatedOnMillis);
 
         JsonNode fieldDefJsonList = jsonNode.get("fieldDefinitions");
-        assertEquals(2, fieldDefJsonList.size());
+        assertEquals(fieldDefJsonList.size(), 2);
 
         JsonNode fooJsonMap = fieldDefJsonList.get(0);
-        assertEquals("foo", fooJsonMap.get("name").textValue());
+        assertEquals(fooJsonMap.get("name").textValue(), "foo");
         assertTrue(fooJsonMap.get("required").booleanValue());
-        assertEquals("int", fooJsonMap.get("type").textValue());
+        assertEquals(fooJsonMap.get("type").textValue(), "int");
 
         JsonNode barJsonMap = fieldDefJsonList.get(1);
-        assertEquals("bar", barJsonMap.get("name").textValue());
+        assertEquals(barJsonMap.get("name").textValue(), "bar");
         assertFalse(barJsonMap.get("required").booleanValue());
-        assertEquals("string", barJsonMap.get("type").textValue());
+        assertEquals(barJsonMap.get("type").textValue(), "string");
 
         // Serialize it again using the public writer, which includes all fields except studyId.
         String publicJson = UploadSchema.PUBLIC_SCHEMA_WRITER.writeValueAsString(uploadSchema);
@@ -322,7 +324,7 @@ public class UploadSchemaTest {
         // Public JSON is missing studyId, but is otherwise identical to the non-public (internal worker) JSON.
         assertFalse(publicJsonNode.has("studyId"));
         ((ObjectNode) publicJsonNode).put("studyId", "test-study");
-        assertEquals(jsonNode, publicJsonNode);
+        assertEquals(Sets.newHashSet(publicJsonNode.fieldNames()), Sets.newHashSet(jsonNode.fieldNames()));
     }
 
     @Test
@@ -349,17 +351,17 @@ public class UploadSchemaTest {
         // there is no way to actually create a class of that type. Fortunately, the unmarshaller never uses that
         // object, so we just pass in null.
         List<UploadFieldDefinition> fieldDefList = fieldDefListMarshaller.unconvert(jsonText);
-        assertEquals(2, fieldDefList.size());
+        assertEquals(fieldDefList.size(), 2);
 
         UploadFieldDefinition fooFieldDef = fieldDefList.get(0);
-        assertEquals("foo", fooFieldDef.getName());
+        assertEquals(fooFieldDef.getName(), "foo");
         assertTrue(fooFieldDef.isRequired());
-        assertEquals(UploadFieldType.INT, fooFieldDef.getType());
+        assertEquals(fooFieldDef.getType(), UploadFieldType.INT);
 
         UploadFieldDefinition barFieldDef = fieldDefList.get(1);
-        assertEquals("bar", barFieldDef.getName());
+        assertEquals(barFieldDef.getName(), "bar");
         assertFalse(barFieldDef.isRequired());
-        assertEquals(UploadFieldType.STRING, barFieldDef.getType());
+        assertEquals(barFieldDef.getType(), UploadFieldType.STRING);
 
         // re-marshall
         String marshalledJson = fieldDefListMarshaller.convert(fieldDefList);
@@ -367,16 +369,16 @@ public class UploadSchemaTest {
         // then convert to a list so we can validate the raw JSON
         List<Map<String, Object>> fieldDefJsonList = BridgeObjectMapper.get().readValue(marshalledJson,
                 List.class);
-        assertEquals(2, fieldDefJsonList.size());
+        assertEquals(fieldDefJsonList.size(), 2);
 
         Map<String, Object> fooJsonMap = fieldDefJsonList.get(0);
-        assertEquals("foo", fooJsonMap.get("name"));
+        assertEquals(fooJsonMap.get("name"), "foo");
         assertTrue((boolean) fooJsonMap.get("required"));
-        assertEquals("int", fooJsonMap.get("type"));
+        assertEquals(fooJsonMap.get("type"), "int");
 
         Map<String, Object> barJsonMap = fieldDefJsonList.get(1);
-        assertEquals("bar", barJsonMap.get("name"));
+        assertEquals(barJsonMap.get("name"), "bar");
         assertFalse((boolean) barJsonMap.get("required"));
-        assertEquals("string", barJsonMap.get("type"));
+        assertEquals(barJsonMap.get("type"), "string");
     }
 }

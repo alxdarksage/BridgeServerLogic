@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.studies.Study;
@@ -16,7 +16,7 @@ public class StrictValidationHandlerGetValidationStrictnessTest {
     private StrictValidationHandler handler;
     private StudyService mockStudyService;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         mockStudyService = mock(StudyService.class);
         handler = new StrictValidationHandler();
@@ -33,7 +33,7 @@ public class StrictValidationHandlerGetValidationStrictnessTest {
 
         // execute and validate
         UploadValidationStrictness retVal = handler.getUploadValidationStrictnessForStudy(TestConstants.TEST_STUDY);
-        assertEquals(UploadValidationStrictness.STRICT, retVal);
+        assertEquals(retVal, UploadValidationStrictness.STRICT);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class StrictValidationHandlerGetValidationStrictnessTest {
 
         // execute and validate
         UploadValidationStrictness retVal = handler.getUploadValidationStrictnessForStudy(TestConstants.TEST_STUDY);
-        assertEquals(UploadValidationStrictness.REPORT, retVal);
+        assertEquals(retVal, UploadValidationStrictness.REPORT);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class StrictValidationHandlerGetValidationStrictnessTest {
 
         // execute and validate
         UploadValidationStrictness retVal = handler.getUploadValidationStrictnessForStudy(TestConstants.TEST_STUDY);
-        assertEquals(UploadValidationStrictness.WARNING, retVal);
+        assertEquals(retVal, UploadValidationStrictness.WARNING);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class StrictValidationHandlerGetValidationStrictnessTest {
 
         // execute and validate
         UploadValidationStrictness retVal = handler.getUploadValidationStrictnessForStudy(TestConstants.TEST_STUDY);
-        assertEquals(UploadValidationStrictness.STRICT, retVal);
+        assertEquals(retVal, UploadValidationStrictness.STRICT);
     }
 
     @Test
@@ -85,6 +85,6 @@ public class StrictValidationHandlerGetValidationStrictnessTest {
 
         // execute and validate
         UploadValidationStrictness retVal = handler.getUploadValidationStrictnessForStudy(TestConstants.TEST_STUDY);
-        assertEquals(UploadValidationStrictness.WARNING, retVal);
+        assertEquals(retVal, UploadValidationStrictness.WARNING);
     }
 }

@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.testng.Assert.assertEquals;
 
 import java.io.File;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.healthdata.HealthDataRecord;
 import org.sagebionetworks.bridge.models.upload.Upload;
@@ -48,7 +48,7 @@ public class UploadRawZipHandlerTest {
         verify(mockS3Helper).writeFileToS3(eq(UploadRawZipHandler.ATTACHMENT_BUCKET), eq(expectedRawDataAttachmentId),
                 eq(mockDecryptedFile), metadataCaptor.capture());
 
-        assertEquals(expectedRawDataAttachmentId, record.getRawDataAttachmentId());
-        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadataCaptor.getValue().getSSEAlgorithm());
+        assertEquals(record.getRawDataAttachmentId(), expectedRawDataAttachmentId);
+        assertEquals(metadataCaptor.getValue().getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
     }
 }

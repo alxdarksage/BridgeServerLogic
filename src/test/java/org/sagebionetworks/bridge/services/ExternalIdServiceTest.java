@@ -1,21 +1,20 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.BridgeUtils;
@@ -34,7 +33,6 @@ import org.sagebionetworks.bridge.models.substudies.Substudy;
 
 import com.google.common.collect.ImmutableSet;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ExternalIdServiceTest {
 
     private static final String ID = "AAA";
@@ -53,8 +51,10 @@ public class ExternalIdServiceTest {
     
     private ExternalIdService externalIdService;
 
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         BridgeUtils.setRequestContext(new RequestContext.Builder()
                 .withCallerStudyId(TestConstants.TEST_STUDY).build());
         study = Study.create();
@@ -66,7 +66,7 @@ public class ExternalIdServiceTest {
         externalIdService.setSubstudyService(substudyService);
     }
     
-    @After
+    @AfterMethod
     public void after() {
         BridgeUtils.setRequestContext(null);
     }
@@ -76,7 +76,7 @@ public class ExternalIdServiceTest {
         when(externalIdDao.getExternalId(TestConstants.TEST_STUDY, ID)).thenReturn(Optional.of(extId));
         
         Optional<ExternalIdentifier> retrieved = externalIdService.getExternalId(TestConstants.TEST_STUDY, ID);
-        assertEquals(extId, retrieved.get());
+        assertEquals(retrieved.get(), extId);
     }
     
     @Test
@@ -102,12 +102,12 @@ public class ExternalIdServiceTest {
                 null, null);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getExternalIdsUnderMinPageSizeThrows() {
         externalIdService.getExternalIds(null, 0, null, null);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getExternalIdsOverMaxPageSizeThrows() {
         externalIdService.getExternalIds(null, 10000, null, null);
     }
@@ -155,7 +155,7 @@ public class ExternalIdServiceTest {
         verify(externalIdDao).createExternalId(extId);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void createExternalIdDoesNotSetSubstudyIdAmbiguous() {
         extId.setSubstudyId(null); // not set by caller
         
@@ -166,12 +166,12 @@ public class ExternalIdServiceTest {
         externalIdService.createExternalId(extId, false);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void createExternalIdValidates() {
         externalIdService.createExternalId(ExternalIdentifier.create(new StudyIdentifierImpl("nonsense"), "nonsense"), false);
     }
     
-    @Test(expected = EntityAlreadyExistsException.class)
+    @Test(expectedExceptions = EntityAlreadyExistsException.class)
     public void createExternalIdAlreadyExistsThrows() {
         when(substudyService.getSubstudy(TestConstants.TEST_STUDY, SUBSTUDY_ID, false))
             .thenReturn(Substudy.create());
@@ -190,21 +190,21 @@ public class ExternalIdServiceTest {
         verify(externalIdDao).deleteExternalId(extId);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteExternalIdPermanentlyThrowsIfValidationEnabled() {
         study.setExternalIdValidationEnabled(true);
         
         externalIdService.deleteExternalIdPermanently(study, extId);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteExternalIdPermanentlyMissingThrows() {
         when(externalIdDao.getExternalId(TestConstants.TEST_STUDY, extId.getIdentifier())).thenReturn(Optional.empty());
         
         externalIdService.deleteExternalIdPermanently(study, extId);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteExternalIdPermanentlyOutsideSubstudiesThrows() {
         BridgeUtils.setRequestContext(new RequestContext.Builder()
                 .withCallerStudyId(TestConstants.TEST_STUDY)

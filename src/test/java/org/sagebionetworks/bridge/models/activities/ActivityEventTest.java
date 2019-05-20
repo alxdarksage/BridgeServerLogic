@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.models.activities;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dynamodb.DynamoActivityEvent;
 import org.sagebionetworks.bridge.dynamodb.DynamoActivityEvent.Builder;
@@ -22,33 +22,34 @@ public class ActivityEventTest {
             new DynamoActivityEvent.Builder().build();
             fail("Should have thrown an exception");
         } catch(InvalidEntityException e) {
-            assertEquals("timestamp cannot be null", e.getErrors().get("timestamp").get(0));
-            assertEquals("healthCode cannot be null or blank", e.getErrors().get("healthCode").get(0));
+            assertEquals(e.getErrors().get("timestamp").get(0), "timestamp cannot be null");
+            assertEquals(e.getErrors().get("healthCode").get(0), "healthCode cannot be null or blank");
         }
         try {
             new DynamoActivityEvent.Builder().withHealthCode("BBB").build();
             fail("Should have thrown an exception");
         } catch(InvalidEntityException e) {
-            assertEquals("timestamp cannot be null", e.getErrors().get("timestamp").get(0));
+            assertEquals(e.getErrors().get("timestamp").get(0), "timestamp cannot be null");
         }
         try {
             new DynamoActivityEvent.Builder().withObjectType(ActivityEventObjectType.QUESTION).build();
             fail("Should have thrown an exception");
         } catch(InvalidEntityException e) {
-            assertEquals("timestamp cannot be null", e.getErrors().get("timestamp").get(0));
-            assertEquals("healthCode cannot be null or blank", e.getErrors().get("healthCode").get(0));
+            assertEquals(e.getErrors().get("timestamp").get(0), "timestamp cannot be null");
+            assertEquals(e.getErrors().get("healthCode").get(0), "healthCode cannot be null or blank");
         }
         try {
             new DynamoActivityEvent.Builder().withTimestamp(DateTime.now()).build();
             fail("Should have thrown an exception");
         } catch(InvalidEntityException e) {
-            assertEquals("healthCode cannot be null or blank", e.getErrors().get("healthCode").get(0));
+            assertEquals(e.getErrors().get("healthCode").get(0), "healthCode cannot be null or blank");
         }
         try {
             new DynamoActivityEvent.Builder().withHealthCode("BBB").withTimestamp(DateTime.now()).build();
             fail("Should have thrown an exception");
         } catch(InvalidEntityException e) {
-            assertEquals("eventId cannot be null (may be missing object or event type)", e.getErrors().get("eventId").get(0));
+            assertEquals(e.getErrors().get("eventId").get(0),
+                    "eventId cannot be null (may be missing object or event type)");
         }
         
     }
@@ -59,9 +60,9 @@ public class ActivityEventTest {
         Builder builder = new DynamoActivityEvent.Builder();
         ActivityEvent event = builder.withObjectType(ActivityEventObjectType.ENROLLMENT).withHealthCode("BBB").withTimestamp(now).build();
         
-        assertEquals("BBB", event.getHealthCode());
-        assertEquals(now, new DateTime(event.getTimestamp()));
-        assertEquals("enrollment", event.getEventId());
+        assertEquals(event.getHealthCode(), "BBB");
+        assertEquals(new DateTime(event.getTimestamp()), now);
+        assertEquals(event.getEventId(), "enrollment");
     }
     
     @Test
@@ -70,9 +71,9 @@ public class ActivityEventTest {
         Builder builder = new DynamoActivityEvent.Builder();
         ActivityEvent event = builder.withObjectType(ActivityEventObjectType.ENROLLMENT).withHealthCode("BBB").withTimestamp(now).build();
         
-        assertEquals("BBB", event.getHealthCode());
-        assertEquals(now, new DateTime(event.getTimestamp()));
-        assertEquals("enrollment", event.getEventId());
+        assertEquals(event.getHealthCode(), "BBB");
+        assertEquals(new DateTime(event.getTimestamp()), now);
+        assertEquals(event.getEventId(), "enrollment");
     }
     
     @Test
@@ -81,9 +82,9 @@ public class ActivityEventTest {
         ActivityEvent event = new DynamoActivityEvent.Builder().withHealthCode("BBB")
                 .withObjectType(ActivityEventObjectType.ENROLLMENT).withTimestamp(now).build();
         
-        assertEquals("BBB", event.getHealthCode());
-        assertEquals(now, new DateTime(event.getTimestamp()));
-        assertEquals("enrollment", event.getEventId());
+        assertEquals(event.getHealthCode(), "BBB");
+        assertEquals(new DateTime(event.getTimestamp()), now);
+        assertEquals(event.getEventId(), "enrollment");
     }
     
     @Test
@@ -93,9 +94,9 @@ public class ActivityEventTest {
                 .withObjectType(ActivityEventObjectType.ACTIVITIES_RETRIEVED).withHealthCode("BBB").withTimestamp(now)
                 .build();
         
-        assertEquals("BBB", event.getHealthCode());
-        assertEquals(now, new DateTime(event.getTimestamp()));
-        assertEquals("activities_retrieved", event.getEventId());
+        assertEquals(event.getHealthCode(), "BBB");
+        assertEquals(new DateTime(event.getTimestamp()), now);
+        assertEquals(event.getEventId(), "activities_retrieved");
     }
 
     @Test
@@ -110,27 +111,27 @@ public class ActivityEventTest {
 
         // Convert to POJO.
         ActivityEvent activityEvent = BridgeObjectMapper.get().readValue(jsonText, ActivityEvent.class);
-        assertEquals("test-health-code", activityEvent.getHealthCode());
-        assertEquals("test-event", activityEvent.getEventId());
-        assertEquals("dummy answer", activityEvent.getAnswerValue());
-        assertEquals(DateUtils.convertToMillisFromEpoch("2018-08-20T16:15:19.913Z"), activityEvent.getTimestamp()
-                .longValue());
+        assertEquals(activityEvent.getHealthCode(), "test-health-code");
+        assertEquals(activityEvent.getEventId(), "test-event");
+        assertEquals(activityEvent.getAnswerValue(), "dummy answer");
+        assertEquals(activityEvent.getTimestamp().longValue(),
+                DateUtils.convertToMillisFromEpoch("2018-08-20T16:15:19.913Z"));
 
         // Convert back to JSON.
         JsonNode activityNode = BridgeObjectMapper.get().convertValue(activityEvent, JsonNode.class);
-        assertEquals("test-health-code", activityNode.get("healthCode").textValue());
-        assertEquals("test-event", activityNode.get("eventId").textValue());
-        assertEquals("dummy answer", activityNode.get("answerValue").textValue());
-        assertEquals("2018-08-20T16:15:19.913Z", activityNode.get("timestamp").textValue());
-        assertEquals("ActivityEvent", activityNode.get("type").textValue());
+        assertEquals(activityNode.get("healthCode").textValue(), "test-health-code");
+        assertEquals(activityNode.get("eventId").textValue(), "test-event");
+        assertEquals(activityNode.get("answerValue").textValue(), "dummy answer");
+        assertEquals(activityNode.get("timestamp").textValue(), "2018-08-20T16:15:19.913Z");
+        assertEquals(activityNode.get("type").textValue(), "ActivityEvent");
 
         // Test activity event writer, which filters out health code.
         String filteredJsonText = ActivityEvent.ACTIVITY_EVENT_WRITER.writeValueAsString(activityEvent);
         JsonNode filteredActivityNode = BridgeObjectMapper.get().readTree(filteredJsonText);
         assertNull(filteredActivityNode.get("healthCode"));
-        assertEquals("test-event", filteredActivityNode.get("eventId").textValue());
-        assertEquals("dummy answer", filteredActivityNode.get("answerValue").textValue());
-        assertEquals("2018-08-20T16:15:19.913Z", filteredActivityNode.get("timestamp").textValue());
-        assertEquals("ActivityEvent", filteredActivityNode.get("type").textValue());
+        assertEquals(filteredActivityNode.get("eventId").textValue(), "test-event");
+        assertEquals(filteredActivityNode.get("answerValue").textValue(), "dummy answer");
+        assertEquals(filteredActivityNode.get("timestamp").textValue(), "2018-08-20T16:15:19.913Z");
+        assertEquals(filteredActivityNode.get("type").textValue(), "ActivityEvent");
     }
 }

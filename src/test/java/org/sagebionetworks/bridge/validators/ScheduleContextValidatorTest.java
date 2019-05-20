@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.models.ClientInfo;
 import org.sagebionetworks.bridge.models.schedules.ScheduleContext;

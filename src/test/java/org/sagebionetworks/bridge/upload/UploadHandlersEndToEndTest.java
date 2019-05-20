@@ -1,14 +1,14 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.io.InputStream;
@@ -26,11 +26,11 @@ import com.google.common.collect.ImmutableSet;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.AccountDao;
@@ -111,7 +111,7 @@ public class UploadHandlersEndToEndTest {
         DateTimeUtils.setCurrentMillisFixed(MOCK_NOW_MILLIS);
     }
 
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
         // Reset all member vars, because JUnit doesn't.
         inMemoryFileHelper = new InMemoryFileHelper();
@@ -308,29 +308,29 @@ public class UploadHandlersEndToEndTest {
         //   id - This one is created by the DAO, so it's not present in the passed in record.
         //   synapseExporterStatus - This isn't used in upload validation.
         //   version - That's internal.
-        assertEquals(APP_VERSION, record.getAppVersion());
-        assertEquals(CREATED_ON_MILLIS, record.getCreatedOn().longValue());
-        assertEquals(CREATED_ON_TIME_ZONE, record.getCreatedOnTimeZone());
-        assertEquals(HEALTH_CODE, record.getHealthCode());
-        assertEquals(PHONE_INFO, record.getPhoneInfo());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, record.getStudyId());
-        assertEquals(MOCK_TODAY, record.getUploadDate());
-        assertEquals(UPLOAD_ID, record.getUploadId());
-        assertEquals(MOCK_NOW_MILLIS, record.getUploadedOn().longValue());
-        assertEquals(SharingScope.SPONSORS_AND_PARTNERS, record.getUserSharingScope());
-        assertEquals(EXTERNAL_ID, record.getUserExternalId());
-        assertEquals(DATA_GROUP_SET, record.getUserDataGroups());
+        assertEquals(record.getAppVersion(), APP_VERSION);
+        assertEquals(record.getCreatedOn().longValue(), CREATED_ON_MILLIS);
+        assertEquals(record.getCreatedOnTimeZone(), CREATED_ON_TIME_ZONE);
+        assertEquals(record.getHealthCode(), HEALTH_CODE);
+        assertEquals(record.getPhoneInfo(), PHONE_INFO);
+        assertEquals(record.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(record.getUploadDate(), MOCK_TODAY);
+        assertEquals(record.getUploadId(), UPLOAD_ID);
+        assertEquals(record.getUploadedOn().longValue(), MOCK_NOW_MILLIS);
+        assertEquals(record.getUserSharingScope(), SharingScope.SPONSORS_AND_PARTNERS);
+        assertEquals(record.getUserExternalId(), EXTERNAL_ID);
+        assertEquals(record.getUserDataGroups(), DATA_GROUP_SET);
 
         // Metadata needs to exist for backwards compatibility, and it should have appVersion and phoneInfo. Beyond
         // that, it doesn't really matter
         JsonNode metadataNode = record.getMetadata();
-        assertEquals(APP_VERSION, metadataNode.get(UploadUtil.FIELD_APP_VERSION).textValue());
-        assertEquals(PHONE_INFO, metadataNode.get(UploadUtil.FIELD_PHONE_INFO).textValue());
+        assertEquals(metadataNode.get(UploadUtil.FIELD_APP_VERSION).textValue(), APP_VERSION);
+        assertEquals(metadataNode.get(UploadUtil.FIELD_PHONE_INFO).textValue(), PHONE_INFO);
 
         // Validate user metadata.
         JsonNode userMetadataNode = record.getUserMetadata();
-        assertEquals(1, userMetadataNode.size());
-        assertEquals("my-meta-value", userMetadataNode.get("my-meta-key").textValue());
+        assertEquals(userMetadataNode.size(), 1);
+        assertEquals(userMetadataNode.get("my-meta-key").textValue(), "my-meta-value");
     }
 
     private void testSurvey(Map<String, String> fileMap) throws Exception {
@@ -372,23 +372,23 @@ public class UploadHandlersEndToEndTest {
 
         HealthDataRecord record = recordCaptor.getValue();
         validateCommonRecordProps(record);
-        assertEquals(SURVEY_ID, record.getSchemaId());
-        assertEquals(SURVEY_SCHEMA_REV, record.getSchemaRevision());
+        assertEquals(record.getSchemaId(), SURVEY_ID);
+        assertEquals(record.getSchemaRevision(), SURVEY_SCHEMA_REV);
 
         JsonNode dataNode = record.getData();
-        assertEquals(4, dataNode.size());
-        assertEquals("Yes", dataNode.get("AAA").textValue());
+        assertEquals(dataNode.size(), 4);
+        assertEquals(dataNode.get("AAA").textValue(), "Yes");
 
         JsonNode bbbChoiceAnswersNode = dataNode.get("BBB");
-        assertEquals(3, bbbChoiceAnswersNode.size());
-        assertEquals("fencing", bbbChoiceAnswersNode.get(0).textValue());
-        assertEquals("running", bbbChoiceAnswersNode.get(1).textValue());
-        assertEquals("3", bbbChoiceAnswersNode.get(2).textValue());
+        assertEquals(bbbChoiceAnswersNode.size(), 3);
+        assertEquals(bbbChoiceAnswersNode.get(0).textValue(), "fencing");
+        assertEquals(bbbChoiceAnswersNode.get(1).textValue(), "running");
+        assertEquals(bbbChoiceAnswersNode.get(2).textValue(), "3");
 
         JsonNode deliciousNode = dataNode.get("delicious");
-        assertEquals(2, deliciousNode.size());
-        assertEquals("Yes", deliciousNode.get(0).textValue());
-        assertEquals("Maybe", deliciousNode.get(1).textValue());
+        assertEquals(deliciousNode.size(), 2);
+        assertEquals(deliciousNode.get(0).textValue(), "Yes");
+        assertEquals(deliciousNode.get(1).textValue(), "Maybe");
 
         // Answers node has all the same fields as dataNode, except without its own answers field. Note that the
         // answers field doesn't go through canonicalization, since it's treated as an attachment instead of individual
@@ -396,22 +396,22 @@ public class UploadHandlersEndToEndTest {
         String answersAttachmentId = dataNode.get(UploadUtil.FIELD_ANSWERS).textValue();
         byte[] answersUploadedContent = uploadedFileContentMap.get(answersAttachmentId);
         JsonNode answersNode = BridgeObjectMapper.get().readTree(answersUploadedContent);
-        assertEquals(3, answersNode.size());
+        assertEquals(answersNode.size(), 3);
 
         JsonNode aaaChoiceAnswersNode = answersNode.get("AAA");
-        assertEquals(1, aaaChoiceAnswersNode.size());
-        assertEquals("Yes", aaaChoiceAnswersNode.get(0).textValue());
+        assertEquals(aaaChoiceAnswersNode.size(), 1);
+        assertEquals(aaaChoiceAnswersNode.get(0).textValue(), "Yes");
 
         bbbChoiceAnswersNode = answersNode.get("BBB");
-        assertEquals(3, bbbChoiceAnswersNode.size());
-        assertEquals("fencing", bbbChoiceAnswersNode.get(0).textValue());
-        assertEquals("running", bbbChoiceAnswersNode.get(1).textValue());
-        assertEquals(3, bbbChoiceAnswersNode.get(2).intValue());
+        assertEquals(bbbChoiceAnswersNode.size(), 3);
+        assertEquals(bbbChoiceAnswersNode.get(0).textValue(), "fencing");
+        assertEquals(bbbChoiceAnswersNode.get(1).textValue(), "running");
+        assertEquals(bbbChoiceAnswersNode.get(2).intValue(), 3);
 
         deliciousNode = answersNode.get("delicious");
-        assertEquals(2, deliciousNode.size());
-        assertEquals("Yes", deliciousNode.get(0).textValue());
-        assertEquals("Maybe", deliciousNode.get(1).textValue());
+        assertEquals(deliciousNode.size(), 2);
+        assertEquals(deliciousNode.get(0).textValue(), "Yes");
+        assertEquals(deliciousNode.get(1).textValue(), "Maybe");
 
         // We upload the unencrypted zipped file back to S3.
         validateRawDataAttachment();
@@ -585,25 +585,25 @@ public class UploadHandlersEndToEndTest {
 
         HealthDataRecord record = recordCaptor.getValue();
         validateCommonRecordProps(record);
-        assertEquals(SCHEMA_ID, record.getSchemaId());
-        assertEquals(SCHEMA_REV, record.getSchemaRevision());
+        assertEquals(record.getSchemaId(), SCHEMA_ID);
+        assertEquals(record.getSchemaRevision(), SCHEMA_REV);
 
         JsonNode dataNode = record.getData();
-        assertEquals(15, dataNode.size());
+        assertEquals(dataNode.size(), 15);
         assertTrue(dataNode.get("record.json.III").booleanValue());
-        assertEquals("2016-06-03", dataNode.get("record.json.JJJ").textValue());
-        assertEquals("PT1H", dataNode.get("record.json.LLL").textValue());
-        assertEquals(3.14, dataNode.get("record.json.MMM").doubleValue(), /*delta*/ 0.001);
-        assertEquals(2, dataNode.get("record.json.OOO").intValue());
-        assertEquals("1337", dataNode.get("record.json.PPP").textValue());
-        assertEquals("19:21:35.378", dataNode.get("record.json.QQQ").textValue());
-        assertEquals(DateTime.parse("2016-06-03T18:12:34.567+0900"),
-                DateTime.parse(dataNode.get("record.json.arrr").textValue()));
+        assertEquals(dataNode.get("record.json.JJJ").textValue(), "2016-06-03");
+        assertEquals(dataNode.get("record.json.LLL").textValue(), "PT1H");
+        assertEquals(dataNode.get("record.json.MMM").doubleValue(), 3.14, /*delta*/ 0.001);
+        assertEquals(dataNode.get("record.json.OOO").intValue(), 2);
+        assertEquals(dataNode.get("record.json.PPP").textValue(), "1337");
+        assertEquals(dataNode.get("record.json.QQQ").textValue(),"19:21:35.378");
+        assertEquals(DateTime.parse(dataNode.get("record.json.arrr").textValue()),
+                DateTime.parse("2016-06-03T18:12:34.567+0900"));
 
         JsonNode nnnNode = dataNode.get("record.json.NNN");
-        assertEquals(2, nnnNode.size());
-        assertEquals("inline", nnnNode.get(0).textValue());
-        assertEquals("json", nnnNode.get(1).textValue());
+        assertEquals(nnnNode.size(), 2);
+        assertEquals(nnnNode.get(0).textValue(), "inline");
+        assertEquals(nnnNode.get(1).textValue(), "json");
 
         // validate attachment content in S3
         String cccTxtAttachmentId = dataNode.get("CCC.txt").textValue();
@@ -618,19 +618,19 @@ public class UploadHandlersEndToEndTest {
         String eeeJsonAttachmentId = dataNode.get("EEE.json").textValue();
         byte[] eeeJsonUploadedContent = uploadedFileContentMap.get(eeeJsonAttachmentId);
         JsonNode eeeJsonNode = BridgeObjectMapper.get().readTree(eeeJsonUploadedContent);
-        assertEquals(1, eeeJsonNode.size());
-        assertEquals("value", eeeJsonNode.get("key").textValue());
+        assertEquals(eeeJsonNode.size(), 1);
+        assertEquals(eeeJsonNode.get("key").textValue(), "value");
 
         String fffJsonAttachmentId = dataNode.get("FFF.json").textValue();
         byte[] fffJsonUploadedContent = uploadedFileContentMap.get(fffJsonAttachmentId);
         JsonNode fffJsonNode = BridgeObjectMapper.get().readTree(fffJsonUploadedContent);
-        assertEquals(2, fffJsonNode.size());
+        assertEquals(fffJsonNode.size(), 2);
 
-        assertEquals(1, fffJsonNode.get(0).size());
-        assertEquals("Dwayne", fffJsonNode.get(0).get("name").textValue());
+        assertEquals(fffJsonNode.get(0).size(), 1);
+        assertEquals(fffJsonNode.get(0).get("name").textValue(), "Dwayne");
 
-        assertEquals(1, fffJsonNode.get(1).size());
-        assertEquals("Eggplant", fffJsonNode.get(1).get("name").textValue());
+        assertEquals(fffJsonNode.get(1).size(), 1);
+        assertEquals(fffJsonNode.get(1).get("name").textValue(), "Eggplant");
 
         String hhhAttachmentId = dataNode.get("record.json.HHH").textValue();
         
@@ -638,12 +638,12 @@ public class UploadHandlersEndToEndTest {
         verify(mockS3UploadHelper).writeBytesToS3(eq(TestConstants.ATTACHMENT_BUCKET), eq(hhhAttachmentId),
                 attachmentContentCaptor.capture(), metadataCaptor.capture());
         JsonNode hhhNode = BridgeObjectMapper.get().readTree(attachmentContentCaptor.getValue());        
-        assertEquals(3, hhhNode.size());
-        assertEquals("attachment", hhhNode.get(0).textValue());
-        assertEquals("inside", hhhNode.get(1).textValue());
-        assertEquals("file", hhhNode.get(2).textValue());
+        assertEquals(hhhNode.size(), 3);
+        assertEquals(hhhNode.get(0).textValue(), "attachment");
+        assertEquals(hhhNode.get(1).textValue(), "inside");
+        assertEquals(hhhNode.get(2).textValue(), "file");
         
-        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadataCaptor.getValue().getSSEAlgorithm());
+        assertEquals(metadataCaptor.getValue().getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
 
         // We upload the unencrypted zipped file back to S3.
         validateRawDataAttachment();
@@ -706,7 +706,7 @@ public class UploadHandlersEndToEndTest {
 
     private void validateTextAttachment(String expected, String attachmentId) {
         byte[] uploadedFileContent = uploadedFileContentMap.get(attachmentId);
-        assertEquals(expected, new String(uploadedFileContent, Charsets.UTF_8));
+        assertEquals(new String(uploadedFileContent, Charsets.UTF_8), expected);
     }
 
     private void validateRawDataAttachment() {
@@ -714,7 +714,7 @@ public class UploadHandlersEndToEndTest {
         verify(mockS3UploadHelper).writeFileToS3(eq(TestConstants.ATTACHMENT_BUCKET), eq(expectedRawDataAttachmentId),
                 any(), metadataCaptor.capture());
         byte[] rawDataBytes = uploadedFileContentMap.get(expectedRawDataAttachmentId);
-        assertArrayEquals(zippedFile, rawDataBytes);
-        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadataCaptor.getValue().getSSEAlgorithm());
+        assertArrayEquals(rawDataBytes, zippedFile);
+        assertEquals(metadataCaptor.getValue().getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
     }
 }

@@ -66,7 +66,7 @@ public class DynamoUploadSchemaDaoMockTest {
         assertFalse(mapperInputSchema.isDeleted());
 
         // schema returned by dao is the same one that was sent to the mapper
-        assertSame(mapperInputSchema, daoOutputSchema);
+        assertSame(daoOutputSchema, mapperInputSchema);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class DynamoUploadSchemaDaoMockTest {
         assertEquals(indexHashKey.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
 
         // Verify DAO output
-        assertSame(mapperOutputSchemaList, daoOutputSchemaList);
+        assertSame(daoOutputSchemaList, mapperOutputSchemaList);
     }
 
     @Test
@@ -131,7 +131,7 @@ public class DynamoUploadSchemaDaoMockTest {
         assertEquals(indexHashKey.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
 
         // Verify DAO output
-        assertSame(mapperOutputSchemaList, daoOutputSchemaList);
+        assertSame(daoOutputSchemaList, mapperOutputSchemaList);
     }
 
     @Test
@@ -219,7 +219,7 @@ public class DynamoUploadSchemaDaoMockTest {
         // set up test dao and execute
         UploadSchema daoOutputSchema = dao.getUploadSchemaByIdAndRevision(TestConstants.TEST_STUDY, SCHEMA_ID,
                 SCHEMA_REV);
-        assertSame(mapperOutputSchema, daoOutputSchema);
+        assertSame(daoOutputSchema, mapperOutputSchema);
 
         // validate intermediate args
         DynamoUploadSchema mapperInputSchema = mapperInputSchemaCaptor.getValue();
@@ -251,7 +251,7 @@ public class DynamoUploadSchemaDaoMockTest {
         assertEquals(mapperQuery.getHashKeyValues().getSchemaId(), SCHEMA_ID);
 
         // Verify DAO output
-        assertSame(mapperOutputSchema, daoOutputSchema);
+        assertSame(daoOutputSchema, mapperOutputSchema);
     }
 
     @Test

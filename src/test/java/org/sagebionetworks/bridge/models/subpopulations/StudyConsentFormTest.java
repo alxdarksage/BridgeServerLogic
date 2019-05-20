@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.subpopulations;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -19,11 +19,11 @@ public class StudyConsentFormTest {
         String json = BridgeObjectMapper.get().writeValueAsString(form);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("<p>This is content</p>", node.get("documentContent").asText());
-        assertEquals("StudyConsent", node.get("type").asText());
+        assertEquals(node.get("documentContent").asText(), "<p>This is content</p>");
+        assertEquals(node.get("type").asText(), "StudyConsent");
         
         StudyConsentForm newForm = BridgeObjectMapper.get().readValue(json, StudyConsentForm.class);
-        assertEquals(form.getDocumentContent(), newForm.getDocumentContent());
+        assertEquals(newForm.getDocumentContent(), form.getDocumentContent());
     }
     
 }

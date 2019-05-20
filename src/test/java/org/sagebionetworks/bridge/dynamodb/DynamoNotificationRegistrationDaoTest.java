@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -95,6 +95,8 @@ public class DynamoNotificationRegistrationDaoTest {
     
     @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         dao = new DynamoNotificationRegistrationDao();
         dao.setNotificationRegistrationMapper(mockMapper);
         dao.setSnsClient(mockSnsClient);
@@ -146,7 +148,7 @@ public class DynamoNotificationRegistrationDaoTest {
         assertNull(snsRequest.getCustomUserData());
         
         assertNotNull(result.getGuid());
-        assertNotEquals(GUID, result.getGuid());
+        assertNotEquals(result.getGuid(), GUID);
         
         verify(mockMapper).save(notificationRegistrationCaptor.capture());
         
@@ -199,12 +201,12 @@ public class DynamoNotificationRegistrationDaoTest {
         assertEquals(savedRegistration.getHealthCode(), HEALTH_CODE);
         assertEquals(savedRegistration.getProtocol(), NotificationProtocol.SMS);
         assertEquals(savedRegistration.getEndpoint(), PHONE_ENDPOINT);
-        assertNotEquals(GUID, savedRegistration.getGuid());
+        assertNotEquals(savedRegistration.getGuid(), GUID);
         assertTrue(savedRegistration.getCreatedOn() > 0L);
-        assertNotEquals(CREATED_ON, savedRegistration.getCreatedOn());
+        assertNotEquals(savedRegistration.getCreatedOn(), CREATED_ON);
         assertTrue(savedRegistration.getModifiedOn() > 0L);
 
-        assertSame(result, savedRegistration);
+        assertSame(savedRegistration, result);
     }
 
     @Test
@@ -228,7 +230,7 @@ public class DynamoNotificationRegistrationDaoTest {
         assertEquals(savedRegistration.getCreatedOn(), CREATED_ON);
         assertTrue(savedRegistration.getModifiedOn() > 0L);
 
-        assertSame(result, savedRegistration);
+        assertSame(savedRegistration, result);
     }
 
     @Test
@@ -277,7 +279,7 @@ public class DynamoNotificationRegistrationDaoTest {
         NotificationRegistration registrationToUpdate = getSmsNotificationRegistration();
         registrationToUpdate.setGuid(GUID);
         NotificationRegistration result = dao.updateRegistration(registrationToUpdate);
-        assertSame(existingRegistration, result);
+        assertSame(result, existingRegistration);
 
         // No back-ends called.
         verifyZeroInteractions(mockSnsClient);
@@ -297,7 +299,7 @@ public class DynamoNotificationRegistrationDaoTest {
         doReturn(mockGetEndpointAttributesResult).when(mockSnsClient).getEndpointAttributes(any());
         
         NotificationRegistration result = dao.updateRegistration(registration);
-        assertSame(registration, result);
+        assertSame(result, registration);
         
         verify(mockSnsClient, never()).setEndpointAttributes(any());
         verify(mockMapper, never()).save(any());
@@ -334,7 +336,7 @@ public class DynamoNotificationRegistrationDaoTest {
         assertEquals(persisted.getDeviceId(), DEVICE_ID);
         assertEquals(persisted.getOsName(), OS_NAME);
         assertEquals(persisted.getCreatedOn(), CREATED_ON);
-        assertNotEquals(MODIFIED_ON, persisted.getModifiedOn()); // modified is changed
+        assertNotEquals(persisted.getModifiedOn(), MODIFIED_ON); // modified is changed
         assertTrue(persisted.getModifiedOn() > 0L);
     }
     

@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -31,8 +31,8 @@ public class MetricsTest {
         assertNotNull(metrics);
 
         // Validate cache key.
-        assertEquals("12345:Metrics", metrics.getCacheKey());
-        assertEquals("12345:Metrics", Metrics.getCacheKey(requestId));
+        assertEquals(metrics.getCacheKey(), "12345:Metrics");
+        assertEquals(Metrics.getCacheKey(requestId), "12345:Metrics");
 
         // Apply setters.
         metrics.setRecordId("test-record");
@@ -41,10 +41,10 @@ public class MetricsTest {
         final String json = metrics.toJsonString();
         assertNotNull(json);
         JsonNode metricsNode = BridgeObjectMapper.get().readTree(json);
-        assertEquals("test-record", metricsNode.get("record_id").textValue());
-        assertEquals(requestId, metricsNode.get("request_id").textValue());
+        assertEquals(metricsNode.get("record_id").textValue(), "test-record");
+        assertEquals(metricsNode.get("request_id").textValue(), requestId);
         assertTrue(metricsNode.hasNonNull("start"));
-        assertEquals(1, metricsNode.get("version").intValue());
+        assertEquals(metricsNode.get("version").intValue(), 1);
     }
 
     @Test
@@ -52,13 +52,13 @@ public class MetricsTest {
         // Mock start and test.
         DateTimeUtils.setCurrentMillisFixed(START_TIME.getMillis());
         Metrics metrics = new Metrics("12345");
-        assertEquals(START_TIME.toString(), metrics.getJson().get("start").textValue());
+        assertEquals(metrics.getJson().get("start").textValue(), START_TIME.toString());
 
         // Mock end and test.
         DateTimeUtils.setCurrentMillisFixed(END_TIME.getMillis());
         metrics.end();
-        assertEquals(END_TIME.toString(), metrics.getJson().get("end").textValue());
-        assertEquals(EXPECTED_ELAPSED_MILLIS, metrics.getJson().get("elapsedMillis").longValue());
+        assertEquals(metrics.getJson().get("end").textValue(), END_TIME.toString());
+        assertEquals(metrics.getJson().get("elapsedMillis").longValue(), EXPECTED_ELAPSED_MILLIS);
     }
 
     @Test
@@ -115,22 +115,22 @@ public class MetricsTest {
         assertTrue(json.contains("\"session_id\":\"d839fe\""));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testConstructorRequestIdMustNotBeNull() {
         new Metrics(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testConstructorRequestIdMustNotBeEmpty() {
         new Metrics(" ");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetCacheKeyRequestIdMustNotBeNull() {
         Metrics.getCacheKey(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetCacheKeyRequestIdMustNotBeEmpty() {
         Metrics.getCacheKey(" ");
     }

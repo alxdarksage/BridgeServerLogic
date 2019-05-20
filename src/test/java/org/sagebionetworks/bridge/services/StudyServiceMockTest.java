@@ -1,10 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.any;
@@ -20,6 +15,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.services.StudyService.EXPORTER_SYNAPSE_USER_ID;
 import static org.sagebionetworks.bridge.services.StudyService.SYNAPSE_REGISTER_END_POINT;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -35,14 +35,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.sagebionetworks.client.SynapseClient;
 import org.sagebionetworks.client.exceptions.SynapseClientException;
 import org.sagebionetworks.client.exceptions.SynapseException;
@@ -55,6 +52,8 @@ import org.sagebionetworks.repo.model.ResourceAccess;
 import org.sagebionetworks.repo.model.Team;
 import org.sagebionetworks.repo.model.util.ModelConstants;
 import org.springframework.core.io.Resource;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.Roles;
@@ -85,7 +84,6 @@ import org.sagebionetworks.bridge.services.email.EmailType;
 import org.sagebionetworks.bridge.services.email.MimeTypeEmail;
 import org.sagebionetworks.bridge.validators.StudyValidator;
 
-@RunWith(MockitoJUnitRunner.class)
 public class StudyServiceMockTest {
     private static final long BRIDGE_ADMIN_TEAM_ID = 1357L;
     private static final long BRIDGE_STAFF_TEAM_ID = 2468L;
@@ -155,8 +153,9 @@ public class StudyServiceMockTest {
     private Project mockProject;
     private MembershipInvitation mockTeamMemberInvitation;
 
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
+        MockitoAnnotations.initMocks(this);
         // Mock config.
         when(bridgeConfig.get(StudyService.CONFIG_KEY_SUPPORT_EMAIL_PLAIN)).thenReturn(SUPPORT_EMAIL);
         when(bridgeConfig.get(StudyService.CONFIG_KEY_TEAM_BRIDGE_ADMIN)).thenReturn(String.valueOf(
@@ -273,9 +272,9 @@ public class StudyServiceMockTest {
         verify(studyDao).updateStudy(savedStudyCaptor.capture());
 
         Study savedStudy = savedStudyCaptor.getValue();
-        assertEquals("different-email@example.com", savedStudy.getConsentNotificationEmail());
+        assertEquals(savedStudy.getConsentNotificationEmail(), "different-email@example.com");
         assertFalse(savedStudy.isConsentNotificationEmailVerified());
-        assertEquals("different-name", savedStudy.getName());
+        assertEquals(savedStudy.getName(), "different-name");
 
         // Verify email verification email.
         verifyEmailVerificationEmail("different-email@example.com");
@@ -287,8 +286,8 @@ public class StudyServiceMockTest {
         verify(cacheProvider).setObject(eq(VER_CACHE_KEY), verificationDataCaptor.capture(),
                 eq(StudyService.VERIFY_STUDY_EMAIL_EXPIRE_IN_SECONDS));
         JsonNode verificationData = BridgeObjectMapper.get().readTree(verificationDataCaptor.getValue());
-        assertEquals(TEST_STUDY_ID, verificationData.get("studyId").textValue());
-        assertEquals(consentNotificationEmail, verificationData.get("email").textValue());
+        assertEquals(verificationData.get("studyId").textValue(), TEST_STUDY_ID);
+        assertEquals(verificationData.get("email").textValue(), consentNotificationEmail);
 
         // Verify sent email.
         ArgumentCaptor<BasicEmailProvider> emailProviderCaptor = ArgumentCaptor.forClass(
@@ -296,17 +295,17 @@ public class StudyServiceMockTest {
         verify(sendMailService).sendEmail(emailProviderCaptor.capture());
 
         MimeTypeEmail email = emailProviderCaptor.getValue().getMimeTypeEmail();
-        assertEquals(EmailType.VERIFY_CONSENT_EMAIL, email.getType());
+        assertEquals(email.getType(), EmailType.VERIFY_CONSENT_EMAIL);
         String body = (String) email.getMessageParts().get(0).getContent();
 
         assertTrue(body.contains("/vse?study="+ TEST_STUDY_ID + "&token=" +
                 VERIFICATION_TOKEN + "&type=consent_notification"));
         assertTrue(email.getSenderAddress().contains(SUPPORT_EMAIL));
-        assertEquals("1 day", emailProviderCaptor.getValue().getTokenMap().get("studyEmailVerificationExpirationPeriod"));
+        assertEquals(emailProviderCaptor.getValue().getTokenMap().get("studyEmailVerificationExpirationPeriod"), "1 day");
         
         List<String> recipientList = email.getRecipientAddresses();
-        assertEquals(1, recipientList.size());
-        assertEquals(consentNotificationEmail, recipientList.get(0));
+        assertEquals(recipientList.size(), 1);
+        assertEquals(recipientList.get(0), consentNotificationEmail);
     }
 
     @Test
@@ -329,7 +328,7 @@ public class StudyServiceMockTest {
 
         Study savedStudy = savedStudyCaptor.getValue();
         assertTrue(savedStudy.isConsentNotificationEmailVerified());
-        assertEquals("different-name", savedStudy.getName());
+        assertEquals(savedStudy.getName(), "different-name");
 
         // Verify we don't send email.
         verify(sendMailService, never()).sendEmail(any());
@@ -371,17 +370,17 @@ public class StudyServiceMockTest {
         verify(studyDao).updateStudy(savedStudyCaptor.capture());
 
         Study savedStudy = savedStudyCaptor.getValue();
-        assertEquals(expectedValue, savedStudy.isConsentNotificationEmailVerified());
+        assertEquals(savedStudy.isConsentNotificationEmailVerified(), expectedValue);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void sendVerifyEmailNullType() throws Exception {
         service.sendVerifyEmail(TEST_STUDY_IDENTIFIER, null);
     }
 
     // This can be manually triggered through the API even though there's no consent
     // email to confirm... so return a 400 in this case.
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void sendVerifyEmailNoConsentEmail() throws Exception {
         Study study = getTestStudy();
         study.setConsentNotificationEmail(null);
@@ -403,33 +402,33 @@ public class StudyServiceMockTest {
         verifyEmailVerificationEmail(study.getConsentNotificationEmail());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailNullToken() {
         service.verifyEmail(TEST_STUDY_IDENTIFIER, null, StudyEmailType.CONSENT_NOTIFICATION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailEmptyToken() {
         service.verifyEmail(TEST_STUDY_IDENTIFIER, "", StudyEmailType.CONSENT_NOTIFICATION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailBlankToken() {
         service.verifyEmail(TEST_STUDY_IDENTIFIER, "   ", StudyEmailType.CONSENT_NOTIFICATION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailNullType() {
         service.verifyEmail(TEST_STUDY_IDENTIFIER, VERIFICATION_TOKEN, null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailNullVerificationData() {
         when(cacheProvider.getObject(VER_CACHE_KEY, String.class)).thenReturn(null);
         service.verifyEmail(TEST_STUDY_IDENTIFIER, VERIFICATION_TOKEN, StudyEmailType.CONSENT_NOTIFICATION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailMismatchedStudy() {
         // Mock Cache Provider.
         String verificationDataJson = "{\n" +
@@ -447,7 +446,7 @@ public class StudyServiceMockTest {
         service.verifyEmail(TEST_STUDY_IDENTIFIER, VERIFICATION_TOKEN, StudyEmailType.CONSENT_NOTIFICATION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailNoEmail() {
         // Mock Cache Provider.
         String verificationDataJson = "{\n" +
@@ -465,7 +464,7 @@ public class StudyServiceMockTest {
         service.verifyEmail(TEST_STUDY_IDENTIFIER, VERIFICATION_TOKEN, StudyEmailType.CONSENT_NOTIFICATION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailMismatchedEmail() {
         // Mock Cache Provider.
         String verificationDataJson = "{\n" +
@@ -525,9 +524,9 @@ public class StudyServiceMockTest {
             service.updateStudy(updatedStudy, true);
             fail("Should have thrown exception");
         } catch(ConstraintViolationException e) {
-            assertEquals("Task identifiers cannot be deleted.", e.getMessage());
-            assertEquals(TEST_STUDY_ID, e.getEntityKeys().get("identifier"));
-            assertEquals("Study", e.getEntityKeys().get("type"));
+            assertEquals(e.getMessage(), "Task identifiers cannot be deleted.");
+            assertEquals(e.getEntityKeys().get("identifier"), TEST_STUDY_ID);
+            assertEquals(e.getEntityKeys().get("type"), "Study");
         }
     }
     
@@ -543,9 +542,9 @@ public class StudyServiceMockTest {
             service.updateStudy(updatedStudy, true);
             fail("Should have thrown exception");
         } catch(ConstraintViolationException e) {
-            assertEquals("Data groups cannot be deleted.", e.getMessage());
-            assertEquals(TEST_STUDY_ID, e.getEntityKeys().get("identifier"));
-            assertEquals("Study", e.getEntityKeys().get("type"));
+            assertEquals(e.getMessage(), "Data groups cannot be deleted.");
+            assertEquals(e.getEntityKeys().get("identifier"), TEST_STUDY_ID);
+            assertEquals(e.getEntityKeys().get("type"), "Study");
         }
     }
     
@@ -573,12 +572,12 @@ public class StudyServiceMockTest {
         service.updateStudy(updatedStudy, true);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getStudyWithNullArgumentThrows() {
         service.getStudy((String)null);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getStudyWithEmptyStringArgumentThrows() {
         service.getStudy("");
     }
@@ -841,7 +840,7 @@ public class StudyServiceMockTest {
         verify(cacheProvider).removeStudy(TEST_STUDY_ID);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deactivateStudyAlreadyDeactivatedBefore() {
         Study study = getTestStudy();
         study.setActive(false);
@@ -850,7 +849,7 @@ public class StudyServiceMockTest {
         service.deleteStudy(study.getIdentifier(), false);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deactivateStudyNotFound() {
         Study study = getTestStudy();
         study.setActive(false);
@@ -863,7 +862,7 @@ public class StudyServiceMockTest {
 
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void nonAdminsCannotUpdateDeactivatedStudy() {
         Study study = getTestStudy();
         study.setActive(false);
@@ -907,8 +906,8 @@ public class StudyServiceMockTest {
             service.updateStudy(newStudy, false);
             fail("expected exception");
         } catch (UnauthorizedException ex) {
-            assertEquals("Non-admins cannot delete or modify upload metadata fields; affected fields: test-field",
-                    ex.getMessage());
+            assertEquals(ex.getMessage(),
+                    "Non-admins cannot delete or modify upload metadata fields; affected fields: test-field");
         }
     }
 
@@ -961,8 +960,8 @@ public class StudyServiceMockTest {
             service.updateStudy(newStudy, false);
             fail("expected exception");
         } catch (UnauthorizedException ex) {
-            assertEquals("Non-admins cannot delete or modify upload metadata fields; affected fields: " +
-                    "deleted-field, modified-field", ex.getMessage());
+            assertEquals(ex.getMessage(), "Non-admins cannot delete or modify upload metadata fields; " +
+                    "affected fields: deleted-field, modified-field");
         }
     }
 
@@ -991,7 +990,7 @@ public class StudyServiceMockTest {
         service.updateStudy(newStudy, true);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void nonAdminsCannotSetActiveToFalse() {
         Study originalStudy = getTestStudy();
         originalStudy.setActive(true);
@@ -1006,7 +1005,7 @@ public class StudyServiceMockTest {
         verify(studyDao, never()).updateStudy(any());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void adminCannotSetActiveToFalse() {
         Study originalStudy = getTestStudy();
         originalStudy.setActive(true);
@@ -1076,11 +1075,11 @@ public class StudyServiceMockTest {
         verify(service).createStudy(study);
         verify(service).createSynapseProjectTeam(TEST_ADMIN_IDS, study);
         
-        assertEquals(TEST_PROJECT_NAME, projectCaptor.getValue().getName());
-        assertEquals(TEST_TEAM_NAME, teamCaptor.getValue().getName());
+        assertEquals(projectCaptor.getValue().getName(), TEST_PROJECT_NAME);
+        assertEquals(teamCaptor.getValue().getName(), TEST_TEAM_NAME);
     }
 
-    @Test (expected = BadRequestException.class)
+    @Test (expectedExceptions = BadRequestException.class)
     public void createStudyAndUserWithInvalidRoles() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1102,7 +1101,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test (expected = BadRequestException.class)
+    @Test (expectedExceptions = BadRequestException.class)
     public void createStudyAndUserWithNullAdmins() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1132,7 +1131,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test (expected = BadRequestException.class)
+    @Test (expectedExceptions = BadRequestException.class)
     public void createStudyAndUserWithEmptyRoles() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1154,7 +1153,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test (expected = BadRequestException.class)
+    @Test (expectedExceptions = BadRequestException.class)
     public void createStudyAndUserWithEmptyAdmins() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1184,7 +1183,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test (expected = BadRequestException.class)
+    @Test (expectedExceptions = BadRequestException.class)
     public void createStudyAndUserWithEmptyUser() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1198,7 +1197,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test (expected = BadRequestException.class)
+    @Test (expectedExceptions = BadRequestException.class)
     public void createStudyAndUserWithNullUser() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1210,7 +1209,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test (expected = BadRequestException.class)
+    @Test (expectedExceptions = BadRequestException.class)
     public void createStudyAndUserWithNullStudy() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1240,7 +1239,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test(expected = SynapseClientException.class)
+    @Test(expectedExceptions = SynapseClientException.class)
     public void createStudyAndUserThrowExceptionNotLogged() throws SynapseException {
         // mock
         Study study = getTestStudy();
@@ -1281,7 +1280,7 @@ public class StudyServiceMockTest {
         service.createStudyAndUsers(mockStudyAndUsers);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createStudyAndUserNullStudyName() throws Exception {
         // mock
         Study study = getTestStudy();
@@ -1294,7 +1293,7 @@ public class StudyServiceMockTest {
         service.createSynapseProjectTeam(ImmutableList.of(TEST_IDENTIFIER), study);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createStudyAndUserBadStudyName() throws Exception {
         // mock
         Study study = getTestStudy();
@@ -1389,30 +1388,30 @@ public class StudyServiceMockTest {
         verify(mockSynapseClient).updateACL(argumentProjectAcl.capture());
         AccessControlList capturedProjectAcl = argumentProjectAcl.getValue();
         Set<ResourceAccess> capturedProjectAclSet = capturedProjectAcl.getResourceAccess();
-        assertEquals(5, capturedProjectAclSet.size());
+        assertEquals(capturedProjectAclSet.size(), 5);
         Map<Long, ResourceAccess> principalIdToAcl = Maps.uniqueIndex(capturedProjectAclSet,
                 ResourceAccess::getPrincipalId);
-        assertEquals(5, principalIdToAcl.size());
+        assertEquals(principalIdToAcl.size(), 5);
 
         // 1. Exporter (admin)
         ResourceAccess capturedExporterRa = principalIdToAcl.get(Long.valueOf(EXPORTER_SYNAPSE_USER_ID));
-        assertEquals(ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS, capturedExporterRa.getAccessType());
+        assertEquals(capturedExporterRa.getAccessType(), ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS);
 
         // 2. Bridge Admin
         ResourceAccess bridgeAdminAcl = principalIdToAcl.get(BRIDGE_ADMIN_TEAM_ID);
-        assertEquals(ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS, bridgeAdminAcl.getAccessType());
+        assertEquals(bridgeAdminAcl.getAccessType(), ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS);
 
         // 3. Specified admin user
         ResourceAccess capturedUserRa = principalIdToAcl.get(TEST_USER_ID);
-        assertEquals(ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS, capturedUserRa.getAccessType());
+        assertEquals(capturedUserRa.getAccessType(), ModelConstants.ENITY_ADMIN_ACCESS_PERMISSIONS);
 
         // 4. Bridge Staff
         ResourceAccess bridgeStaffAcl = principalIdToAcl.get(BRIDGE_STAFF_TEAM_ID);
-        assertEquals(StudyService.READ_DOWNLOAD_ACCESS, bridgeStaffAcl.getAccessType());
+        assertEquals(bridgeStaffAcl.getAccessType(), StudyService.READ_DOWNLOAD_ACCESS);
 
         // 5. Created data access team.
         ResourceAccess capturedTeamRa = principalIdToAcl.get(Long.valueOf(TEST_TEAM_ID));
-        assertEquals(StudyService.READ_DOWNLOAD_ACCESS, capturedTeamRa.getAccessType());
+        assertEquals(capturedTeamRa.getAccessType(), StudyService.READ_DOWNLOAD_ACCESS);
 
         // invite user to team
         verify(mockSynapseClient).createMembershipInvitation(eq(mockTeamMemberInvitation), any(), any());
@@ -1420,13 +1419,13 @@ public class StudyServiceMockTest {
 
         // update study
         assertNotNull(retStudy);
-        assertEquals(study.getIdentifier(), retStudy.getIdentifier());
-        assertEquals(study.getName(), retStudy.getName());
-        assertEquals(TEST_PROJECT_ID, retStudy.getSynapseProjectId());
-        assertEquals(TEST_TEAM_ID, retStudy.getSynapseDataAccessTeamId().toString());
+        assertEquals(retStudy.getIdentifier(), study.getIdentifier());
+        assertEquals(retStudy.getName(), study.getName());
+        assertEquals(retStudy.getSynapseProjectId(), TEST_PROJECT_ID);
+        assertEquals(retStudy.getSynapseDataAccessTeamId().toString(), TEST_TEAM_ID);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createSynapseProjectTeamNonExistUserID() throws SynapseException {
         Study study = getTestStudy();
         study.setSynapseProjectId(null);
@@ -1439,7 +1438,7 @@ public class StudyServiceMockTest {
         service.createSynapseProjectTeam(ImmutableList.of(TEST_USER_ID.toString()), study);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createSynapseProjectTeamNullUserID() throws SynapseException {
         Study study = getTestStudy();
         study.setSynapseProjectId(null);
@@ -1449,7 +1448,7 @@ public class StudyServiceMockTest {
         service.createSynapseProjectTeam(null, study);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createSynapseProjectTeamEmptyUserID() throws SynapseException {
         Study study = getTestStudy();
         study.setSynapseProjectId(null);
@@ -1500,9 +1499,9 @@ public class StudyServiceMockTest {
         EmailTemplate source = new EmailTemplate("<p>Test</p>","<p>This should have no markup</p>", MimeType.TEXT);
         EmailTemplate result = service.sanitizeEmailTemplate(source);
         
-        assertEquals("Test", result.getSubject());
-        assertEquals("This should have no markup", result.getBody());
-        assertEquals(MimeType.TEXT, result.getMimeType());
+        assertEquals(result.getSubject(), "Test");
+        assertEquals(result.getBody(), "This should have no markup");
+        assertEquals(result.getMimeType(), MimeType.TEXT);
     }
     
     @Test
@@ -1520,7 +1519,8 @@ public class StudyServiceMockTest {
         EmailTemplate result = service.sanitizeEmailTemplate(source);
         
         // The absolute, relative, and template URLs are all preserved correctly. 
-        assertEquals("<p><a href=\"http://www.google.com/\"></a><a href=\"/foo.html\">Foo</a><a href=\"${url}\">${url}</a></p>", result.getBody());
+        assertEquals(result.getBody(),
+                "<p><a href=\"http://www.google.com/\"></a><a href=\"/foo.html\">Foo</a><a href=\"${url}\">${url}</a></p>");
     }
     
     @Test
@@ -1528,9 +1528,9 @@ public class StudyServiceMockTest {
         EmailTemplate source = new EmailTemplate("", "", MimeType.HTML); 
         EmailTemplate result = service.sanitizeEmailTemplate(source);
         
-        assertEquals("", result.getSubject());
-        assertEquals("", result.getBody());
-        assertEquals(MimeType.HTML, result.getMimeType());
+        assertEquals(result.getSubject(), "");
+        assertEquals(result.getBody(), "");
+        assertEquals(result.getMimeType(), MimeType.HTML);
     }
     
     @Test
@@ -1593,9 +1593,9 @@ public class StudyServiceMockTest {
     }
 
     private void assertHtmlTemplateSanitized(EmailTemplate result) {
-        assertEquals("${studyName} test", result.getSubject());
-        assertEquals("<p>This should remove: </p>", result.getBody());
-        assertEquals(MimeType.HTML, result.getMimeType());
+        assertEquals(result.getSubject(), "${studyName} test");
+        assertEquals(result.getBody(), "<p>This should remove: </p>");
+        assertEquals(result.getMimeType(), MimeType.HTML);
     }
 
     private static Resource mockTemplateAsSpringResource(String content) throws Exception {

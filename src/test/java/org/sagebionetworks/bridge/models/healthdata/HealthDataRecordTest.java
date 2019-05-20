@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.healthdata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,8 +20,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Test;
 import org.springframework.validation.MapBindingResult;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.TestConstants;
@@ -51,17 +51,17 @@ public class HealthDataRecordTest {
         // validate
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
 
-        assertEquals(CREATED_ON_MILLIS, record.getCreatedOn().longValue());
-        assertSame(DUMMY_DATA, record.getData());
-        assertEquals("dummy healthcode", record.getHealthCode());
+        assertEquals(record.getCreatedOn().longValue(), CREATED_ON_MILLIS);
+        assertSame(record.getData(), DUMMY_DATA);
+        assertEquals(record.getHealthCode(), "dummy healthcode");
         assertNull(record.getId());
-        assertSame(DUMMY_METADATA, record.getMetadata());
-        assertEquals("dummy schema", record.getSchemaId());
-        assertEquals(3, record.getSchemaRevision());
-        assertEquals("dummy study", record.getStudyId());
-        assertEquals(UPLOAD_DATE, record.getUploadDate());
-        assertEquals(TestConstants.USER_DATA_GROUPS, record.getUserDataGroups());
-        assertEquals(SharingScope.NO_SHARING, record.getUserSharingScope());
+        assertSame(record.getMetadata(), DUMMY_METADATA);
+        assertEquals(record.getSchemaId(), "dummy schema");
+        assertEquals(record.getSchemaRevision(), 3);
+        assertEquals(record.getStudyId(), "dummy study");
+        assertEquals(record.getUploadDate(), UPLOAD_DATE);
+        assertEquals(record.getUserDataGroups(), TestConstants.USER_DATA_GROUPS);
+        assertEquals(record.getUserSharingScope(), SharingScope.NO_SHARING);
     }
 
     @Test
@@ -87,18 +87,18 @@ public class HealthDataRecordTest {
         // validate
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
 
-        assertEquals("optional record ID", record.getId());
-        assertEquals(APP_VERSION, record.getAppVersion());
-        assertEquals("+0900", record.getCreatedOnTimeZone());
-        assertEquals(PHONE_INFO, record.getPhoneInfo());
-        assertEquals("raw.zip", record.getRawDataAttachmentId());
-        assertEquals(HealthDataRecord.ExporterStatus.NOT_EXPORTED, record.getSynapseExporterStatus());
-        assertEquals("optional upload ID", record.getUploadId());
-        assertEquals(uploadedOn, record.getUploadedOn().longValue());
-        assertEquals("optional external ID", record.getUserExternalId());
-        assertSame(DUMMY_USER_METADATA, record.getUserMetadata());
-        assertEquals("dummy validation errors", record.getValidationErrors());
-        assertEquals(42, record.getVersion().longValue());
+        assertEquals(record.getId(), "optional record ID");
+        assertEquals(record.getAppVersion(), APP_VERSION);
+        assertEquals(record.getCreatedOnTimeZone(), "+0900");
+        assertEquals(record.getPhoneInfo(), PHONE_INFO);
+        assertEquals(record.getRawDataAttachmentId(), "raw.zip");
+        assertEquals(record.getSynapseExporterStatus(), HealthDataRecord.ExporterStatus.NOT_EXPORTED);
+        assertEquals(record.getUploadId(), "optional upload ID");
+        assertEquals(record.getUploadedOn().longValue(), uploadedOn);
+        assertEquals(record.getUserExternalId(), "optional external ID");
+        assertSame(record.getUserMetadata(), DUMMY_USER_METADATA);
+        assertEquals(record.getValidationErrors(), "dummy validation errors");
+        assertEquals(record.getVersion().longValue(), 42);
     }
     
     @Test
@@ -115,7 +115,7 @@ public class HealthDataRecordTest {
         assertNull(record.getUserSubstudyMemberships());
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void jsonNullData() throws Exception {
         JsonNode data = BridgeObjectMapper.get().readTree("null");
         HealthDataRecord record = makeValidRecord();
@@ -123,7 +123,7 @@ public class HealthDataRecordTest {
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void dataIsNotMap() throws Exception {
         JsonNode data = BridgeObjectMapper.get().readTree("\"This is not a map.\"");
         HealthDataRecord record = makeValidRecord();
@@ -131,42 +131,42 @@ public class HealthDataRecordTest {
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validatorWithNullData() {
         HealthDataRecord record = makeValidRecord();
         record.setData(null);
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void nullHealthCode() {
         HealthDataRecord record = makeValidRecord();
         record.setHealthCode(null);
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void emptyHealthCode() {
         HealthDataRecord record = makeValidRecord();
         record.setHealthCode("");
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void emptyId() {
         HealthDataRecord record = makeValidRecord();
         record.setId("");
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validatorWithNullCreatedOn() {
         HealthDataRecord record = makeValidRecord();
         record.setCreatedOn(null);
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void jsonNullMetadata() throws Exception {
         JsonNode metadata = BridgeObjectMapper.get().readTree("null");
         HealthDataRecord record = makeValidRecord();
@@ -174,7 +174,7 @@ public class HealthDataRecordTest {
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void metadataIsNotMap() throws Exception {
         JsonNode metadata = BridgeObjectMapper.get().readTree("\"This is not a map.\"");
         HealthDataRecord record = makeValidRecord();
@@ -182,28 +182,28 @@ public class HealthDataRecordTest {
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validatorWithNullMetadata() {
         HealthDataRecord record = makeValidRecord();
         record.setMetadata(null);
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void nullSchemaId() {
         HealthDataRecord record = makeValidRecord();
         record.setSchemaId(null);
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void emptySchemaId() {
         HealthDataRecord record = makeValidRecord();
         record.setSchemaId("");
         Validate.entityThrowingException(HealthDataRecordValidator.INSTANCE, record);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validatorWithNullUploadDate() {
         HealthDataRecord record = makeValidRecord();
         record.setUploadDate(null);
@@ -301,82 +301,82 @@ public class HealthDataRecordTest {
 
         // convert to POJO
         HealthDataRecord record = BridgeObjectMapper.get().readValue(jsonText, HealthDataRecord.class);
-        assertEquals(APP_VERSION, record.getAppVersion());
-        assertEquals(measuredTimeMillis, record.getCreatedOn().longValue());
-        assertEquals("-0800", record.getCreatedOnTimeZone());
-        assertEquals("json healthcode", record.getHealthCode());
-        assertEquals("json record ID", record.getId());
-        assertEquals(PHONE_INFO, record.getPhoneInfo());
-        assertEquals("raw.zip", record.getRawDataAttachmentId());
-        assertEquals("json schema", record.getSchemaId());
-        assertEquals(3, record.getSchemaRevision());
-        assertEquals("json study", record.getStudyId());
-        assertEquals(HealthDataRecord.ExporterStatus.NOT_EXPORTED, record.getSynapseExporterStatus());
-        assertEquals("2014-02-12", record.getUploadDate().toString(ISODateTimeFormat.date()));
-        assertEquals("json upload", record.getUploadId());
-        assertEquals(uploadedOn, record.getUploadedOn().longValue());
-        assertEquals(SharingScope.ALL_QUALIFIED_RESEARCHERS, record.getUserSharingScope());
-        assertEquals("ABC-123-XYZ", record.getUserExternalId());
-        assertEquals("dummy validation errors", record.getValidationErrors());
-        assertEquals(42, record.getVersion().longValue());
+        assertEquals(record.getAppVersion(), APP_VERSION);
+        assertEquals(record.getCreatedOn().longValue(), measuredTimeMillis);
+        assertEquals(record.getCreatedOnTimeZone(), "-0800");
+        assertEquals(record.getHealthCode(), "json healthcode");
+        assertEquals(record.getId(), "json record ID");
+        assertEquals(record.getPhoneInfo(), PHONE_INFO);
+        assertEquals(record.getRawDataAttachmentId(), "raw.zip");
+        assertEquals(record.getSchemaId(), "json schema");
+        assertEquals(record.getSchemaRevision(), 3);
+        assertEquals(record.getStudyId(), "json study");
+        assertEquals(record.getSynapseExporterStatus(), HealthDataRecord.ExporterStatus.NOT_EXPORTED);
+        assertEquals(record.getUploadDate().toString(ISODateTimeFormat.date()), "2014-02-12");
+        assertEquals(record.getUploadId(), "json upload");
+        assertEquals(record.getUploadedOn().longValue(), uploadedOn);
+        assertEquals(record.getUserSharingScope(), SharingScope.ALL_QUALIFIED_RESEARCHERS);
+        assertEquals(record.getUserExternalId(), "ABC-123-XYZ");
+        assertEquals(record.getValidationErrors(), "dummy validation errors");
+        assertEquals(record.getVersion().longValue(), 42);
 
-        assertEquals(1, record.getData().size());
-        assertEquals("myDataValue", record.getData().get("myData").textValue());
+        assertEquals(record.getData().size(), 1);
+        assertEquals(record.getData().get("myData").textValue(), "myDataValue");
 
-        assertEquals(1, record.getMetadata().size());
-        assertEquals("myMetaValue", record.getMetadata().get("myMetadata").textValue());
+        assertEquals(record.getMetadata().size(), 1);
+        assertEquals(record.getMetadata().get("myMetadata").textValue(), "myMetaValue");
 
-        assertEquals(1, record.getUserMetadata().size());
-        assertEquals("userMetaValue", record.getUserMetadata().get("userMetadata").textValue());
+        assertEquals(record.getUserMetadata().size(), 1);
+        assertEquals(record.getUserMetadata().get("userMetadata").textValue(), "userMetaValue");
 
         // convert back to JSON
         String convertedJson = BridgeObjectMapper.get().writeValueAsString(record);
 
         // then convert to a map so we can validate the raw JSON
         Map<String, Object> jsonMap = BridgeObjectMapper.get().readValue(convertedJson, JsonUtils.TYPE_REF_RAW_MAP);
-        assertEquals(22, jsonMap.size());
-        assertEquals(APP_VERSION, jsonMap.get("appVersion"));
-        assertEquals("-0800", jsonMap.get("createdOnTimeZone"));
-        assertEquals("json healthcode", jsonMap.get("healthCode"));
-        assertEquals("json record ID", jsonMap.get("id"));
-        assertEquals(PHONE_INFO, jsonMap.get("phoneInfo"));
-        assertEquals("raw.zip", jsonMap.get("rawDataAttachmentId"));
-        assertEquals("json schema", jsonMap.get("schemaId"));
-        assertEquals(3, jsonMap.get("schemaRevision"));
-        assertEquals("json study", jsonMap.get("studyId"));
-        assertEquals("not_exported", jsonMap.get("synapseExporterStatus"));
-        assertEquals("2014-02-12", jsonMap.get("uploadDate"));
-        assertEquals("json upload", jsonMap.get("uploadId"));
-        assertEquals(uploadedOn, DateTime.parse((String) jsonMap.get("uploadedOn")).getMillis());
-        assertEquals("all_qualified_researchers", jsonMap.get("userSharingScope"));
-        assertEquals("ABC-123-XYZ", jsonMap.get("userExternalId"));
-        assertEquals("dummy validation errors", jsonMap.get("validationErrors"));
-        assertEquals(42, jsonMap.get("version"));
-        assertEquals("HealthData", jsonMap.get("type"));
+        assertEquals(jsonMap.size(), 22);
+        assertEquals(jsonMap.get("appVersion"), APP_VERSION);
+        assertEquals(jsonMap.get("createdOnTimeZone"), "-0800");
+        assertEquals(jsonMap.get("healthCode"), "json healthcode");
+        assertEquals(jsonMap.get("id"), "json record ID");
+        assertEquals(jsonMap.get("phoneInfo"), PHONE_INFO);
+        assertEquals(jsonMap.get("rawDataAttachmentId"), "raw.zip");
+        assertEquals(jsonMap.get("schemaId"), "json schema");
+        assertEquals(jsonMap.get("schemaRevision"), 3);
+        assertEquals(jsonMap.get("studyId"), "json study");
+        assertEquals(jsonMap.get("synapseExporterStatus"), "not_exported");
+        assertEquals(jsonMap.get("uploadDate"), "2014-02-12");
+        assertEquals(jsonMap.get("uploadId"), "json upload");
+        assertEquals(DateTime.parse((String) jsonMap.get("uploadedOn")).getMillis(), uploadedOn);
+        assertEquals(jsonMap.get("userSharingScope"), "all_qualified_researchers");
+        assertEquals(jsonMap.get("userExternalId"), "ABC-123-XYZ");
+        assertEquals(jsonMap.get("validationErrors"), "dummy validation errors");
+        assertEquals(jsonMap.get("version"), 42);
+        assertEquals(jsonMap.get("type"), "HealthData");
 
         DateTime convertedMeasuredTime = DateTime.parse((String) jsonMap.get("createdOn"));
-        assertEquals(measuredTimeMillis, convertedMeasuredTime.getMillis());
+        assertEquals(convertedMeasuredTime.getMillis(), measuredTimeMillis);
 
         Map<String, String> data = (Map<String, String>) jsonMap.get("data");
-        assertEquals(1, data.size());
-        assertEquals("myDataValue", data.get("myData"));
+        assertEquals(data.size(), 1);
+        assertEquals(data.get("myData"), "myDataValue");
 
         Map<String, String> metadata = (Map<String, String>) jsonMap.get("metadata");
-        assertEquals(1, metadata.size());
-        assertEquals("myMetaValue", metadata.get("myMetadata"));
+        assertEquals(metadata.size(), 1);
+        assertEquals(metadata.get("myMetadata"), "myMetaValue");
 
         Map<String, String> userMetadata = (Map<String, String>) jsonMap.get("userMetadata");
-        assertEquals(1, userMetadata.size());
-        assertEquals("userMetaValue", userMetadata.get("userMetadata"));
+        assertEquals(userMetadata.size(), 1);
+        assertEquals(userMetadata.get("userMetadata"), "userMetaValue");
 
         // convert back to JSON with PUBLIC_RECORD_WRITER
         String publicJson = HealthDataRecord.PUBLIC_RECORD_WRITER.writeValueAsString(record);
 
         // Convert back to map again. Only validate a few key fields are present and the filtered fields are absent.
         Map<String, Object> publicJsonMap = BridgeObjectMapper.get().readValue(publicJson, JsonUtils.TYPE_REF_RAW_MAP);
-        assertEquals(21, publicJsonMap.size());
+        assertEquals(publicJsonMap.size(), 21);
         assertFalse(publicJsonMap.containsKey("healthCode"));
-        assertEquals("json record ID", publicJsonMap.get("id"));
+        assertEquals(publicJsonMap.get("id"), "json record ID");
     }
 
     @Test
@@ -400,13 +400,13 @@ public class HealthDataRecordTest {
         // The formatter only takes in DateTimes, not TimeZones. To test this, create a dummy DateTime with the given
         // TimeZone
         DateTime dateTime = new DateTime(2017, 1, 25, 2, 29, timeZone);
-        assertEquals(expected, HealthDataRecord.TIME_ZONE_FORMATTER.print(dateTime));
+        assertEquals(HealthDataRecord.TIME_ZONE_FORMATTER.print(dateTime), expected);
     }
 
     private static void testTimeZoneFormatterForString(String expected, String timeZoneStr) {
         // DateTimeZone doesn't have an API to parse an ISO timezone representation, so we have to parse an entire date
         // just to parse the timezone.
         DateTime dateTime = DateTime.parse("2017-01-25T02:29" + timeZoneStr);
-        assertEquals(expected, HealthDataRecord.TIME_ZONE_FORMATTER.print(dateTime));
+        assertEquals(HealthDataRecord.TIME_ZONE_FORMATTER.print(dateTime), expected);
     }
 }

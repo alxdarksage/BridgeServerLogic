@@ -3,8 +3,8 @@ package org.sagebionetworks.bridge.validators;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
 import static org.sagebionetworks.bridge.validators.NotificationRegistrationValidator.INSTANCE;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.models.notifications.NotificationProtocol;
@@ -16,7 +16,7 @@ public class NotificationRegistrationValidatorTest {
     
     private NotificationRegistration registration;
     
-    @Before
+    @BeforeMethod
     public void before() {
         registration = TestUtils.getNotificationRegistration();
         registration.setOsName(OS_NAME);

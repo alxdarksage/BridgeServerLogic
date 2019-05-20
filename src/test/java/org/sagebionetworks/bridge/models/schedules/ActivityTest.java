@@ -1,15 +1,17 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -37,19 +39,19 @@ public class ActivityTest {
 
         // convert to POJO
         Activity activity = BridgeObjectMapper.get().readValue(jsonText, Activity.class);
-        assertEquals("My Activity", activity.getLabel());
-        assertEquals("Description of activity", activity.getLabelDetail());
-        assertEquals("test-guid", activity.getGuid());
-        assertEquals("combo-activity", activity.getCompoundActivity().getTaskIdentifier());
+        assertEquals(activity.getLabel(), "My Activity");
+        assertEquals(activity.getLabelDetail(), "Description of activity");
+        assertEquals(activity.getGuid(), "test-guid");
+        assertEquals(activity.getCompoundActivity().getTaskIdentifier(), "combo-activity");
 
         // convert back to JSON
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(activity, JsonNode.class);
-        assertEquals("My Activity", jsonNode.get("label").textValue());
-        assertEquals("Description of activity", jsonNode.get("labelDetail").textValue());
-        assertEquals("test-guid", jsonNode.get("guid").textValue());
-        assertEquals("combo-activity", jsonNode.get("compoundActivity").get("taskIdentifier").textValue());
-        assertEquals("compound", jsonNode.get("activityType").textValue());
-        assertEquals("Activity", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.get("label").textValue(), "My Activity");
+        assertEquals(jsonNode.get("labelDetail").textValue(), "Description of activity");
+        assertEquals(jsonNode.get("guid").textValue(), "test-guid");
+        assertEquals(jsonNode.get("compoundActivity").get("taskIdentifier").textValue(), "combo-activity");
+        assertEquals(jsonNode.get("activityType").textValue(), "compound");
+        assertEquals(jsonNode.get("type").textValue(), "Activity");
     }
 
     @Test
@@ -61,22 +63,22 @@ public class ActivityTest {
         String json = mapper.writeValueAsString(activity);
         
         JsonNode node = mapper.readTree(json);
-        assertEquals("Label", node.get("label").asText());
-        assertEquals("Label Detail", node.get("labelDetail").asText());
-        assertEquals("task", node.get("activityType").asText());
-        assertEquals("taskId", node.get("task").get("identifier").asText());
-        assertEquals("actGuid", node.get("guid").asText());
-        assertEquals("Activity", node.get("type").asText());
+        assertEquals(node.get("label").asText(), "Label");
+        assertEquals(node.get("labelDetail").asText(), "Label Detail");
+        assertEquals(node.get("activityType").asText(), "task");
+        assertEquals(node.get("task").get("identifier").asText(), "taskId");
+        assertEquals(node.get("guid").asText(), "actGuid");
+        assertEquals(node.get("type").asText(), "Activity");
         
         JsonNode taskRef = node.get("task");
-        assertEquals("taskId", taskRef.get("identifier").asText());
-        assertEquals("TaskReference", taskRef.get("type").asText());
+        assertEquals(taskRef.get("identifier").asText(), "taskId");
+        assertEquals(taskRef.get("type").asText(), "TaskReference");
         
         activity = mapper.readValue(json, Activity.class);
-        assertEquals("Label", activity.getLabel());
-        assertEquals("Label Detail", activity.getLabelDetail());
-        assertEquals(ActivityType.TASK, activity.getActivityType());
-        assertEquals("taskId", activity.getTask().getIdentifier());
+        assertEquals(activity.getLabel(), "Label");
+        assertEquals(activity.getLabelDetail(), "Label Detail");
+        assertEquals(activity.getActivityType(), ActivityType.TASK);
+        assertEquals(activity.getTask().getIdentifier(), "taskId");
     }
     
     @Test
@@ -89,31 +91,31 @@ public class ActivityTest {
         String json = mapper.writeValueAsString(activity);
         
         JsonNode node = mapper.readTree(json);
-        assertEquals("Label", node.get("label").asText());
-        assertEquals("Label Detail", node.get("labelDetail").asText());
-        assertEquals("survey", node.get("activityType").asText());
+        assertEquals(node.get("label").asText(), "Label");
+        assertEquals(node.get("labelDetail").asText(), "Label Detail");
+        assertEquals(node.get("activityType").asText(), "survey");
         String hrefString = node.get("survey").get("href").asText();
         assertTrue(hrefString.matches("http[s]?://.*/v3/surveys/guid/revisions/2015-01-01T10:10:10.000Z"));
-        assertEquals("actGuid", node.get("guid").asText());
-        assertEquals("Activity", node.get("type").asText());
+        assertEquals(node.get("guid").asText(), "actGuid");
+        assertEquals(node.get("type").asText(), "Activity");
         
         JsonNode ref = node.get("survey");
-        assertEquals("identifier", ref.get("identifier").asText());
-        assertEquals("guid", ref.get("guid").asText());
-        assertEquals("2015-01-01T10:10:10.000Z", ref.get("createdOn").asText());
+        assertEquals(ref.get("identifier").asText(), "identifier");
+        assertEquals(ref.get("guid").asText(), "guid");
+        assertEquals(ref.get("createdOn").asText(), "2015-01-01T10:10:10.000Z");
         String href = ref.get("href").asText();
         assertTrue(href.matches("http[s]?://.*/v3/surveys/guid/revisions/2015-01-01T10:10:10.000Z"));
-        assertEquals("SurveyReference", ref.get("type").asText());
+        assertEquals(ref.get("type").asText(), "SurveyReference");
         
         activity = mapper.readValue(json, Activity.class);
-        assertEquals("Label", activity.getLabel());
-        assertEquals("Label Detail", activity.getLabelDetail());
-        assertEquals(ActivityType.SURVEY, activity.getActivityType());
+        assertEquals(activity.getLabel(), "Label");
+        assertEquals(activity.getLabelDetail(), "Label Detail");
+        assertEquals(activity.getActivityType(), ActivityType.SURVEY);
         
         SurveyReference ref1 = activity.getSurvey();
-        assertEquals("identifier", ref1.getIdentifier());
-        assertEquals(DateTime.parse("2015-01-01T10:10:10.000Z"), ref1.getCreatedOn());
-        assertEquals("guid", ref1.getGuid());
+        assertEquals(ref1.getIdentifier(), "identifier");
+        assertEquals(ref1.getCreatedOn(), DateTime.parse("2015-01-01T10:10:10.000Z"));
+        assertEquals(ref1.getGuid(), "guid");
         assertTrue(ref1.getHref().matches("http[s]?://.*/v3/surveys/guid/revisions/2015-01-01T10:10:10.000Z"));
     }
     
@@ -126,30 +128,30 @@ public class ActivityTest {
         String json = mapper.writeValueAsString(activity);
 
         JsonNode node = mapper.readTree(json);
-        assertEquals("Label", node.get("label").asText());
-        assertEquals("Label Detail", node.get("labelDetail").asText());
-        assertEquals("survey", node.get("activityType").asText());
+        assertEquals(node.get("label").asText(), "Label");
+        assertEquals(node.get("labelDetail").asText(), "Label Detail");
+        assertEquals(node.get("activityType").asText(), "survey");
         String hrefString = node.get("survey").get("href").asText();
         assertTrue(hrefString.matches("http[s]?://.*/v3/surveys/guid/revisions/published"));
-        assertEquals("actGuid", node.get("guid").asText());
-        assertEquals("Activity", node.get("type").asText());
+        assertEquals(node.get("guid").asText(), "actGuid");
+        assertEquals(node.get("type").asText(), "Activity");
         
         JsonNode ref = node.get("survey");
-        assertEquals("identifier", ref.get("identifier").asText());
-        assertEquals("guid", ref.get("guid").asText());
+        assertEquals(ref.get("identifier").asText(), "identifier");
+        assertEquals(ref.get("guid").asText(), "guid");
         String href = ref.get("href").asText();
         assertTrue(href.matches("http[s]?://.*/v3/surveys/guid/revisions/published"));
-        assertEquals("SurveyReference", ref.get("type").asText());
+        assertEquals(ref.get("type").asText(), "SurveyReference");
         
         activity = mapper.readValue(json, Activity.class);
-        assertEquals("Label", activity.getLabel());
-        assertEquals("Label Detail", activity.getLabelDetail());
-        assertEquals(ActivityType.SURVEY, activity.getActivityType());
+        assertEquals(activity.getLabel(), "Label");
+        assertEquals(activity.getLabelDetail(), "Label Detail");
+        assertEquals(activity.getActivityType(), ActivityType.SURVEY);
         
         SurveyReference ref1 = activity.getSurvey();
-        assertEquals("identifier", ref1.getIdentifier());
-        assertNull("createdOn", ref1.getCreatedOn());
-        assertEquals("guid", ref1.getGuid());
+        assertEquals(ref1.getIdentifier(), "identifier");
+        assertNull(ref1.getCreatedOn(), "createdOn");
+        assertEquals(ref1.getGuid(), "guid");
         assertTrue(ref1.getHref().matches("http[s]?://.*/v3/surveys/guid/revisions/published"));
     }
     
@@ -160,13 +162,13 @@ public class ActivityTest {
         BridgeObjectMapper mapper = BridgeObjectMapper.get();
         Activity activity = mapper.readValue(oldJson, Activity.class);
         
-        assertEquals("Personal Health Survey", activity.getLabel());
-        assertEquals(ActivityType.SURVEY, activity.getActivityType());
+        assertEquals(activity.getLabel(), "Personal Health Survey");
+        assertEquals(activity.getActivityType(), ActivityType.SURVEY);
         
         SurveyReference ref = activity.getSurvey();
-        assertEquals("identifier", ref.getIdentifier());
-        assertNull("createdOn null", ref.getCreatedOn());
-        assertEquals("guid set", "ac1e57fd-5e8e-473f-b82f-bac7547b6783", ref.getGuid());
+        assertEquals(ref.getIdentifier(), "identifier");
+        assertNull(ref.getCreatedOn(), "createdOn null");
+        assertEquals(ref.getGuid(), "ac1e57fd-5e8e-473f-b82f-bac7547b6783", "guid set");
         assertTrue(ref.getHref().matches("http[s]?://.*/v3/surveys/ac1e57fd-5e8e-473f-b82f-bac7547b6783/revisions/published"));
     }
     
@@ -177,7 +179,7 @@ public class ActivityTest {
         BridgeObjectMapper mapper = BridgeObjectMapper.get();
         Activity activity = mapper.readValue(oldJson, Activity.class);
         
-        assertNotEquals("junk", activity.getSurvey().getHref());
+        assertNotEquals(activity.getSurvey().getHref(), "junk");
     }
     
     @Test
@@ -192,7 +194,7 @@ public class ActivityTest {
         String activityJSON = "{\"label\":\"Label\",\"guid\":\"AAA\",\"task\":{\"identifier\":\"task\",\"type\":\"TaskReference\"},\"activityType\":\"task\",\"ref\":\"task\",\"type\":\"Activity\"}";
         
         Activity activity = BridgeObjectMapper.get().readValue(activityJSON, Activity.class);
-        assertEquals("AAA", activity.getGuid());
+        assertEquals(activity.getGuid(), "AAA");
     }
     
     /**
@@ -229,12 +231,12 @@ public class ActivityTest {
                 .build();
         Activity activity = new Activity.Builder().withLabel("My Label").withLabelDetail("My Label Detail")
                 .withGuid("AAA").withCompoundActivity(compoundActivity).build();
-        assertEquals("My Label", activity.getLabel());
-        assertEquals("My Label Detail", activity.getLabelDetail());
-        assertEquals("AAA", activity.getGuid());
-        assertEquals(compoundActivity, activity.getCompoundActivity());
-        assertEquals(ActivityType.COMPOUND, activity.getActivityType());
-        assertEquals("compound:combo-activity:finished", activity.getSelfFinishedEventId());
+        assertEquals(activity.getLabel(), "My Label");
+        assertEquals(activity.getLabelDetail(), "My Label Detail");
+        assertEquals(activity.getGuid(), "AAA");
+        assertEquals(activity.getCompoundActivity(), compoundActivity);
+        assertEquals(activity.getActivityType(), ActivityType.COMPOUND);
+        assertEquals(activity.getSelfFinishedEventId(), "compound:combo-activity:finished");
 
         // toString() gives a lot of stuff and depends on two other classes. To make the tests robust and resilient to
         // changes in encapsulated classes, just test a few keywords
@@ -247,16 +249,16 @@ public class ActivityTest {
 
         // test copy constructor
         Activity copy = new Activity.Builder().withActivity(activity).build();
-        assertEquals(activity, copy);
+        assertEquals(copy, activity);
     }
 
     @Test
     public void taskActivityByRef() {
         TaskReference task = new TaskReference("my-task", null);
         Activity activity = new Activity.Builder().withTask(task).build();
-        assertEquals(task, activity.getTask());
-        assertEquals(ActivityType.TASK, activity.getActivityType());
-        assertEquals("task:my-task:finished", activity.getSelfFinishedEventId());
+        assertEquals(activity.getTask(), task);
+        assertEquals(activity.getActivityType(), ActivityType.TASK);
+        assertEquals(activity.getSelfFinishedEventId(), "task:my-task:finished");
 
         String activityString = activity.toString();
         assertTrue(activityString.contains("my-task"));
@@ -264,23 +266,23 @@ public class ActivityTest {
 
         // test copy constructor
         Activity copy = new Activity.Builder().withActivity(activity).build();
-        assertEquals(activity, copy);
+        assertEquals(copy, activity);
     }
 
     @Test
     public void taskActivityById() {
         // This is already mostly tested above. Just test passing in task ID sets the task correctly.
         Activity activity = new Activity.Builder().withTask("my-task").build();
-        assertEquals(new TaskReference("my-task", null), activity.getTask());
+        assertEquals(activity.getTask(), new TaskReference("my-task", null));
     }
 
     @Test
     public void surveyActivityByRef() {
         SurveyReference survey = new SurveyReference("my-survey", "BBB", null);
         Activity activity = new Activity.Builder().withSurvey(survey).build();
-        assertEquals(survey, activity.getSurvey());
-        assertEquals(ActivityType.SURVEY, activity.getActivityType());
-        assertEquals("survey:BBB:finished", activity.getSelfFinishedEventId());
+        assertEquals(activity.getSurvey(), survey);
+        assertEquals(activity.getActivityType(), ActivityType.SURVEY);
+        assertEquals(activity.getSelfFinishedEventId(), "survey:BBB:finished");
 
         String activityString = activity.toString();
         assertTrue(activityString.contains("my-survey"));
@@ -289,7 +291,7 @@ public class ActivityTest {
 
         // test copy constructor
         Activity copy = new Activity.Builder().withActivity(activity).build();
-        assertEquals(activity, copy);
+        assertEquals(copy, activity);
     }
 
     @Test
@@ -297,13 +299,13 @@ public class ActivityTest {
         // most of this tested above
         DateTime createdOn = DateTime.now();
         Activity activity = new Activity.Builder().withSurvey("my-survey", "BBB", createdOn).build();
-        assertEquals(new SurveyReference("my-survey", "BBB", createdOn), activity.getSurvey());
+        assertEquals(activity.getSurvey(), new SurveyReference("my-survey", "BBB", createdOn));
     }
 
     @Test
     public void publishedSurveyActivity() {
         // most of this tested above
         Activity activity = new Activity.Builder().withPublishedSurvey("my-published-survey", "CCC").build();
-        assertEquals(new SurveyReference("my-published-survey", "CCC", null), activity.getSurvey());
+        assertEquals(activity.getSurvey(), new SurveyReference("my-published-survey", "CCC", null));
     }
 }

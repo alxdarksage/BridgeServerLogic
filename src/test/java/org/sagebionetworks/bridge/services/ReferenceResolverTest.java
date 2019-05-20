@@ -1,23 +1,26 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashMap;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
 import org.sagebionetworks.bridge.models.ClientInfo;
@@ -32,9 +35,8 @@ import org.sagebionetworks.bridge.models.studies.StudyIdentifier;
 import org.sagebionetworks.bridge.models.surveys.Survey;
 import org.sagebionetworks.bridge.models.upload.UploadSchema;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ReferenceResolverTest {
     
     private static final ClientInfo CLIENT_INFO = ClientInfo.UNKNOWN_CLIENT;
@@ -55,11 +57,11 @@ public class ReferenceResolverTest {
     private static final CompoundActivity COMPOUND_ACTIVITY_SKINNY_REF = new CompoundActivity.Builder()
             .withTaskIdentifier(TASK_ID).build();
     private static final CompoundActivity RESOLVED_COMPOUND_ACTIVITY = new CompoundActivity.Builder()
-        .withSurveyList(Lists.newArrayList(RESOLVED_SURVEY_REF))
-        .withSchemaList(Lists.newArrayList(RESOLVED_SCHEMA_REF)).build();
+        .withSurveyList(ImmutableList.of(RESOLVED_SURVEY_REF))
+        .withSchemaList(ImmutableList.of(RESOLVED_SCHEMA_REF)).build();
     private static final CompoundActivity UNRESOLVED_COMPOUND_ACTIVITY = new CompoundActivity.Builder()
-            .withSurveyList(Lists.newArrayList(UNRESOLVED_SURVEY_REF))
-            .withSchemaList(Lists.newArrayList(UNRESOLVED_SCHEMA_REF)).build();
+            .withSurveyList(ImmutableList.of(UNRESOLVED_SURVEY_REF))
+            .withSchemaList(ImmutableList.of(UNRESOLVED_SCHEMA_REF)).build();
     private static final Survey SURVEY = Survey.create();
     static {
         SURVEY.setGuid(SURVEY_GUID);
@@ -73,13 +75,13 @@ public class ReferenceResolverTest {
     }
     private static final CompoundActivityDefinition RESOLVED_COMPOUND_ACTIVITY_DEF = CompoundActivityDefinition.create();
     static {
-        RESOLVED_COMPOUND_ACTIVITY_DEF.setSurveyList(Lists.newArrayList(RESOLVED_SURVEY_REF));
-        RESOLVED_COMPOUND_ACTIVITY_DEF.setSchemaList(Lists.newArrayList(RESOLVED_SCHEMA_REF));
+        RESOLVED_COMPOUND_ACTIVITY_DEF.setSurveyList(ImmutableList.of(RESOLVED_SURVEY_REF));
+        RESOLVED_COMPOUND_ACTIVITY_DEF.setSchemaList(ImmutableList.of(RESOLVED_SCHEMA_REF));
     }
     private static final CompoundActivityDefinition UNRESOLVED_COMPOUND_ACTIVITY_DEF = CompoundActivityDefinition.create();
     static {
-        UNRESOLVED_COMPOUND_ACTIVITY_DEF.setSurveyList(Lists.newArrayList(UNRESOLVED_SURVEY_REF));
-        UNRESOLVED_COMPOUND_ACTIVITY_DEF.setSchemaList(Lists.newArrayList(UNRESOLVED_SCHEMA_REF));
+        UNRESOLVED_COMPOUND_ACTIVITY_DEF.setSurveyList(ImmutableList.of(UNRESOLVED_SURVEY_REF));
+        UNRESOLVED_COMPOUND_ACTIVITY_DEF.setSchemaList(ImmutableList.of(UNRESOLVED_SCHEMA_REF));
     }
 
     @Mock
@@ -103,8 +105,10 @@ public class ReferenceResolverTest {
     
     private Activity.Builder activityBuilder;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         // All the dependencies are mocks or mutable maps, and can be adjusted per test
         resolver = new ReferenceResolver(compoundActivityDefinitionService, schemaService, surveyService,
                 surveyReferences, schemaReferences, CLIENT_INFO, STUDY_ID);
@@ -112,6 +116,12 @@ public class ReferenceResolverTest {
         scheduledActivity = ScheduledActivity.create();
         
         activityBuilder = new Activity.Builder();
+    }
+    
+    @AfterMethod
+    public void after() {
+        surveyReferences.clear();
+        schemaReferences.clear();
     }
     
     @Test

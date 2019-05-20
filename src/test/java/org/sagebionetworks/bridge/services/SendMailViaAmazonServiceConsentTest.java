@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.notNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.FileInputStream;
 import java.util.List;
@@ -14,8 +14,6 @@ import java.util.List;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.simpleemail.model.MessageRejectedException;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dynamodb.DynamoStudy;
@@ -38,6 +36,8 @@ import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendRawEmailResult;
 import com.google.common.base.Charsets;
 import org.springframework.core.io.ClassPathResource;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Set-up here for consent-specific tests is extensive, so tests for the participant roster
@@ -58,7 +58,7 @@ public class SendMailViaAmazonServiceConsentTest {
     private String consentBodyTemplate;
     private Subpopulation subpopulation;
     
-    @Before
+    @BeforeMethod
     public void setUp() throws Exception {
         consentBodyTemplate = IOUtils.toString(new FileInputStream(new ClassPathResource(
                 "conf/study-defaults/consent-page.xhtml").getFile()));
@@ -119,16 +119,16 @@ public class SendMailViaAmazonServiceConsentTest {
 
         // validate from
         SendRawEmailRequest req = argument.getValue();
-        assertEquals("Correct sender", FROM_STUDY_AS_FORMATTED, req.getSource());
+        assertEquals(req.getSource(), FROM_STUDY_AS_FORMATTED, "Correct sender");
 
         // validate to
         List<String> toList = req.getDestinations();
-        assertEquals("Correct number of recipients", 1, toList.size());
-        assertEquals("Correct recipient", "test-user@sagebase.org", toList.get(0));
+        assertEquals(toList.size(), 1, "Correct number of recipients");
+        assertEquals(toList.get(0), "test-user@sagebase.org", "Correct recipient");
 
         // Validate message content. MIME message must be ASCII
         String rawMessage = new String(req.getRawMessage().getData().array(), Charsets.US_ASCII);
-        assertTrue("Contains consent content", rawMessage.contains("Body of Template"));
+        assertTrue(rawMessage.contains("Body of Template"), "Contains consent content");
     }
 
     @Test
@@ -161,23 +161,23 @@ public class SendMailViaAmazonServiceConsentTest {
 
         // validate from
         SendRawEmailRequest req = argument.getValue();
-        assertEquals("Correct sender", FROM_STUDY_AS_FORMATTED, req.getSource());
+        assertEquals(req.getSource(), FROM_STUDY_AS_FORMATTED, "Correct sender");
 
         // validate to
         List<String> toList = req.getDestinations();
-        assertEquals("Correct number of recipients", 1, toList.size());
-        assertEquals("Correct recipient", "test-user@sagebase.org", toList.get(0));
+        assertEquals(toList.size(), 1, "Correct number of recipients");
+        assertEquals(toList.get(0), "test-user@sagebase.org", "Correct recipient");
 
         // Validate message content. MIME message must be ASCII
         String rawMessage = new String(req.getRawMessage().getData().array(), Charsets.US_ASCII);
         // The  HTML
-        assertTrue("Contains body text", rawMessage.contains("Content-Type: text/html; charset=utf-8"));
-        assertTrue("Contains body template", rawMessage.contains("Body of Template"));
+        assertTrue(rawMessage.contains("Content-Type: text/html; charset=utf-8"), "Contains body text");
+        assertTrue(rawMessage.contains("Body of Template"), "Contains body template");
         
         // The PDF attachment
-        assertTrue("Contains PDF attachment", rawMessage.contains("Content-Type: application/pdf; name=consent.pdf"));
-        assertTrue("Contains correct disposition", rawMessage.contains("Content-Disposition: attachment; filename=consent.pdf"));
-        assertTrue("Contains base 64 encoded image", rawMessage.contains("JVBERi0xLjQKJeLjz9"));
+        assertTrue(rawMessage.contains("Content-Type: application/pdf; name=consent.pdf"), "Contains PDF attachment");
+        assertTrue(rawMessage.contains("Content-Disposition: attachment; filename=consent.pdf"), "Contains correct disposition");
+        assertTrue(rawMessage.contains("JVBERi0xLjQKJeLjz9"), "Contains base 64 encoded image");
     }
 
     @Test
@@ -209,7 +209,7 @@ public class SendMailViaAmazonServiceConsentTest {
         verify(emailClient).sendRawEmail(any());
     }
 
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void otherExceptionsPropagated() {
         // mock email client with exception
         when(emailClient.sendRawEmail(notNull())).thenThrow(AmazonServiceException.class);

@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -146,13 +146,13 @@ public class ClientInfoTest {
     private void assertClientInfo(String userAgentString, String appName, Integer appVersion, String deviceName,
             String osName, String osVersion, String sdkName, Integer sdkVersion) {
         ClientInfo info = ClientInfo.parseUserAgentString(userAgentString);
-        assertEquals(appName, info.getAppName());
-        assertEquals(appVersion, info.getAppVersion());
-        assertEquals(deviceName, info.getDeviceName());
-        assertEquals(osName, info.getOsName());
-        assertEquals(osVersion, info.getOsVersion());
-        assertEquals(sdkName, info.getSdkName());
-        assertEquals(sdkVersion, info.getSdkVersion());
+        assertEquals(info.getAppName(), appName);
+        assertEquals(info.getAppVersion(), appVersion);
+        assertEquals(info.getDeviceName(), deviceName);
+        assertEquals(info.getOsName(), osName);
+        assertEquals(info.getOsVersion(), osVersion);
+        assertEquals(info.getSdkName(), sdkName);
+        assertEquals(info.getSdkVersion(), sdkVersion);
     }
 
     @Test
@@ -160,13 +160,13 @@ public class ClientInfoTest {
         ClientInfo info1 = ClientInfo.fromUserAgentCache(UA);
         ClientInfo info2 = ClientInfo.fromUserAgentCache(UA);
         
-        assertSame(info1, info2);
+        assertSame(info2, info1);
     }
     
     @Test
     public void cacheWorksWithBadValues() {
-        assertSame(ClientInfo.UNKNOWN_CLIENT, ClientInfo.fromUserAgentCache(null));
-        assertSame(ClientInfo.UNKNOWN_CLIENT, ClientInfo.fromUserAgentCache("   \n"));
+        assertSame(ClientInfo.fromUserAgentCache(null), ClientInfo.UNKNOWN_CLIENT);
+        assertSame(ClientInfo.fromUserAgentCache("   \n"), ClientInfo.UNKNOWN_CLIENT);
     }
     
     @Test
@@ -195,7 +195,7 @@ public class ClientInfoTest {
     @Test
     public void returnsUknownClient() {
         ClientInfo info = ClientInfo.parseUserAgentString("/7.1.1.");
-        assertSame(ClientInfo.UNKNOWN_CLIENT, info);
+        assertSame(info, ClientInfo.UNKNOWN_CLIENT);
     }
     
     @Test
@@ -208,11 +208,11 @@ public class ClientInfoTest {
                 .withOsVersion("Version1")
                 .withSdkName("BridgeSDK")
                 .withSdkVersion(4).build();
-        assertEquals("AppName", info.getAppName());
-        assertEquals(1, info.getAppVersion().intValue());
-        assertEquals(IOS, info.getOsName());
-        assertEquals("Version1", info.getOsVersion());
-        assertEquals(4, info.getSdkVersion().intValue());
+        assertEquals(info.getAppName(), "AppName");
+        assertEquals(info.getAppVersion().intValue(), 1);
+        assertEquals(info.getOsName(), IOS);
+        assertEquals(info.getOsVersion(), "Version1");
+        assertEquals(info.getSdkVersion().intValue(), 4);
     }
     
  }

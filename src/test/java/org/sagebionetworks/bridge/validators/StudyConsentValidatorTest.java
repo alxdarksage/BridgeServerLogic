@@ -4,21 +4,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
 import org.sagebionetworks.bridge.models.subpopulations.StudyConsentForm;
 
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class StudyConsentValidatorTest {
 
     private Resource resource;
     
-    @Before
+    @BeforeMethod
     public void before() {
         resource = new AbstractResource() {
             @Override
@@ -32,12 +32,12 @@ public class StudyConsentValidatorTest {
         };
     }
     
-    @After
+    @AfterMethod
     public void after() throws IOException {
         resource.getInputStream().close();
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void detectsInvalidXML() throws Exception {
         StudyConsentValidator validator = new StudyConsentValidator();
         validator.setConsentBodyTemplate(resource);

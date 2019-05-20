@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -17,12 +17,11 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dao.ScheduledActivityDao;
 import org.sagebionetworks.bridge.dynamodb.DynamoSchedulePlan;
@@ -46,7 +45,6 @@ import com.google.common.collect.Lists;
  * to verify de-duplication and the correct fix for any schedule that has no times in it (the time must be set to 
  * a standard time and midnight seems to work regardless of when the timestamp is).
  */
-@RunWith(MockitoJUnitRunner.class)
 public class ScheduledActivityServiceDuplicateTest {
     //"studyKey (S)","guid (S)","label (S)","modifiedOn (N)","strategy (S)","version (N)"
     private static final String[][] SCHEDULE_PLAN_RECORDS = new String[][] {
@@ -160,8 +158,9 @@ public class ScheduledActivityServiceDuplicateTest {
     
     ScheduleContext.Builder contextBuilder;
     
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
+        MockitoAnnotations.initMocks(this);
         // This is the exact time that Erin contacted the server
         DateTimeUtils.setCurrentMillisFixed(ACTIVITIES_LAST_RETRIEVED_ON.getMillis());
         
@@ -180,7 +179,7 @@ public class ScheduledActivityServiceDuplicateTest {
                 .withUserId("6m7Yj31Pp41yjvoyU5y6RE");
     }
     
-    @After
+    @AfterMethod
     public void after() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -278,9 +277,9 @@ public class ScheduledActivityServiceDuplicateTest {
         
         allWithinQueryWindow(activities, context);
         // With persisted tasks included, this finished task is not returned.
-        assertEquals(0, filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size());
-        assertEquals(1, filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size());
-        assertEquals(1, filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size());
+        assertEquals(filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size(), 0);
+        assertEquals(filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size(), 1);
+        assertEquals(filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size(), 1);
         assertNotNull(filterByLabel(activities, "Training Session 1").get(0).getStartedOn());
     }
     
@@ -306,9 +305,9 @@ public class ScheduledActivityServiceDuplicateTest {
         verify(schedulePlanService).getSchedulePlans(any(), any(), eq(false));
         
         allWithinQueryWindow(activities, context);
-        assertEquals(0, filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size());
-        assertEquals(1, filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size());
-        assertEquals(1, filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size());
+        assertEquals(filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size(), 0);
+        assertEquals(filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size(), 1);
+        assertEquals(filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size(), 1);
         assertNotNull(filterByLabel(activities, "Training Session 1").get(0).getStartedOn());
     }
     
@@ -329,9 +328,9 @@ public class ScheduledActivityServiceDuplicateTest {
         verify(activityDao).getActivities(any(), any());
         verify(schedulePlanService).getSchedulePlans(any(), any(), eq(false));
         // This one is there...
-        assertEquals(1, filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size());
-        assertEquals(1, filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size());
-        assertEquals(1, filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size());
+        assertEquals(filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size(), 1);
+        assertEquals(filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size(), 1);
+        assertEquals(filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size(), 1);
         // This one hasn't been started, obviously
         assertNull(filterByLabel(activities, "Training Session 1").get(0).getStartedOn());
     }
@@ -352,14 +351,14 @@ public class ScheduledActivityServiceDuplicateTest {
         // There's only one of these and they are set to midnight UTC.
         verify(activityDao).getActivities(any(), any());
         verify(schedulePlanService).getSchedulePlans(any(), any(), eq(false));
-        assertEquals(1, filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size());
-        assertEquals(1, filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size());
-        assertEquals(1, filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size());
+        assertEquals(filterByGuid(activities, "bea8fd5d-7622-451f-a727-f9e37f00e1be").size(), 1);
+        assertEquals(filterByGuid(activities, "6966c3d7-0949-43a8-804e-efc25d0f83e2").size(), 1);
+        assertEquals(filterByGuid(activities, "79cf1788-a087-4fa3-92e4-92e43d9699a7").size(), 1);
         
         // It's adjusted, magically it's still 6/30 I haven't figured out why yet.
         List<ScheduledActivity> list = filterByLabel(activities, "Do Persistent Activity");
-        assertEquals(1, list.size());
-        assertEquals("21e97935-6d64-4cd5-ae70-653caad7b2f9:2016-06-30T12:43:07.951", list.get(0).getGuid());
+        assertEquals(list.size(), 1);
+        assertEquals(list.get(0).getGuid(), "21e97935-6d64-4cd5-ae70-653caad7b2f9:2016-06-30T12:43:07.951");
         // This one hasn't been started, obviously
         assertNull(filterByLabel(activities, "Training Session 1").get(0).getStartedOn());
     }

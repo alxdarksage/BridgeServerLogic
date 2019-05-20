@@ -1,9 +1,9 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class RangeTupleTest {
 
@@ -11,8 +11,8 @@ public class RangeTupleTest {
     public void test() {
         RangeTuple<String> tuple = new RangeTuple<>("startValue", "endValue");
         
-        assertEquals("startValue", tuple.getStart());
-        assertEquals("endValue", tuple.getEnd());
+        assertEquals(tuple.getStart(), "startValue");
+        assertEquals(tuple.getEnd(), "endValue");
     }
     
     @Test

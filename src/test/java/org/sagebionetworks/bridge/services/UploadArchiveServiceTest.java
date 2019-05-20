@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.notNull;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -18,14 +18,14 @@ import java.util.Map;
 
 import com.google.common.base.Charsets;
 import com.google.common.cache.LoadingCache;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import org.sagebionetworks.bridge.crypto.BcCmsEncryptor;
 import org.sagebionetworks.bridge.crypto.CmsEncryptor;
 import org.sagebionetworks.bridge.crypto.PemUtils;
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
 import org.springframework.core.io.ClassPathResource;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 @SuppressWarnings("unchecked")
 public class UploadArchiveServiceTest {
@@ -65,22 +65,22 @@ public class UploadArchiveServiceTest {
         assertTrue(encryptedData.length > 0);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void encryptNullStudyId() {
         archiveService.encrypt(null, PLAIN_TEXT_DATA);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void encryptEmptyStudyId() {
         archiveService.encrypt("", PLAIN_TEXT_DATA);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void encryptBlankStudyId() {
         archiveService.encrypt("   ", PLAIN_TEXT_DATA);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void encryptNullBytes() {
         archiveService.encrypt("test-study", null);
     }
@@ -88,58 +88,58 @@ public class UploadArchiveServiceTest {
     @Test
     public void decryptSuccess() {
         byte[] decryptedData = archiveService.decrypt("test-study", encryptedData);
-        assertArrayEquals(PLAIN_TEXT_DATA, decryptedData);
+        assertArrayEquals(decryptedData, PLAIN_TEXT_DATA);
     }
 
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void decryptGarbageData() {
         String garbageStr = "This is not encrypted data.";
         byte[] garbageData = garbageStr.getBytes(Charsets.UTF_8);
         archiveService.decrypt("test-study", garbageData);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void decryptBytesNullStudyId() {
         archiveService.decrypt(null, encryptedData);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void decryptBytesEmptyStudyId() {
         archiveService.decrypt("", encryptedData);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void decryptBytesBlankStudyId() {
         archiveService.decrypt("   ", encryptedData);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void decryptBytesNullBytes() {
         archiveService.decrypt("test-study", (byte[]) null);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void decryptStreamNullStudyId() throws Exception {
         try (InputStream encryptedInputStream = new ByteArrayInputStream(encryptedData)) {
             archiveService.decrypt(null, encryptedInputStream);
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void decryptStreamEmptyStudyId() throws Exception {
         try (InputStream encryptedInputStream = new ByteArrayInputStream(encryptedData)) {
             archiveService.decrypt("", encryptedInputStream);
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void decryptStreamBlankStudyId() throws Exception {
         try (InputStream encryptedInputStream = new ByteArrayInputStream(encryptedData)) {
             archiveService.decrypt("   ", encryptedInputStream);
         }
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void decryptStreamNullBytes() {
         archiveService.decrypt("test-study", (InputStream) null);
     }
@@ -157,7 +157,7 @@ public class UploadArchiveServiceTest {
 
         // unzip
         Map<String, byte[]> unzippedData = archiveService.unzip(decryptedData);
-        assertEquals(3, unzippedData.size());
+        assertEquals(unzippedData.size(), 3);
         for (byte[] oneData : unzippedData.values()) {
             assertNotNull(oneData);
             assertTrue(oneData.length > 0);

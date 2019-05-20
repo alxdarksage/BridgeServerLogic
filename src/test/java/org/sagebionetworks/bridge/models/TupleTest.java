@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -23,7 +24,7 @@ public class TupleTest {
         String json = BridgeObjectMapper.get().writeValueAsString(tuple);
         
         Tuple<String> deser = BridgeObjectMapper.get().readValue(json, new TypeReference<Tuple<String>>() {});
-        assertEquals(tuple, deser);
+        assertEquals(deser, tuple);
     }
 
 }

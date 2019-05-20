@@ -1,12 +1,13 @@
 package org.sagebionetworks.bridge.models.surveys;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.EnumSet;
 
 import org.joda.time.YearMonth;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,19 +23,19 @@ public class YearMonthConstraintsTest {
         String json = BridgeObjectMapper.get().writeValueAsString(constraints);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
 
-        assertEquals("2000-01", node.get("earliestValue").textValue());
-        assertEquals("2009-12", node.get("latestValue").textValue());
-        assertEquals("yearmonth", node.get("dataType").textValue());
+        assertEquals(node.get("earliestValue").textValue(), "2000-01");
+        assertEquals(node.get("latestValue").textValue(), "2009-12");
+        assertEquals(node.get("dataType").textValue(), "yearmonth");
         assertTrue(node.get("allowFuture").booleanValue());
-        assertEquals("YearMonthConstraints", node.get("type").textValue());
+        assertEquals(node.get("type").textValue(), "YearMonthConstraints");
         
         // Deserialize as a Constraints object to verify the right subtype is selected.
         YearMonthConstraints deser = (YearMonthConstraints) BridgeObjectMapper.get()
                 .readValue(node.toString(), Constraints.class);
-        assertEquals(YearMonth.parse("2000-01"), deser.getEarliestValue());
-        assertEquals(YearMonth.parse("2009-12"), deser.getLatestValue());
+        assertEquals(deser.getEarliestValue(), YearMonth.parse("2000-01"));
+        assertEquals(deser.getLatestValue(), YearMonth.parse("2009-12"));
         assertTrue(deser.getAllowFuture());
-        assertEquals(DataType.YEARMONTH, deser.getDataType());
-        assertEquals(EnumSet.of(UIHint.YEARMONTH), deser.getSupportedHints());
+        assertEquals(deser.getDataType(), DataType.YEARMONTH);
+        assertEquals(deser.getSupportedHints(), EnumSet.of(UIHint.YEARMONTH));
     }
 }

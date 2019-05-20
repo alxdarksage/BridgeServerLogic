@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.models.sms;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class SmsTypeTest {
     @Test
     public void testGetValue() {
-        assertEquals("Promotional", SmsType.PROMOTIONAL.getValue());
-        assertEquals("Transactional", SmsType.TRANSACTIONAL.getValue());
+        assertEquals(SmsType.PROMOTIONAL.getValue(), "Promotional");
+        assertEquals(SmsType.TRANSACTIONAL.getValue(), "Transactional");
     }
 }

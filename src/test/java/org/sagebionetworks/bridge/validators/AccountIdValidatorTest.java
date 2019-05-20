@@ -2,7 +2,8 @@ package org.sagebionetworks.bridge.validators;
 
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -22,7 +23,7 @@ public class AccountIdValidatorTest {
         Validate.entityThrowingException(AccountIdValidator.getInstance(ChannelType.PHONE), accountId);
     }
     
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void validatorUnsupportedType() {
         AccountId accountId = AccountId.forEmail(TestConstants.TEST_STUDY_IDENTIFIER, "email@email.com");
         Validate.entityThrowingException(AccountIdValidator.getInstance(null), accountId);

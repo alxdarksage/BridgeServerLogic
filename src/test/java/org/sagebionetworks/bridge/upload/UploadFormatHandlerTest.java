@@ -5,8 +5,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -15,7 +16,7 @@ public class UploadFormatHandlerTest {
     private GenericUploadFormatHandler mockV2GenericHandler;
     private UploadFormatHandler uploadFormatHandler;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         mockV1LegacyHandler = mock(IosSchemaValidationHandler2.class);
         mockV2GenericHandler = mock(GenericUploadFormatHandler.class);

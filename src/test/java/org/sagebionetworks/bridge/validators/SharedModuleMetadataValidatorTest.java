@@ -1,14 +1,14 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashMap;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
 import org.springframework.validation.MapBindingResult;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.hibernate.HibernateSharedModuleMetadata;

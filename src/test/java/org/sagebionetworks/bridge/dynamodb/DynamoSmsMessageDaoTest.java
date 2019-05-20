@@ -48,7 +48,7 @@ public class DynamoSmsMessageDaoTest {
 
         // Execute and validate output matches.
         SmsMessage daoOutput = dao.getMostRecentMessage(PHONE_NUMBER);
-        assertSame(mapperOutput, daoOutput);
+        assertSame(daoOutput, mapperOutput);
 
         // Verify query.
         ArgumentCaptor<DynamoDBQueryExpression> queryCaptor = ArgumentCaptor.forClass(DynamoDBQueryExpression.class);

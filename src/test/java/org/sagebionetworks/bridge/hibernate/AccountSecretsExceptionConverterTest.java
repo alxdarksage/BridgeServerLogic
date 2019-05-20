@@ -13,7 +13,7 @@ public class AccountSecretsExceptionConverterTest {
         AccountSecretsExceptionConverter converter = new AccountSecretsExceptionConverter();
         PersistenceException ex = new PersistenceException();
         RuntimeException returnValue = converter.convert(ex, new Object());
-        assertSame(ex, returnValue);
+        assertSame(returnValue, ex);
     }
 
 }

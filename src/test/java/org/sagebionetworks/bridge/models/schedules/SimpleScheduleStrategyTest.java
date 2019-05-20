@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.validation.Errors;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -35,7 +35,7 @@ public class SimpleScheduleStrategyTest {
     private static final BridgeObjectMapper MAPPER = BridgeObjectMapper.get();
     private Study study;
 
-    @Before
+    @BeforeMethod
     public void before() {
         study = TestUtils.getValidStudy(ScheduleStrategyTest.class);
     }
@@ -62,11 +62,11 @@ public class SimpleScheduleStrategyTest {
         DynamoSchedulePlan newPlan = DynamoSchedulePlan.fromJson(node);
 
         newPlan.setStudyKey(plan.getStudyKey()); // not serialized
-        assertEquals("Plan with simple strategy was serialized/deserialized", plan, newPlan);
+        assertEquals(newPlan, plan, "Plan with simple strategy was serialized/deserialized");
 
         SimpleScheduleStrategy newStrategy = (SimpleScheduleStrategy) newPlan.getStrategy();
-        assertEquals("Deserialized simple testing strategy is complete", strategy.getSchedule(),
-                        newStrategy.getSchedule());
+        assertEquals(newStrategy.getSchedule(), strategy.getSchedule(),
+                "Deserialized simple testing strategy is complete");
     }
     
     @Test
@@ -83,7 +83,7 @@ public class SimpleScheduleStrategyTest {
         Map<String,List<String>> map = Validate.convertErrorsToSimpleMap(errors);
         
         List<String> errorMessages = map.get("schedule.expires");
-        assertEquals("schedule.expires must be set if schedule repeats", errorMessages.get(0));
+        assertEquals(errorMessages.get(0), "schedule.expires must be set if schedule repeats");
     }
     
     @Test
@@ -91,8 +91,8 @@ public class SimpleScheduleStrategyTest {
         SchedulePlan plan = TestUtils.getSimpleSchedulePlan(TEST_STUDY);
         
         List<Schedule> schedules = plan.getStrategy().getAllPossibleSchedules();
-        assertEquals(1, schedules.size());
-        assertEquals("Test label for the user", schedules.get(0).getLabel());
+        assertEquals(schedules.size(), 1);
+        assertEquals(schedules.get(0).getLabel(), "Test label for the user");
         assertTrue(schedules instanceof ImmutableList);
     }
 }

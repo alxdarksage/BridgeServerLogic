@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.studies;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,28 +16,28 @@ public class MimeTypeTest {
         ObjectMapper mapper = BridgeObjectMapper.get();
         
         MimeType deser = mapper.readValue("\"pdf\"", MimeType.class);
-        assertEquals(MimeType.PDF, deser);
+        assertEquals(deser, MimeType.PDF);
         
         deser = mapper.readValue("\"application/pdf\"", MimeType.class);
-        assertEquals(MimeType.PDF, deser);
+        assertEquals(deser, MimeType.PDF);
         
         deser = mapper.readValue("\"HTML\"", MimeType.class);
-        assertEquals(MimeType.HTML, deser);
+        assertEquals(deser, MimeType.HTML);
         
         deser = mapper.readValue("\"text/html\"", MimeType.class);
-        assertEquals(MimeType.HTML, deser);
+        assertEquals(deser, MimeType.HTML);
         
         deser = mapper.readValue("\"TEXT/PLAIN\"", MimeType.class);
-        assertEquals(MimeType.TEXT, deser);
+        assertEquals(deser, MimeType.TEXT);
     }
     
     @Test
     public void serializationUsesMimeTypeValue() throws Exception {
         ObjectMapper mapper = BridgeObjectMapper.get();
         
-        assertEquals("\"text/html\"", mapper.writeValueAsString(MimeType.HTML));
-        assertEquals("\"text/plain\"", mapper.writeValueAsString(MimeType.TEXT));
-        assertEquals("\"application/pdf\"", mapper.writeValueAsString(MimeType.PDF));
+        assertEquals(mapper.writeValueAsString(MimeType.HTML), "\"text/html\"");
+        assertEquals(mapper.writeValueAsString(MimeType.TEXT), "\"text/plain\"");
+        assertEquals(mapper.writeValueAsString(MimeType.PDF), "\"application/pdf\"");
     }
     
     /**
@@ -51,7 +51,7 @@ public class MimeTypeTest {
         
         MimeType type = mapper.readValue(json, MimeType.class);
         
-        assertEquals(MimeType.HTML, type);
+        assertEquals(type, MimeType.HTML);
     }
     
     @Test

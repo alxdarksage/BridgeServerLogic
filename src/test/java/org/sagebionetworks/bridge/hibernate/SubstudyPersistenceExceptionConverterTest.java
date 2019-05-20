@@ -33,7 +33,7 @@ public class SubstudyPersistenceExceptionConverterTest {
     public void noConversion() { 
         PersistenceException ex = new PersistenceException(new RuntimeException("message"));
         
-        assertSame(ex, converter.convert(ex, null));
+        assertSame(converter.convert(ex, null), ex);
     }
     
     @Test

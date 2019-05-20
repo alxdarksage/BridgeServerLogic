@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+
+import org.testng.annotations.Test;
 
 /**
  * Adopted from the OpenGamma library (Apache License v2):
@@ -25,7 +25,7 @@ public class BridgeCollectorsTest {
         List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
         ImmutableList<String> test = list.stream().filter(s -> s.length() == 1)
                 .collect(BridgeCollectors.toImmutableList());
-        assertEquals(test, ImmutableList.of("a", "b", "c", "a"));
+        assertEquals(ImmutableList.of("a", "b", "c", "a"), test);
         assertTrue(test instanceof ImmutableList);
     }
 
@@ -34,7 +34,7 @@ public class BridgeCollectorsTest {
         List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
         ImmutableSet<String> test = list.stream().filter(s -> s.length() == 1)
                 .collect(BridgeCollectors.toImmutableSet());
-        assertEquals(test, ImmutableSet.of("a", "b", "c"));
+        assertEquals(ImmutableSet.of("a", "b", "c"), test);
         assertTrue(test instanceof ImmutableSet);
     }
 

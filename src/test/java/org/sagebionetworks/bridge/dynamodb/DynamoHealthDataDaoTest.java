@@ -150,7 +150,7 @@ public class DynamoHealthDataDaoTest {
 
         // execute and validate
         List<HealthDataRecord> retVal = dao.getRecordsForUploadDate("2015-02-11");
-        assertSame(mockResult, retVal);
+        assertSame(retVal, mockResult);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class DynamoHealthDataDaoTest {
         List<HealthDataRecord> retVal = dao.getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE, TEST_CREATED_ON,
                 TEST_CREATED_ON_END);
         assertEquals(retVal.size(), 1);
-        assertSame(record, retVal.get(0));
+        assertSame(retVal.get(0), record);
 
         // Verify query.
         ArgumentCaptor<DynamoDBQueryExpression> queryCaptor = ArgumentCaptor.forClass(DynamoDBQueryExpression.class);
