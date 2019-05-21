@@ -1,10 +1,5 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
@@ -13,17 +8,21 @@ import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
 import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestConstants;
@@ -47,7 +46,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoSchedulePlanDaoMockTest {
     
     private static final Set<String> ALL_OF_GROUPS = Sets.newHashSet("a","b");
@@ -72,8 +70,9 @@ public class DynamoSchedulePlanDaoMockTest {
     @Captor
     private ArgumentCaptor<DynamoDBQueryExpression<DynamoSchedulePlan>> queryCaptor;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         dao = new DynamoSchedulePlanDao();
         dao.setSchedulePlanMapper(mapper);
         dao.setCriteriaDao(criteriaDao);
@@ -113,11 +112,11 @@ public class DynamoSchedulePlanDaoMockTest {
     public void getSchedulePlans() {
         mockSchedulePlanQuery();
         List<SchedulePlan> plans = dao.getSchedulePlans(ClientInfo.UNKNOWN_CLIENT, TEST_STUDY, false);
-        assertEquals(1, plans.size());
+        assertEquals(plans.size(), 1);
         
         verify(mapper).queryPage(eq(DynamoSchedulePlan.class), queryCaptor.capture());
         
-        assertEquals(TEST_STUDY.getIdentifier(), queryCaptor.getValue().getHashKeyValues().getStudyKey());
+        assertEquals(queryCaptor.getValue().getHashKeyValues().getStudyKey(), TEST_STUDY.getIdentifier());
     }
     
     @Test
@@ -144,8 +143,8 @@ public class DynamoSchedulePlanDaoMockTest {
         plan = plans.get(0);
         strategy = (CriteriaScheduleStrategy)plan.getStrategy();
         criteria = strategy.getScheduleCriteria().get(0).getCriteria();
-        assertEquals(new Integer(1), criteria.getMinAppVersion(IOS));
-        assertEquals(new Integer(65), criteria.getMaxAppVersion(IOS));
+        assertEquals(criteria.getMinAppVersion(IOS), new Integer(1));
+        assertEquals(criteria.getMaxAppVersion(IOS), new Integer(65));
         assertTrue(criteria.getAllOfGroups().isEmpty());
         assertTrue(criteria.getNoneOfGroups().isEmpty());
     }
@@ -171,8 +170,8 @@ public class DynamoSchedulePlanDaoMockTest {
         plan = dao.getSchedulePlan(TEST_STUDY, plan.getGuid());
         strategy = (CriteriaScheduleStrategy)plan.getStrategy();
         criteria = strategy.getScheduleCriteria().get(0).getCriteria();
-        assertEquals(new Integer(1), criteria.getMinAppVersion(IOS));
-        assertEquals(new Integer(65), criteria.getMaxAppVersion(IOS));
+        assertEquals(criteria.getMinAppVersion(IOS), new Integer(1));
+        assertEquals(criteria.getMaxAppVersion(IOS), new Integer(65));
         assertTrue(criteria.getAllOfGroups().isEmpty());
         assertTrue(criteria.getNoneOfGroups().isEmpty());
     }
@@ -219,17 +218,17 @@ public class DynamoSchedulePlanDaoMockTest {
         strategy = (CriteriaScheduleStrategy)updated.getStrategy();
         scheduleCriteria = strategy.getScheduleCriteria().get(0);
         Criteria returnedCriteria = scheduleCriteria.getCriteria();
-        assertEquals(new Integer(100), returnedCriteria.getMinAppVersion(IOS));
-        assertEquals(new Integer(200), returnedCriteria.getMaxAppVersion(IOS));        
+        assertEquals(returnedCriteria.getMinAppVersion(IOS), new Integer(100));
+        assertEquals(returnedCriteria.getMaxAppVersion(IOS), new Integer(200));        
         
         // Verify they were persisted
         verify(criteriaDao).createOrUpdateCriteria(criteriaCaptor.capture());
         Criteria updatedCriteria = criteriaCaptor.getValue();
-        assertEquals(new Integer(100), updatedCriteria.getMinAppVersion(IOS));
-        assertEquals(new Integer(200), updatedCriteria.getMaxAppVersion(IOS));        
+        assertEquals(updatedCriteria.getMinAppVersion(IOS), new Integer(100));
+        assertEquals(updatedCriteria.getMaxAppVersion(IOS), new Integer(200));        
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateMissingSchedulePlan() {
         when(queryResultsPage.getResults()).thenReturn(ImmutableList.of());
         when(mapper.queryPage(eq(DynamoSchedulePlan.class), any())).thenReturn(queryResultsPage);
@@ -239,7 +238,7 @@ public class DynamoSchedulePlanDaoMockTest {
         dao.updateSchedulePlan(TEST_STUDY, update);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateDeletedSchedulePlan() {
         schedulePlan.setDeleted(true);
         mockSchedulePlanQuery();
@@ -271,7 +270,7 @@ public class DynamoSchedulePlanDaoMockTest {
         Condition condition = new Condition().withComparisonOperator(ComparisonOperator.NE)
                 .withAttributeValueList(new AttributeValue().withN("1"));
         
-        assertEquals(condition, queryCaptor.getValue().getQueryFilter().get("deleted"));
+        assertEquals(queryCaptor.getValue().getQueryFilter().get("deleted"), condition);
     }
     
     @Test
@@ -339,7 +338,7 @@ public class DynamoSchedulePlanDaoMockTest {
         verify(mapper, never()).delete(any());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateLogicallyDeletedSchedulePlanThrows() {
         mockSchedulePlanQuery();
         schedulePlan.setDeleted(true);
@@ -378,7 +377,7 @@ public class DynamoSchedulePlanDaoMockTest {
         assertTrue(schedulePlanCaptor.getValue().isDeleted());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteLogicallyDeletedSchedulePlanThrows() {
         mockSchedulePlanQuery();
         schedulePlan.setDeleted(true);
@@ -397,9 +396,9 @@ public class DynamoSchedulePlanDaoMockTest {
     }
     
     private void assertCriteria(Criteria criteria) {
-        assertEquals(new Integer(2), criteria.getMinAppVersion(IOS));
-        assertEquals(new Integer(10), criteria.getMaxAppVersion(IOS));
-        assertEquals(ALL_OF_GROUPS, criteria.getAllOfGroups());
-        assertEquals(NONE_OF_GROUPS, criteria.getNoneOfGroups());
+        assertEquals(criteria.getMinAppVersion(IOS), new Integer(2));
+        assertEquals(criteria.getMaxAppVersion(IOS), new Integer(10));
+        assertEquals(criteria.getAllOfGroups(), ALL_OF_GROUPS);
+        assertEquals(criteria.getNoneOfGroups(), NONE_OF_GROUPS);
     }
 }

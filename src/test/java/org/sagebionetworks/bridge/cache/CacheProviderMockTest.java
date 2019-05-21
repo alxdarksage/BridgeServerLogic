@@ -1,10 +1,5 @@
 package org.sagebionetworks.bridge.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
@@ -16,17 +11,21 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.Roles;
@@ -55,7 +54,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class CacheProviderMockTest {
 
     private static final CacheKey CACHE_KEY = CacheKey.study("key");
@@ -89,13 +87,13 @@ public class CacheProviderMockTest {
         simpleCacheProvider.setObject(cacheKey, json, BridgeConstants.BRIDGE_VIEW_EXPIRE_IN_SECONDS);
 
         String cachedString = simpleCacheProvider.getObject(cacheKey, String.class);
-        assertEquals(json, cachedString);
+        assertEquals(cachedString, json);
 
         // Remove something that's not the key
         final CacheKey brokenCacheKey = CacheKey.study(study.getIdentifier()+"2");
         simpleCacheProvider.removeObject(brokenCacheKey);
         cachedString = simpleCacheProvider.getObject(cacheKey, String.class);
-        assertEquals(json, cachedString);
+        assertEquals(cachedString, json);
 
         simpleCacheProvider.removeObject(cacheKey);
         cachedString = simpleCacheProvider.getObject(cacheKey, String.class);
@@ -120,36 +118,37 @@ public class CacheProviderMockTest {
         UserSession session = cacheProvider.getUserSession(DECRYPTED_SESSION_TOKEN);
 
         assertTrue(session.isAuthenticated());
-        assertEquals(Environment.LOCAL, session.getEnvironment());
-        assertEquals(DECRYPTED_SESSION_TOKEN, session.getSessionToken());
-        assertEquals("4f0937a5-6ebf-451b-84bc-fbf649b9e93c", session.getInternalSessionToken());
-        assertEquals("6gq4jGXLmAxVbLLmVifKN4", session.getId());
-        assertEquals("api", session.getStudyIdentifier().getIdentifier());
+        assertEquals(session.getEnvironment(), Environment.LOCAL);
+        assertEquals(session.getSessionToken(), DECRYPTED_SESSION_TOKEN);
+        assertEquals(session.getInternalSessionToken(), "4f0937a5-6ebf-451b-84bc-fbf649b9e93c");
+        assertEquals(session.getId(), "6gq4jGXLmAxVbLLmVifKN4");
+        assertEquals(session.getStudyIdentifier().getIdentifier(), "api");
         
         StudyParticipant participant = session.getParticipant();
-        assertEquals("Bridge", participant.getFirstName());
-        assertEquals("IT", participant.getLastName());
-        assertEquals("bridgeit@sagebase.org", participant.getEmail());
-        assertEquals(SharingScope.NO_SHARING, participant.getSharingScope());
-        assertEquals(DateTime.parse("2016-04-21T16:48:22.386Z"), participant.getCreatedOn());
-        assertEquals(Sets.newHashSet(Roles.ADMIN), participant.getRoles());
-        assertEquals(ImmutableList.of("en","fr"), participant.getLanguages());
-        assertEquals("ABC", participant.getExternalId());
+        assertEquals(participant.getFirstName(), "Bridge");
+        assertEquals(participant.getLastName(), "IT");
+        assertEquals(participant.getEmail(), "bridgeit@sagebase.org");
+        assertEquals(participant.getSharingScope(), SharingScope.NO_SHARING);
+        assertEquals(participant.getCreatedOn(), DateTime.parse("2016-04-21T16:48:22.386Z"));
+        assertEquals(participant.getRoles(), Sets.newHashSet(Roles.ADMIN));
+        assertEquals(participant.getLanguages(), ImmutableList.of("en","fr"));
+        assertEquals(participant.getExternalId(), "ABC");
         
-        assertEquals(participant.getHealthCode(), ENCRYPTOR.decrypt(ENCRYPTED_SESSION_TOKEN));
+        assertEquals(ENCRYPTOR.decrypt(ENCRYPTED_SESSION_TOKEN), participant.getHealthCode());
         
         SubpopulationGuid apiGuid = SubpopulationGuid.create("api");
         Map<SubpopulationGuid,ConsentStatus> consentStatuses = session.getConsentStatuses();
         ConsentStatus status = consentStatuses.get(apiGuid);
-        assertEquals("Default Consent Group", status.getName());
-        assertEquals(apiGuid.getGuid(), status.getSubpopulationGuid());
+        assertEquals(status.getName(), "Default Consent Group");
+        assertEquals(status.getSubpopulationGuid(), apiGuid.getGuid());
         assertTrue(status.getSignedMostRecentConsent());
         assertTrue(status.isRequired());
         assertFalse(status.isConsented());
     }
 
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         mockTransaction(transaction);
         
         when(jedisOps.getTransaction()).thenReturn(transaction);
@@ -217,7 +216,7 @@ public class CacheProviderMockTest {
         when(jedisOps.get(CACHE_KEY.toString())).thenReturn(ser);
         
         OAuthProvider returned = cacheProvider.getObject(CACHE_KEY, OAuthProvider.class);
-        assertEquals(provider, returned);
+        assertEquals(returned, provider);
         verify(jedisOps).get(CACHE_KEY.toString());
     }
     
@@ -227,7 +226,7 @@ public class CacheProviderMockTest {
         when(jedisOps.get(CACHE_KEY.toString())).thenReturn(ser);
         
         String result = cacheProvider.getObject(CACHE_KEY, String.class);
-        assertEquals("Test", result);
+        assertEquals(result, "Test");
         verify(jedisOps).get(CACHE_KEY.toString());
     }
     
@@ -238,7 +237,7 @@ public class CacheProviderMockTest {
         when(jedisOps.get(CACHE_KEY.toString())).thenReturn(ser);
         
         OAuthProvider returned = cacheProvider.getObject(CACHE_KEY, OAuthProvider.class, 100);
-        assertEquals(provider, returned);
+        assertEquals(returned, provider);
         verify(jedisOps).get(CACHE_KEY.toString());
         verify(jedisOps).expire(CACHE_KEY.toString(), 100);
     }
@@ -249,7 +248,7 @@ public class CacheProviderMockTest {
         when(jedisOps.get(CACHE_KEY.toString())).thenReturn(ser);
         
         String result = cacheProvider.getObject(CACHE_KEY, String.class, 100);
-        assertEquals("Test", result);
+        assertEquals(result, "Test");
         verify(jedisOps).expire(CACHE_KEY.toString(), 100);
     }
     
@@ -264,9 +263,9 @@ public class CacheProviderMockTest {
         TypeReference<List<OAuthProvider>> typeRef = new TypeReference<List<OAuthProvider>>() {};
         
         List<OAuthProvider> returned = cacheProvider.getObject(CACHE_KEY, typeRef);
-        assertEquals(provider1, returned.get(0));
-        assertEquals(provider2, returned.get(1));
-        assertEquals(2, returned.size());
+        assertEquals(returned.get(0), provider1);
+        assertEquals(returned.get(1), provider2);
+        assertEquals(returned.size(), 2);
     }
 
     @Test
@@ -284,7 +283,7 @@ public class CacheProviderMockTest {
         when(jedisOps.get(USER_ID_TO_SESSION.toString())).thenReturn(ser);
         
         UserSession retrieved = cacheProvider.getUserSessionByUserId(USER_ID);
-        assertEquals(DECRYPTED_SESSION_TOKEN, retrieved.getSessionToken());
+        assertEquals(retrieved.getSessionToken(), DECRYPTED_SESSION_TOKEN);
     }
 
     @Test
@@ -308,7 +307,7 @@ public class CacheProviderMockTest {
                 .thenReturn(BridgeObjectMapper.get().writeValueAsString(session));
 
         UserSession retrieved = cacheProvider.getUserSession(DECRYPTED_SESSION_TOKEN);
-        assertEquals(session.getSessionToken(), retrieved.getSessionToken());
+        assertEquals(retrieved.getSessionToken(), session.getSessionToken());
     }
     
     @Test
@@ -477,7 +476,7 @@ public class CacheProviderMockTest {
         try {
             cacheProvider.setUserSession(session);
         } catch(NullPointerException e) {
-            assertTrue("NPE expected.", true);
+            assertTrue(true, "NPE expected.");
         } catch(Throwable e) {
             fail(e.getMessage());
         }
@@ -493,7 +492,7 @@ public class CacheProviderMockTest {
         try {
             cacheProvider.setUserSession(session);
         } catch(NullPointerException e) {
-            assertTrue("NPE expected.", true);
+            assertTrue(true, "NPE expected.");
         } catch(Throwable e) {
             fail(e.getMessage());
         }
@@ -513,7 +512,7 @@ public class CacheProviderMockTest {
         try {
             cacheProvider.setUserSession(session);
         } catch(NullPointerException e) {
-            assertTrue("NPE expected.", true);
+            assertTrue(true, "NPE expected.");
         } catch(Throwable e) {
             fail(e.getMessage());
         }

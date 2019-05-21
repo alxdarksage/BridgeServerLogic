@@ -1,6 +1,7 @@
 package org.sagebionetworks.bridge.validators;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.models.substudies.Substudy;
 

@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -21,7 +21,7 @@ public class SubpopulationValidatorTest {
 
     SubpopulationValidator validator;
     
-    @Before
+    @BeforeMethod
     public void before() {
         validator = new SubpopulationValidator(TestConstants.USER_DATA_GROUPS, TestConstants.USER_SUBSTUDY_IDS);
     }

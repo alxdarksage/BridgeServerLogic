@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertSame;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +19,9 @@ import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.hql.internal.ast.QuerySyntaxException;
 import org.hibernate.query.Query;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.exceptions.ConcurrentModificationException;
@@ -36,7 +36,7 @@ public class HibernateSharedModuleMetadataDaoTest {
     private Session mockSession;
     private Transaction mockTransaction;
 
-    @Before
+    @BeforeMethod
     public void before() {
         // mock transaction
         mockTransaction = mock(Transaction.class);
@@ -68,11 +68,11 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // validate data flow
         SharedModuleMetadata hibernateInputMetadata = hibernateInputMetadataCaptor.getValue();
-        assertSame(daoInputMetadata, hibernateInputMetadata);
-        assertSame(hibernateInputMetadata, daoOutputMetadata);
+        assertSame(hibernateInputMetadata, daoInputMetadata);
+        assertSame(daoOutputMetadata, hibernateInputMetadata);
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @Test(expectedExceptions = ConcurrentModificationException.class)
     public void createConstraintViolation() {
         // mock dao to throw - Need to mock the ConstraintViolationException, because the exception itself is pretty
         // heavy-weight.
@@ -83,7 +83,7 @@ public class HibernateSharedModuleMetadataDaoTest {
         dao.createMetadata(SharedModuleMetadata.create());
     }
 
-    @Test(expected = PersistenceException.class)
+    @Test(expectedExceptions = PersistenceException.class)
     public void createOtherException() {
         when(mockSession.save(any())).thenThrow(new PersistenceException());
         dao.createMetadata(SharedModuleMetadata.create());
@@ -153,7 +153,7 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // execute and validate
         SharedModuleMetadata daoOutputMetadata = dao.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION);
-        assertSame(hibernateOutputMetadata, daoOutputMetadata);
+        assertSame(daoOutputMetadata, hibernateOutputMetadata);
 
         // validate backends
         verifySessionAndTransaction();
@@ -171,7 +171,7 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // execute and validate
         List<SharedModuleMetadata> daoOutputMetadataList = dao.queryMetadata("foo='bar'", null);
-        assertSame(hibernateOutputMetadataList, daoOutputMetadataList);
+        assertSame(daoOutputMetadataList, hibernateOutputMetadataList);
 
         // validate backends
         verifySessionAndTransaction();
@@ -189,20 +189,20 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // execute and validate
         List<SharedModuleMetadata> daoOutputMetadataList = dao.queryMetadata(null, null);
-        assertSame(hibernateOutputMetadataList, daoOutputMetadataList);
+        assertSame(daoOutputMetadataList, hibernateOutputMetadataList);
 
         // validate backends
         verifySessionAndTransaction();
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void queryBadQuery() {
         when(mockSession.createQuery("from HibernateSharedModuleMetadata where blargg", SharedModuleMetadata.class))
                 .thenThrow(new IllegalArgumentException(new QuerySyntaxException("error message")));
         dao.queryMetadata("blargg", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void queryOtherException() {
         when(mockSession.createQuery("from HibernateSharedModuleMetadata where foo='bar'", SharedModuleMetadata.class))
                 .thenThrow(new IllegalArgumentException());
@@ -223,8 +223,8 @@ public class HibernateSharedModuleMetadataDaoTest {
 
         // validate data flow
         SharedModuleMetadata hibernateInputMetadata = hibernateInputMetadataCaptor.getValue();
-        assertSame(daoInputMetadata, hibernateInputMetadata);
-        assertSame(hibernateInputMetadata, daoOutputMetadata);
+        assertSame(hibernateInputMetadata, daoInputMetadata);
+        assertSame(daoOutputMetadata, hibernateInputMetadata);
     }
     
     @Test

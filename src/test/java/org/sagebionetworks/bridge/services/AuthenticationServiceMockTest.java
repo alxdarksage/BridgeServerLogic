@@ -1,12 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -19,25 +12,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.models.accounts.AccountSecretType.REAUTH;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.RequestContext;
 import org.sagebionetworks.bridge.Roles;
@@ -86,14 +80,15 @@ import org.sagebionetworks.bridge.validators.SignInValidator;
 import org.sagebionetworks.bridge.validators.Validate;
 import org.sagebionetworks.bridge.validators.ValidatorUtils;
 import org.springframework.validation.Errors;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AuthenticationServiceMockTest {
     private static final Set<String> DATA_GROUP_SET = ImmutableSet.of("group1", "group2");
     private static final String IP_ADDRESS = "ip-address";
@@ -178,8 +173,9 @@ public class AuthenticationServiceMockTest {
 
     private Account account;
 
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         // Create inputs.
         study = Study.create();
         study.setIdentifier(STUDY_ID);
@@ -206,7 +202,7 @@ public class AuthenticationServiceMockTest {
         doReturn(study).when(studyService).getStudy(STUDY_ID);
     }
     
-    @After
+    @AfterMethod
     public void after() {
         BridgeUtils.setRequestContext(RequestContext.NULL_INSTANCE);
     }
@@ -243,22 +239,22 @@ public class AuthenticationServiceMockTest {
         inOrder.verify(cacheProvider).removeSessionByUserId(USER_ID);
         inOrder.verify(cacheProvider).setUserSession(session);
         
-        assertEquals(CONSENTED_STATUS_MAP, session.getConsentStatuses());
+        assertEquals(session.getConsentStatuses(), CONSENTED_STATUS_MAP);
         assertTrue(session.isAuthenticated());
-        assertEquals("127.1.1.11", session.getIpAddress());
-        assertEquals("SESSION_TOKEN", session.getSessionToken());
-        assertEquals("SESSION_TOKEN", session.getInternalSessionToken());
-        assertEquals(REAUTH_TOKEN, session.getReauthToken());
-        assertEquals(Environment.PROD, session.getEnvironment());
-        assertEquals(TestConstants.TEST_STUDY, session.getStudyIdentifier());
+        assertEquals(session.getIpAddress(), "127.1.1.11");
+        assertEquals(session.getSessionToken(), "SESSION_TOKEN");
+        assertEquals(session.getInternalSessionToken(), "SESSION_TOKEN");
+        assertEquals(session.getReauthToken(), REAUTH_TOKEN);
+        assertEquals(session.getEnvironment(), Environment.PROD);
+        assertEquals(session.getStudyIdentifier(), TestConstants.TEST_STUDY);
 
         // updated context
         CriteriaContext updatedContext = contextCaptor.getValue();
-        assertEquals(HEALTH_CODE, updatedContext.getHealthCode());
-        assertEquals(LANGUAGES, updatedContext.getLanguages());
-        assertEquals(DATA_GROUP_SET, updatedContext.getUserDataGroups());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, updatedContext.getUserSubstudyIds());
-        assertEquals(USER_ID, updatedContext.getUserId());
+        assertEquals(updatedContext.getHealthCode(), HEALTH_CODE);
+        assertEquals(updatedContext.getLanguages(), LANGUAGES);
+        assertEquals(updatedContext.getUserDataGroups(), DATA_GROUP_SET);
+        assertEquals(updatedContext.getUserSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
+        assertEquals(updatedContext.getUserId(), USER_ID);
         
         verify(accountSecretDao).createSecret(AccountSecretType.REAUTH, USER_ID, REAUTH_TOKEN);
     }
@@ -281,7 +277,7 @@ public class AuthenticationServiceMockTest {
         verifyNoMoreInteractions(accountDao);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void signInWithBadCredentials() throws Exception {
         service.signIn(study, CONTEXT, new SignIn.Builder().build());
     }
@@ -323,22 +319,22 @@ public class AuthenticationServiceMockTest {
         inOrder.verify(cacheProvider).removeSessionByUserId(USER_ID);
         inOrder.verify(cacheProvider).setUserSession(session);
         
-        assertEquals(UNCONSENTED_STATUS_MAP, session.getConsentStatuses());
+        assertEquals(session.getConsentStatuses(), UNCONSENTED_STATUS_MAP);
         assertTrue(session.isAuthenticated());
-        assertEquals("127.1.1.11", session.getIpAddress());
-        assertEquals("SESSION_TOKEN", session.getSessionToken());
-        assertEquals("SESSION_TOKEN", session.getInternalSessionToken());
-        assertEquals(REAUTH_TOKEN, session.getReauthToken());
-        assertEquals(Environment.PROD, session.getEnvironment());
-        assertEquals(TestConstants.TEST_STUDY, session.getStudyIdentifier());
+        assertEquals(session.getIpAddress(), "127.1.1.11");
+        assertEquals(session.getSessionToken(), "SESSION_TOKEN");
+        assertEquals(session.getInternalSessionToken(), "SESSION_TOKEN");
+        assertEquals(session.getReauthToken(), REAUTH_TOKEN);
+        assertEquals(session.getEnvironment(), Environment.PROD);
+        assertEquals(session.getStudyIdentifier(), TestConstants.TEST_STUDY);
 
         // updated context
         CriteriaContext updatedContext = contextCaptor.getValue();
-        assertEquals(HEALTH_CODE, updatedContext.getHealthCode());
-        assertEquals(LANGUAGES, updatedContext.getLanguages());
-        assertEquals(DATA_GROUP_SET, updatedContext.getUserDataGroups());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, updatedContext.getUserSubstudyIds());
-        assertEquals(USER_ID, updatedContext.getUserId());
+        assertEquals(updatedContext.getHealthCode(), HEALTH_CODE);
+        assertEquals(updatedContext.getLanguages(), LANGUAGES);
+        assertEquals(updatedContext.getUserDataGroups(), DATA_GROUP_SET);
+        assertEquals(updatedContext.getUserSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
+        assertEquals(updatedContext.getUserId(), USER_ID);
         
         verify(accountSecretDao).createSecret(AccountSecretType.REAUTH, USER_ID, REAUTH_TOKEN);
     }
@@ -353,12 +349,12 @@ public class AuthenticationServiceMockTest {
 
         UserSession retrieved = service.signIn(study, CONTEXT, EMAIL_PASSWORD_SIGN_IN);
         
-        assertEquals(REAUTH_TOKEN, retrieved.getReauthToken());
+        assertEquals(retrieved.getReauthToken(), REAUTH_TOKEN);
         verify(cacheProvider).removeSessionByUserId(USER_ID);
         verify(cacheProvider).setUserSession(retrieved);
     }
     
-    @Test(expected = ConsentRequiredException.class)
+    @Test(expectedExceptions = ConsentRequiredException.class)
     public void unconsentedSignInWithEmail() {
         doReturn(account).when(accountDao).authenticate(study, EMAIL_PASSWORD_SIGN_IN);
         doReturn(PARTICIPANT).when(participantService).getParticipant(study, account, false);
@@ -379,8 +375,8 @@ public class AuthenticationServiceMockTest {
         // Does not throw consent required exception, despite being unconsented, because user has DEVELOPER role.
         UserSession retrieved = service.signIn(study, CONTEXT, EMAIL_PASSWORD_SIGN_IN);
         
-        assertEquals(REAUTH_TOKEN, retrieved.getReauthToken());
-        assertEquals(UNCONSENTED_STATUS_MAP, retrieved.getConsentStatuses());
+        assertEquals(retrieved.getReauthToken(), REAUTH_TOKEN);
+        assertEquals(retrieved.getConsentStatuses(), UNCONSENTED_STATUS_MAP);
     }
     
     @Test
@@ -393,12 +389,12 @@ public class AuthenticationServiceMockTest {
 
         UserSession retrieved = service.signIn(study, CONTEXT, PHONE_PASSWORD_SIGN_IN);
         
-        assertEquals(REAUTH_TOKEN, retrieved.getReauthToken());
+        assertEquals(retrieved.getReauthToken(), REAUTH_TOKEN);
         verify(cacheProvider).removeSessionByUserId(USER_ID);
         verify(cacheProvider).setUserSession(retrieved);
     }
     
-    @Test(expected = ConsentRequiredException.class)
+    @Test(expectedExceptions = ConsentRequiredException.class)
     public void unconsentedSignInWithPhone() {
         doReturn(account).when(accountDao).authenticate(study, PHONE_PASSWORD_SIGN_IN);
         doReturn(PARTICIPANT).when(participantService).getParticipant(study, account, false);
@@ -419,8 +415,8 @@ public class AuthenticationServiceMockTest {
         // Does not throw consent required exception, despite being unconsented, because user has RESEARCHER role. 
         UserSession retrieved = service.signIn(study, CONTEXT, PHONE_PASSWORD_SIGN_IN);
 
-        assertEquals(REAUTH_TOKEN, retrieved.getReauthToken());
-        assertEquals(UNCONSENTED_STATUS_MAP, retrieved.getConsentStatuses());
+        assertEquals(retrieved.getReauthToken(), REAUTH_TOKEN);
+        assertEquals(retrieved.getConsentStatuses(), UNCONSENTED_STATUS_MAP);
     }
     
     @Test
@@ -458,7 +454,7 @@ public class AuthenticationServiceMockTest {
         UserSession retSession = service.emailSignIn(CONTEXT, SIGN_IN_WITH_EMAIL);
         
         assertNotNull(retSession);
-        assertEquals(REAUTH_TOKEN, retSession.getReauthToken());
+        assertEquals(retSession.getReauthToken(), REAUTH_TOKEN);
         
         InOrder inOrder = Mockito.inOrder(cacheProvider, accountDao);
         inOrder.verify(accountDao).getAccount(SIGN_IN_WITH_EMAIL.getAccountId());
@@ -468,13 +464,13 @@ public class AuthenticationServiceMockTest {
         inOrder.verify(cacheProvider).setUserSession(retSession);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void emailSignInNoAccount() {
         when(accountDao.getAccount(any())).thenReturn(null);
         service.emailSignIn(CONTEXT, SIGN_IN_WITH_EMAIL);
     }
     
-    @Test(expected = AuthenticationFailedException.class)
+    @Test(expectedExceptions = AuthenticationFailedException.class)
     public void emailSignInAuthenticationFailed() {
         doThrow(new AuthenticationFailedException()).when(accountWorkflowService).channelSignIn(ChannelType.EMAIL,
                 CONTEXT, SIGN_IN_WITH_EMAIL, SignInValidator.EMAIL_SIGNIN);
@@ -482,7 +478,7 @@ public class AuthenticationServiceMockTest {
         service.emailSignIn(CONTEXT, SIGN_IN_WITH_EMAIL);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void emailSignInInvalidEntity() {
         doThrow(new InvalidEntityException("")).when(accountWorkflowService).channelSignIn(ChannelType.EMAIL, CONTEXT,
                 SIGN_IN_REQUEST_WITH_EMAIL, SignInValidator.EMAIL_SIGNIN);
@@ -490,7 +486,7 @@ public class AuthenticationServiceMockTest {
         service.emailSignIn(CONTEXT, SIGN_IN_REQUEST_WITH_EMAIL);
     }
     
-    @Test(expected = AccountDisabledException.class)
+    @Test(expectedExceptions = AccountDisabledException.class)
     public void emailSignInThrowsAccountDisabled() {
         account.setStatus(AccountStatus.DISABLED);
         
@@ -517,7 +513,7 @@ public class AuthenticationServiceMockTest {
             fail("Should have thrown exception");
         } catch(ConsentRequiredException e) {
             verify(cacheProvider).setUserSession(e.getUserSession());
-            assertEquals(UNCONSENTED_STATUS_MAP, e.getUserSession().getConsentStatuses());
+            assertEquals(e.getUserSession().getConsentStatuses(), UNCONSENTED_STATUS_MAP);
         }
     }
     
@@ -534,7 +530,7 @@ public class AuthenticationServiceMockTest {
         
         // Does not throw a consent required exception because the participant is an admin. 
         UserSession retrieved = service.emailSignIn(CONTEXT, SIGN_IN_WITH_EMAIL);
-        assertEquals(UNCONSENTED_STATUS_MAP, retrieved.getConsentStatuses());
+        assertEquals(retrieved.getConsentStatuses(), UNCONSENTED_STATUS_MAP);
     }
     
     @Test
@@ -550,20 +546,20 @@ public class AuthenticationServiceMockTest {
         doReturn(participant).when(participantService).getParticipant(study, account, false);
         
         UserSession session = service.reauthenticate(study, CONTEXT, REAUTH_REQUEST);
-        assertEquals(RECIPIENT_EMAIL, session.getParticipant().getEmail());
-        assertEquals(REAUTH_TOKEN, session.getReauthToken());
+        assertEquals(session.getParticipant().getEmail(), RECIPIENT_EMAIL);
+        assertEquals(session.getReauthToken(), REAUTH_TOKEN);
         
         verify(accountDao).reauthenticate(study, REAUTH_REQUEST);
         verify(cacheProvider).setUserSession(sessionCaptor.capture());
         
         UserSession captured = sessionCaptor.getValue();
-        assertEquals(RECIPIENT_EMAIL, captured.getParticipant().getEmail());
-        assertEquals(REAUTH_TOKEN, captured.getReauthToken());
+        assertEquals(captured.getParticipant().getEmail(), RECIPIENT_EMAIL);
+        assertEquals(captured.getReauthToken(), REAUTH_TOKEN);
         
         verify(accountSecretDao).createSecret(REAUTH, USER_ID, REAUTH_TOKEN);
     }
     
-    @Test(expected = ConsentRequiredException.class)
+    @Test(expectedExceptions = ConsentRequiredException.class)
     public void reauthenticateThrowsConsentRequiredException() {
         study.setReauthenticationEnabled(true);
 
@@ -603,11 +599,11 @@ public class AuthenticationServiceMockTest {
         doReturn(participant).when(participantService).getParticipant(study, account, false);
         
         UserSession session = service.reauthenticate(study, CONTEXT, REAUTH_REQUEST);
-        assertEquals("existingToken", session.getSessionToken());
-        assertEquals("existingInternalToken", session.getInternalSessionToken());
+        assertEquals(session.getSessionToken(), "existingToken");
+        assertEquals(session.getInternalSessionToken(), "existingInternalToken");
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void reauthTokenRequired() {
         service.reauthenticate(study, CONTEXT, SIGN_IN_WITH_EMAIL); // doesn't have reauth token
     }
@@ -625,11 +621,11 @@ public class AuthenticationServiceMockTest {
             service.reauthenticate(study, CONTEXT, REAUTH_REQUEST);
             fail("Should have thrown exception");
         } catch(ConsentRequiredException e) {
-            assertEquals(UNCONSENTED_STATUS_MAP, e.getUserSession().getConsentStatuses());
+            assertEquals(e.getUserSession().getConsentStatuses(), UNCONSENTED_STATUS_MAP);
         }
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void requestResetInvalid() {
         SignIn signIn = new SignIn.Builder().withStudy(STUDY_ID).withPhone(TestConstants.PHONE)
                 .withEmail(RECIPIENT_EMAIL).build();
@@ -655,8 +651,8 @@ public class AuthenticationServiceMockTest {
         
         verify(participantService).createParticipant(eq(study), participantCaptor.capture(), eq(true));
         StudyParticipant captured = participantCaptor.getValue();
-        assertEquals(RECIPIENT_EMAIL, captured.getEmail());
-        assertEquals(PASSWORD, captured.getPassword());
+        assertEquals(captured.getEmail(), RECIPIENT_EMAIL);
+        assertEquals(captured.getPassword(), PASSWORD);
     }
 
     @Test
@@ -669,8 +665,8 @@ public class AuthenticationServiceMockTest {
         
         verify(participantService).createParticipant(eq(study), participantCaptor.capture(), eq(true));
         StudyParticipant captured = participantCaptor.getValue();
-        assertEquals(TestConstants.PHONE.getNumber(), captured.getPhone().getNumber());
-        assertEquals(PASSWORD, captured.getPassword());
+        assertEquals(captured.getPhone().getNumber(), TestConstants.PHONE.getNumber());
+        assertEquals(captured.getPassword(), PASSWORD);
     }
     
     @Test
@@ -687,8 +683,8 @@ public class AuthenticationServiceMockTest {
         verify(accountWorkflowService).notifyAccountExists(eq(study), accountIdCaptor.capture());
         
         AccountId captured = accountIdCaptor.getValue();
-        assertEquals("user-id", captured.getId());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, captured.getStudyId());
+        assertEquals(captured.getId(), "user-id");
+        assertEquals(captured.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
     }
     
     @Test
@@ -706,8 +702,8 @@ public class AuthenticationServiceMockTest {
         verify(accountWorkflowService).notifyAccountExists(eq(study), accountIdCaptor.capture());
         
         AccountId captured = accountIdCaptor.getValue();
-        assertEquals(EXTERNAL_ID, captured.getExternalId());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, captured.getStudyId());
+        assertEquals(captured.getExternalId(), EXTERNAL_ID);
+        assertEquals(captured.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
     }
     
     @Test
@@ -744,9 +740,9 @@ public class AuthenticationServiceMockTest {
         // Execute and validate.
         UserSession session = service.phoneSignIn(CONTEXT, SIGN_IN_WITH_PHONE);
 
-        assertEquals(RECIPIENT_EMAIL, session.getParticipant().getEmail());
-        assertEquals("Test", session.getParticipant().getFirstName());
-        assertEquals("Tester", session.getParticipant().getLastName());
+        assertEquals(session.getParticipant().getEmail(), RECIPIENT_EMAIL);
+        assertEquals(session.getParticipant().getFirstName(), "Test");
+        assertEquals(session.getParticipant().getLastName(), "Tester");
         
         // this doesn't pass if our mock calls above aren't executed, but verify these:
         InOrder inOrder = Mockito.inOrder(cacheProvider, accountDao);
@@ -756,13 +752,13 @@ public class AuthenticationServiceMockTest {
         inOrder.verify(cacheProvider).setUserSession(session);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void phoneSignInNoAccount() {
         when(accountDao.getAccount(any())).thenReturn(null);
         service.phoneSignIn(CONTEXT, SIGN_IN_WITH_PHONE);
     }
     
-    @Test(expected = AuthenticationFailedException.class)
+    @Test(expectedExceptions = AuthenticationFailedException.class)
     public void phoneSignInFails() {
         doThrow(new AuthenticationFailedException()).when(accountWorkflowService).channelSignIn(ChannelType.PHONE,
                 CONTEXT, SIGN_IN_WITH_PHONE, SignInValidator.PHONE_SIGNIN);
@@ -786,7 +782,7 @@ public class AuthenticationServiceMockTest {
             fail("Should have thrown exception");
         } catch(ConsentRequiredException e) {
             verify(cacheProvider).setUserSession(e.getUserSession());
-            assertEquals(UNCONSENTED_STATUS_MAP, e.getUserSession().getConsentStatuses());            
+            assertEquals(e.getUserSession().getConsentStatuses(), UNCONSENTED_STATUS_MAP);            
         }
     }
     
@@ -801,7 +797,7 @@ public class AuthenticationServiceMockTest {
         verify(accountDao).verifyChannel(ChannelType.EMAIL, account);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void verifyEmailInvalid() {
         Verification ev = new Verification(null);
         service.verifyChannel(ChannelType.EMAIL, ev);
@@ -818,7 +814,7 @@ public class AuthenticationServiceMockTest {
         verify(accountDao).verifyChannel(ChannelType.PHONE, account);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void verifyPhoneInvalid() {
         Verification ev = new Verification(null);
         service.verifyChannel(ChannelType.PHONE, ev);
@@ -851,8 +847,8 @@ public class AuthenticationServiceMockTest {
         
         verify(accountWorkflowService).resendVerificationToken(eq(ChannelType.EMAIL), accountIdCaptor.capture());
         
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, accountIdCaptor.getValue().getStudyId());
-        assertEquals(RECIPIENT_EMAIL, accountIdCaptor.getValue().getEmail());
+        assertEquals(accountIdCaptor.getValue().getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(accountIdCaptor.getValue().getEmail(), RECIPIENT_EMAIL);
     }
 
     @Test
@@ -866,7 +862,7 @@ public class AuthenticationServiceMockTest {
         service.resendVerification(ChannelType.EMAIL, accountId);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void resendEmailVerificationInvalid() throws Exception {
         AccountId accountId = BridgeObjectMapper.get().readValue("{}", AccountId.class);
         service.resendVerification(ChannelType.EMAIL, accountId);
@@ -879,36 +875,36 @@ public class AuthenticationServiceMockTest {
         
         verify(accountWorkflowService).resendVerificationToken(eq(ChannelType.PHONE), accountIdCaptor.capture());
         
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, accountIdCaptor.getValue().getStudyId());
-        assertEquals(TestConstants.PHONE, accountIdCaptor.getValue().getPhone());
+        assertEquals(accountIdCaptor.getValue().getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(accountIdCaptor.getValue().getPhone(), TestConstants.PHONE);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void resendPhoneVerificationInvalid() throws Exception {
         AccountId accountId = BridgeObjectMapper.get().readValue("{}", AccountId.class);
         service.resendVerification(ChannelType.PHONE, accountId);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void generatePasswordExternalIdManagementDisabled() {
         study.setExternalIdValidationEnabled(false);
         service.generatePassword(study, EXTERNAL_ID, true);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void generatePasswordExternalIdNotSubmitted() {
         study.setExternalIdValidationEnabled(true);
         service.generatePassword(study, null, true);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void generatePasswordExternalIdRecordMissing() {
         when(externalIdService.getExternalId(study.getStudyIdentifier(), EXTERNAL_ID)).thenReturn(Optional.empty());
         study.setExternalIdValidationEnabled(true);
         service.generatePassword(study, EXTERNAL_ID, false);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void generatePasswordNoAccountDoNotCreateAccount() {
         ExternalIdentifier externalIdentifier = ExternalIdentifier.create(study.getStudyIdentifier(), EXTERNAL_ID);
         study.setExternalIdValidationEnabled(true);
@@ -930,12 +926,12 @@ public class AuthenticationServiceMockTest {
         when(participantService.createParticipant(eq(study), participantCaptor.capture(), eq(false))).thenReturn(idHolder);
         
         GeneratedPassword password = service.generatePassword(study, EXTERNAL_ID, true);
-        assertEquals(EXTERNAL_ID, password.getExternalId());
-        assertEquals(PASSWORD, password.getPassword());
+        assertEquals(password.getExternalId(), EXTERNAL_ID);
+        assertEquals(password.getPassword(), PASSWORD);
         
         StudyParticipant participant = participantCaptor.getValue();
-        assertEquals(EXTERNAL_ID, participant.getExternalId());
-        assertEquals(PASSWORD, participant.getPassword());
+        assertEquals(participant.getExternalId(), EXTERNAL_ID);
+        assertEquals(participant.getPassword(), PASSWORD);
     }
     
     @Test
@@ -993,8 +989,8 @@ public class AuthenticationServiceMockTest {
         account.setHealthCode(HEALTH_CODE);
         
         GeneratedPassword password = service.generatePassword(study, EXTERNAL_ID, true);
-        assertEquals(EXTERNAL_ID, password.getExternalId());
-        assertEquals(PASSWORD, password.getPassword());
+        assertEquals(password.getExternalId(), EXTERNAL_ID);
+        assertEquals(password.getPassword(), PASSWORD);
         
         verify(accountDao).changePassword(account, null, PASSWORD);
     }
@@ -1007,10 +1003,10 @@ public class AuthenticationServiceMockTest {
         Errors errors = Validate.getErrorsFor(password);
         ValidatorUtils.validatePassword(errors, PasswordPolicy.DEFAULT_PASSWORD_POLICY, password);
         assertFalse(errors.hasErrors());
-        assertEquals(100, password.length());
+        assertEquals(password.length(), 100);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void generatePasswordExternalIdMismatchesCallerSubstudies() {
         BridgeUtils.setRequestContext(
                 new RequestContext.Builder().withCallerSubstudies(ImmutableSet.of("substudyB")).build());
@@ -1026,7 +1022,7 @@ public class AuthenticationServiceMockTest {
         service.generatePassword(study, EXTERNAL_ID, false);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void generatePasswordAccountMismatchesCallerSubstudies() {
         BridgeUtils.setRequestContext(
                 new RequestContext.Builder().withCallerSubstudies(ImmutableSet.of("substudyA")).build());
@@ -1043,7 +1039,7 @@ public class AuthenticationServiceMockTest {
         service.generatePassword(study, EXTERNAL_ID, false);
     }
 
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void creatingExternalIdOnlyAccountFailsIfIdsNotManaged() {
         study.setExternalIdValidationEnabled(false);
         
@@ -1188,15 +1184,15 @@ public class AuthenticationServiceMockTest {
         
         // Execute and validate.
         UserSession session = service.getSessionFromAccount(study, context, account);
-        assertSame(PARTICIPANT, session.getParticipant());
+        assertSame(session.getParticipant(), PARTICIPANT);
         assertNotNull(session.getSessionToken());
         assertNotNull(session.getInternalSessionToken());
         assertTrue(session.isAuthenticated());
-        assertEquals(Environment.LOCAL, session.getEnvironment());
-        assertEquals(IP_ADDRESS, session.getIpAddress());
-        assertEquals(TestConstants.TEST_STUDY, session.getStudyIdentifier());
-        assertEquals(REAUTH_TOKEN, session.getReauthToken());
-        assertEquals(CONSENTED_STATUS_MAP, session.getConsentStatuses());
+        assertEquals(session.getEnvironment(), Environment.LOCAL);
+        assertEquals(session.getIpAddress(), IP_ADDRESS);
+        assertEquals(session.getStudyIdentifier(), TestConstants.TEST_STUDY);
+        assertEquals(session.getReauthToken(), REAUTH_TOKEN);
+        assertEquals(session.getConsentStatuses(), CONSENTED_STATUS_MAP);
         
         verify(accountSecretDao).createSecret(AccountSecretType.REAUTH, USER_ID, REAUTH_TOKEN);
     }
@@ -1219,7 +1215,7 @@ public class AuthenticationServiceMockTest {
         
         // Execute and validate.
         UserSession session = service.getSessionFromAccount(study, context, account);
-        assertNull(REAUTH_TOKEN, session.getReauthToken());
+        assertNull(session.getReauthToken());
         
         verify(service, never()).generateReauthToken();
         verify(accountSecretDao, never()).createSecret(any(), any(), any());
@@ -1257,7 +1253,7 @@ public class AuthenticationServiceMockTest {
         verify(accountWorkflowService).resetPassword(reset);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void resetPasswordInvalid() {
         PasswordResetValidator validator = new PasswordResetValidator();
         validator.setStudyService(studyService);
@@ -1285,7 +1281,7 @@ public class AuthenticationServiceMockTest {
         
         UserSession session = service.signIn(study, context, EMAIL_PASSWORD_SIGN_IN);
         
-        assertEquals(TestConstants.LANGUAGES, session.getParticipant().getLanguages());
+        assertEquals(session.getParticipant().getLanguages(), TestConstants.LANGUAGES);
         
         verify(accountDao, never()).editAccount(any(), any(), any());
    }
@@ -1307,7 +1303,7 @@ public class AuthenticationServiceMockTest {
         
         UserSession session = service.signIn(study, context, EMAIL_PASSWORD_SIGN_IN);
         
-        assertEquals(TestConstants.LANGUAGES, session.getParticipant().getLanguages());
+        assertEquals(session.getParticipant().getLanguages(), TestConstants.LANGUAGES);
         
         // Note that the context does not have the healthCode, you must use the participant
         verify(accountDao).editAccount(eq(TestConstants.TEST_STUDY), eq(HEALTH_CODE), any());

@@ -1,9 +1,9 @@
 package org.sagebionetworks.bridge.services;
 
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -19,14 +19,13 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.BridgeUtils;
@@ -51,7 +50,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ReportServiceTest {
 
     private static final String IDENTIFIER = "MyTestReport";
@@ -112,8 +110,10 @@ public class ReportServiceTest {
     
     ReportTypeResourceList<? extends ReportIndex> indices;
     
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        
         service.setReportDataDao(mockReportDataDao);
         service.setReportIndexDao(mockReportIndexDao);
 
@@ -211,7 +211,7 @@ public class ReportServiceTest {
         doReturn(index).when(mockReportIndexDao).getIndex(key);
         
         ReportIndex retrievedKey = service.getReportIndex(key);
-        assertEquals(key.getIdentifier(), retrievedKey.getIdentifier());
+        assertEquals(retrievedKey.getIdentifier(), key.getIdentifier());
         verify(mockReportIndexDao).getIndex(key);
     }
     
@@ -223,7 +223,7 @@ public class ReportServiceTest {
                 TEST_STUDY, IDENTIFIER, START_DATE, END_DATE);
         
         verify(mockReportDataDao).getReportData(STUDY_REPORT_DATA_KEY, START_DATE, END_DATE);
-        assertEquals(results, retrieved);
+        assertEquals(retrieved, results);
     }
     
     @Test
@@ -240,9 +240,9 @@ public class ReportServiceTest {
             
             verify(mockReportDataDao).getReportData(eq(STUDY_REPORT_DATA_KEY), localDateCaptor.capture(),
                     localDateCaptor.capture());
-            assertEquals(yesterday, localDateCaptor.getAllValues().get(0));
-            assertEquals(today, localDateCaptor.getAllValues().get(1));
-            assertEquals(results, retrieved);
+            assertEquals(localDateCaptor.getAllValues().get(0), yesterday);
+            assertEquals(localDateCaptor.getAllValues().get(1), today);
+            assertEquals(retrieved, results);
         } finally {
             DateTimeUtils.setCurrentMillisSystem();
         }
@@ -256,7 +256,7 @@ public class ReportServiceTest {
                 TEST_STUDY, IDENTIFIER, HEALTH_CODE, START_DATE, END_DATE);
 
         verify(mockReportDataDao).getReportData(PARTICIPANT_REPORT_DATA_KEY, START_DATE, END_DATE);
-        assertEquals(results, retrieved);
+        assertEquals(retrieved, results);
     }
 
     @Test
@@ -273,9 +273,9 @@ public class ReportServiceTest {
             
             verify(mockReportDataDao).getReportData(eq(PARTICIPANT_REPORT_DATA_KEY), localDateCaptor.capture(),
                     localDateCaptor.capture());
-            assertEquals(yesterday, localDateCaptor.getAllValues().get(0));
-            assertEquals(today, localDateCaptor.getAllValues().get(1));
-            assertEquals(results, retrieved);
+            assertEquals(localDateCaptor.getAllValues().get(0), yesterday);
+            assertEquals(localDateCaptor.getAllValues().get(1), today);
+            assertEquals(retrieved, results);
         } finally {
             DateTimeUtils.setCurrentMillisSystem();
         }
@@ -288,11 +288,11 @@ public class ReportServiceTest {
         
         verify(mockReportDataDao).saveReportData(reportDataCaptor.capture());
         ReportData retrieved = reportDataCaptor.getValue();
-        assertEquals(someData, retrieved);
-        assertEquals(STUDY_REPORT_DATA_KEY.getKeyString(), retrieved.getKey());
-        assertEquals("2015-02-10", retrieved.getDate());
-        assertEquals("First", retrieved.getData().get("field1").asText());
-        assertEquals("Name", retrieved.getData().get("field2").asText());
+        assertEquals(retrieved, someData);
+        assertEquals(retrieved.getKey(), STUDY_REPORT_DATA_KEY.getKeyString());
+        assertEquals(retrieved.getDate(), "2015-02-10");
+        assertEquals(retrieved.getData().get("field1").asText(), "First");
+        assertEquals(retrieved.getData().get("field2").asText(), "Name");
         
         verify(mockReportIndexDao).addIndex(new ReportDataKey.Builder()
                 .withStudyIdentifier(TEST_STUDY)
@@ -317,11 +317,11 @@ public class ReportServiceTest {
 
         verify(mockReportDataDao).saveReportData(reportDataCaptor.capture());
         ReportData retrieved = reportDataCaptor.getValue();
-        assertEquals(someData, retrieved);
-        assertEquals(PARTICIPANT_REPORT_DATA_KEY.getKeyString(), retrieved.getKey());
-        assertEquals("2015-02-10", retrieved.getDate());
-        assertEquals("First", retrieved.getData().get("field1").asText());
-        assertEquals("Name", retrieved.getData().get("field2").asText());
+        assertEquals(retrieved, someData);
+        assertEquals(retrieved.getKey(), PARTICIPANT_REPORT_DATA_KEY.getKeyString());
+        assertEquals(retrieved.getDate(), "2015-02-10");
+        assertEquals(retrieved.getData().get("field1").asText(), "First");
+        assertEquals(retrieved.getData().get("field2").asText(), "Name");
         
         verify(mockReportIndexDao).addIndex(new ReportDataKey.Builder()
                 .withHealthCode(HEALTH_CODE)
@@ -364,8 +364,8 @@ public class ReportServiceTest {
         verifyNoMoreInteractions(mockReportDataDao);
         
         ReportDataKey key = reportDataKeyCaptor.getValue();
-        assertEquals(TEST_STUDY, key.getStudyId());
-        assertEquals(IDENTIFIER, key.getIdentifier());
+        assertEquals(key.getStudyId(), TEST_STUDY);
+        assertEquals(key.getIdentifier(), IDENTIFIER);
     }
     
     @Test
@@ -406,7 +406,7 @@ public class ReportServiceTest {
         }
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteStudyReportRecordValidatesDate() {
         service.deleteStudyReportRecord(TEST_STUDY, IDENTIFIER, "");
     }
@@ -435,7 +435,7 @@ public class ReportServiceTest {
         }
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteParticipantReportRecordValidatesDate() {
         service.deleteParticipantReportRecord(TEST_STUDY, IDENTIFIER, "", HEALTH_CODE);
     }
@@ -456,22 +456,22 @@ public class ReportServiceTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void startDateAfterEndDateParticipant() {
         service.getParticipantReport(TEST_STUDY, IDENTIFIER, HEALTH_CODE, END_DATE, START_DATE);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void dateRangeTooWideParticipant() {
         service.getParticipantReport(TEST_STUDY, IDENTIFIER, HEALTH_CODE, START_DATE, START_DATE.plusDays(46));
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void startDateAfterEndDateStudy() {
         service.getStudyReport(TEST_STUDY, IDENTIFIER, END_DATE, START_DATE);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void dateRangeTooWideStudy() {
         service.getStudyReport(TEST_STUDY, IDENTIFIER, START_DATE, START_DATE.plusDays(46));
     }
@@ -590,8 +590,8 @@ public class ReportServiceTest {
 
         ReportTypeResourceList<? extends ReportIndex> indices = service.getReportIndices(TEST_STUDY, ReportType.STUDY);
         
-        assertEquals(IDENTIFIER, indices.getItems().get(0).getIdentifier());
-        assertEquals(ReportType.STUDY, indices.getRequestParams().get("reportType"));
+        assertEquals(indices.getItems().get(0).getIdentifier(), IDENTIFIER);
+        assertEquals(indices.getRequestParams().get("reportType"), ReportType.STUDY);
         verify(mockReportIndexDao).getIndices(TEST_STUDY, ReportType.STUDY);
     }
     
@@ -606,8 +606,8 @@ public class ReportServiceTest {
 
         ReportTypeResourceList<? extends ReportIndex> indices = service.getReportIndices(TEST_STUDY, ReportType.PARTICIPANT);
         
-        assertEquals(IDENTIFIER, indices.getItems().get(0).getIdentifier());
-        assertEquals(ReportType.PARTICIPANT, indices.getRequestParams().get("reportType"));
+        assertEquals(indices.getItems().get(0).getIdentifier(), IDENTIFIER);
+        assertEquals(indices.getRequestParams().get("reportType"), ReportType.PARTICIPANT);
         verify(mockReportIndexDao).getIndices(TEST_STUDY, ReportType.PARTICIPANT);
     }
     
@@ -630,7 +630,7 @@ public class ReportServiceTest {
         verify(mockReportIndexDao).updateIndex(reportIndexCaptor.capture());
         
         ReportIndex captured = reportIndexCaptor.getValue();
-        assertEquals(IDENTIFIER, captured.getIdentifier());
+        assertEquals(captured.getIdentifier(), IDENTIFIER);
         assertTrue(captured.isPublic());
     }
     
@@ -651,11 +651,11 @@ public class ReportServiceTest {
         verify(mockReportIndexDao).updateIndex(reportIndexCaptor.capture());
         
         ReportIndex captured = reportIndexCaptor.getValue();
-        assertEquals(IDENTIFIER, captured.getIdentifier());
+        assertEquals(captured.getIdentifier(), IDENTIFIER);
         assertFalse(captured.isPublic());
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void updateReportIndexValidates() throws Exception { 
         ReportIndex updatedIndex = ReportIndex.create();
         
@@ -670,19 +670,19 @@ public class ReportServiceTest {
                 eq(OFFSET_KEY), eq(PAGE_SIZE));
         
         ReportDataKey key = reportDataKeyCaptor.getValue();
-        assertEquals(HEALTH_CODE, key.getHealthCode());
-        assertEquals(TEST_STUDY, key.getStudyId());
-        assertEquals(ReportType.PARTICIPANT, key.getReportType());
-        assertEquals(IDENTIFIER, key.getIdentifier());
+        assertEquals(key.getHealthCode(), HEALTH_CODE);
+        assertEquals(key.getStudyId(), TEST_STUDY);
+        assertEquals(key.getReportType(), ReportType.PARTICIPANT);
+        assertEquals(key.getIdentifier(), IDENTIFIER);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getParticipantReportV4MinPageEnforced() {
         service.getParticipantReportV4(TEST_STUDY, IDENTIFIER, HEALTH_CODE, START_TIME, END_TIME, OFFSET_KEY,
                 BridgeConstants.API_MINIMUM_PAGE_SIZE - 1);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getParticipantReportV4MaxPageEnforced() {
         service.getParticipantReportV4(TEST_STUDY, IDENTIFIER, HEALTH_CODE, START_TIME, END_TIME, OFFSET_KEY,
                 BridgeConstants.API_MAXIMUM_PAGE_SIZE + 1);
@@ -696,24 +696,24 @@ public class ReportServiceTest {
                 eq(OFFSET_KEY), eq(PAGE_SIZE));
         
         ReportDataKey key = reportDataKeyCaptor.getValue();
-        assertEquals(TEST_STUDY, key.getStudyId());
-        assertEquals(ReportType.STUDY, key.getReportType());
-        assertEquals(IDENTIFIER, key.getIdentifier());
+        assertEquals(key.getStudyId(), TEST_STUDY);
+        assertEquals(key.getReportType(), ReportType.STUDY);
+        assertEquals(key.getIdentifier(), IDENTIFIER);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesPageSizeTooSmallV4() throws Exception {
         service.getStudyReportV4(TEST_STUDY, IDENTIFIER, START_TIME, END_TIME, OFFSET_KEY,
                 BridgeConstants.API_MINIMUM_PAGE_SIZE - 1);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesPageSizeTooLargeV4() throws Exception {
         service.getStudyReportV4(TEST_STUDY, IDENTIFIER, START_TIME, END_TIME, OFFSET_KEY,
                 BridgeConstants.API_MAXIMUM_PAGE_SIZE + 1);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesTimeZonesEqualV4() throws Exception {
         service.getStudyReportV4(TEST_STUDY, IDENTIFIER, START_TIME, END_TIME.withZone(DateTimeZone.UTC), OFFSET_KEY,
                 BridgeConstants.API_DEFAULT_PAGE_SIZE);
@@ -731,26 +731,26 @@ public class ReportServiceTest {
         
         DateTime startTime = startTimeCaptor.getValue();
         DateTime endTime = endTimeCaptor.getValue();
-        assertEquals(now.minusDays(14).toString(), startTime.toString());
-        assertEquals(now.toString(), endTime.toString());
+        assertEquals(startTime.toString(), now.minusDays(14).toString());
+        assertEquals(endTime.toString(), now.toString());
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesStartTimeMissingV4() throws Exception {
         service.getStudyReportV4(TEST_STUDY, IDENTIFIER, null, END_TIME, OFFSET_KEY, PAGE_SIZE);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesEndTimeMissingV4() throws Exception {
         service.getStudyReportV4(TEST_STUDY, IDENTIFIER, START_TIME, null, OFFSET_KEY, PAGE_SIZE);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesStartTimeAfterEndTimeV4() throws Exception {
         service.getStudyReportV4(TEST_STUDY, IDENTIFIER, END_TIME, START_TIME, OFFSET_KEY, PAGE_SIZE);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesTimeZonesIdenticalV4() throws Exception {
         DateTimeZone zone = DateTimeZone.forOffsetHours(4);
         service.getStudyReportV4(TEST_STUDY, IDENTIFIER, END_TIME, START_TIME.withZone(zone), OFFSET_KEY, PAGE_SIZE);
@@ -768,7 +768,7 @@ public class ReportServiceTest {
         when(mockReportIndexDao.getIndex(STUDY_REPORT_DATA_KEY)).thenReturn(index);
         
         ReportIndex retrieved = service.getReportIndex(STUDY_REPORT_DATA_KEY);
-        assertEquals(index, retrieved);
+        assertEquals(retrieved, index);
     }
     
     private ReportIndex setupMismatchedSubstudies(ReportDataKey reportKey, 
@@ -786,21 +786,21 @@ public class ReportServiceTest {
         return index;
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void getStudyReportAuthorizes() {
         setupMismatchedSubstudies(STUDY_REPORT_DATA_KEY);
         
         service.getStudyReport(TestConstants.TEST_STUDY, IDENTIFIER, START_DATE, END_DATE);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void getParticipantReportAuthorizes() {
         setupMismatchedSubstudies(PARTICIPANT_REPORT_DATA_KEY);
         
         service.getParticipantReport(TestConstants.TEST_STUDY, IDENTIFIER, HEALTH_CODE, START_DATE, END_DATE);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void getParticipantReportV4Authorizes() {
         setupMismatchedSubstudies(PARTICIPANT_REPORT_DATA_KEY);
         
@@ -808,13 +808,13 @@ public class ReportServiceTest {
                 START_TIME, END_TIME, null, BridgeConstants.API_MINIMUM_PAGE_SIZE);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getParticipantReportV4VerifiesSameTimeZone() {
         service.getParticipantReportV4(TestConstants.TEST_STUDY, IDENTIFIER, HEALTH_CODE, START_TIME,
                 END_TIME.withZone(DateTimeZone.UTC), null, BridgeConstants.API_MINIMUM_PAGE_SIZE);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void getStudyReportV4Authorizes() {
         setupMismatchedSubstudies(STUDY_REPORT_DATA_KEY);
         
@@ -822,7 +822,7 @@ public class ReportServiceTest {
                 START_TIME, END_TIME, null, BridgeConstants.API_MINIMUM_PAGE_SIZE);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void saveStudyReportAuthorizes() {
         setupMismatchedSubstudies(STUDY_REPORT_DATA_KEY);
         
@@ -831,7 +831,7 @@ public class ReportServiceTest {
         service.saveStudyReport(TestConstants.TEST_STUDY, IDENTIFIER, data);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void saveParticipantReportAuthorizes() {
         setupMismatchedSubstudies(PARTICIPANT_REPORT_DATA_KEY);
         
@@ -840,28 +840,28 @@ public class ReportServiceTest {
         service.saveParticipantReport(TestConstants.TEST_STUDY, IDENTIFIER, HEALTH_CODE, data);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void deleteStudyReportAuthorizes() {
         setupMismatchedSubstudies(STUDY_REPORT_DATA_KEY);
         
         service.deleteStudyReport(TestConstants.TEST_STUDY, IDENTIFIER);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void deleteStudyReportRecordAuthorizes() {
         setupMismatchedSubstudies(STUDY_REPORT_DATA_KEY);
         
         service.deleteStudyReportRecord(TestConstants.TEST_STUDY, IDENTIFIER, START_DATE.toString());
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void deleteParticipantReportAuthorizes() {
         setupMismatchedSubstudies(PARTICIPANT_REPORT_DATA_KEY);
         
         service.deleteParticipantReport(TestConstants.TEST_STUDY, IDENTIFIER, HEALTH_CODE);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void deleteParticipantReportRecordAuthorizes() {
         setupMismatchedSubstudies(PARTICIPANT_REPORT_DATA_KEY);
         
@@ -869,7 +869,7 @@ public class ReportServiceTest {
                 IDENTIFIER, START_DATE.toString(), HEALTH_CODE);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void deleteParticipantReportIndexAuthorizes() {
         ReportDataKey key = new ReportDataKey.Builder()
                    .withHealthCode("dummy-value") 
@@ -881,7 +881,7 @@ public class ReportServiceTest {
         service.deleteParticipantReportIndex(TestConstants.TEST_STUDY, IDENTIFIER);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateReportIndexNotFound() {
         ReportIndex updatedIndex = ReportIndex.create();
         updatedIndex.setPublic(true);
@@ -892,7 +892,7 @@ public class ReportServiceTest {
     }
     
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void updateReportIndexAuthorizes() {
         ReportIndex index = setupMismatchedSubstudies(STUDY_REPORT_DATA_KEY);
         
@@ -913,8 +913,7 @@ public class ReportServiceTest {
         
         verify(mockReportIndexDao).updateIndex(reportIndexCaptor.capture());
         
-        assertEquals(ImmutableSet.of("substudyA", "substudyE"), 
-                reportIndexCaptor.getValue().getSubstudyIds());
+        assertEquals(reportIndexCaptor.getValue().getSubstudyIds(), ImmutableSet.of("substudyA", "substudyE"));
     }
     
     @Test
@@ -931,7 +930,7 @@ public class ReportServiceTest {
         
         verify(mockReportIndexDao).updateIndex(reportIndexCaptor.capture());
         
-        assertEquals(ImmutableSet.of("substudyA"), reportIndexCaptor.getValue().getSubstudyIds());
+        assertEquals(reportIndexCaptor.getValue().getSubstudyIds(), ImmutableSet.of("substudyA"));
     }
     
     private ReportIndex setupMismatchedSubstudies(ReportDataKey reportKey) {
@@ -944,7 +943,7 @@ public class ReportServiceTest {
         } catch(InvalidEntityException e) {
             verifyNoMoreInteractions(mockReportDataDao);
             String errorMsg = e.getErrors().get(fieldName).get(0);
-            assertEquals(fieldName + " " + message, errorMsg);
+            assertEquals(errorMsg, fieldName + " " + message);
             // Also verify that we didn't call the DAO
             verifyNoMoreInteractions(mockReportDataDao);
         }

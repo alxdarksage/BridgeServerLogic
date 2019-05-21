@@ -1,24 +1,23 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.cache.CacheKey;
 import org.sagebionetworks.bridge.cache.CacheProvider;
 import org.sagebionetworks.bridge.config.BridgeConfigFactory;
 
-@RunWith(MockitoJUnitRunner.class)
 public class UrlShortenerServiceTest {
 
     private static final String WEBSERVICES_URL = BridgeConfigFactory.getConfig().get("webservices.url");
@@ -34,8 +33,10 @@ public class UrlShortenerServiceTest {
     @Spy
     private UrlShortenerService service;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service.setCacheProvider(cacheProvider);
         when(service.getToken()).thenReturn(TOKEN, NEXT_TOKEN);
     }
@@ -44,7 +45,7 @@ public class UrlShortenerServiceTest {
     public void newUrl() {
         // nothing in the cache
         String shortenedUrl = service.shortenUrl(LONG_URL, EXPIRES_IN);
-        assertEquals(WEBSERVICES_URL+"/r/"+TOKEN, shortenedUrl);
+        assertEquals(shortenedUrl, WEBSERVICES_URL+"/r/"+TOKEN);
 
         verify(cacheProvider).setObject(CacheKey.shortenUrl(TOKEN), LONG_URL, EXPIRES_IN);
     }
@@ -55,7 +56,7 @@ public class UrlShortenerServiceTest {
         when(cacheProvider.getObject(key, String.class)).thenReturn(ANOTHER_LONG_URL);
         
         String shortenedUrl = service.shortenUrl(LONG_URL, EXPIRES_IN);
-        assertEquals(WEBSERVICES_URL+"/r/"+NEXT_TOKEN, shortenedUrl);
+        assertEquals(shortenedUrl, WEBSERVICES_URL+"/r/"+NEXT_TOKEN);
         
         verify(cacheProvider).setObject(CacheKey.shortenUrl(NEXT_TOKEN), LONG_URL, EXPIRES_IN);
     }
@@ -66,7 +67,7 @@ public class UrlShortenerServiceTest {
         when(cacheProvider.getObject(key, String.class)).thenReturn(LONG_URL);
         
         String shortenedUrl = service.shortenUrl(LONG_URL, EXPIRES_IN);
-        assertEquals(WEBSERVICES_URL+"/r/"+TOKEN, shortenedUrl);
+        assertEquals(shortenedUrl, WEBSERVICES_URL+"/r/"+TOKEN);
         
         verify(cacheProvider, never()).setObject(any(), any(), anyInt());
     }
@@ -77,7 +78,7 @@ public class UrlShortenerServiceTest {
         when(cacheProvider.getObject(key, String.class)).thenReturn(LONG_URL);
         
         String longUrl = service.retrieveUrl(TOKEN);
-        assertEquals(LONG_URL, longUrl);
+        assertEquals(longUrl, LONG_URL);
     }
     
     @Test

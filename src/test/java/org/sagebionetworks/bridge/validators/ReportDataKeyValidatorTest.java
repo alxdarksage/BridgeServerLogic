@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
@@ -18,7 +18,7 @@ public class ReportDataKeyValidatorTest {
                 .withIdentifier("foo")
                 .withReportType(ReportType.STUDY).build();
         
-        assertEquals("foo:api", key.getKeyString());
+        assertEquals(key.getKeyString(), "foo:api");
     }
     
     @Test
@@ -29,7 +29,7 @@ public class ReportDataKeyValidatorTest {
                 .withIdentifier("foo")
                 .withReportType(ReportType.PARTICIPANT).build();
 
-        assertEquals("ABC:foo:api", key.getKeyString());
+        assertEquals(key.getKeyString(), "ABC:foo:api");
     }
     
     @Test
@@ -79,7 +79,7 @@ public class ReportDataKeyValidatorTest {
             runnable.run();
         } catch(InvalidEntityException e) {
             String message = e.getErrors().get(fieldName).get(0);
-            assertEquals(fieldName + " " + error, message);
+            assertEquals(message, fieldName + " " + error);
         }
     }
 }

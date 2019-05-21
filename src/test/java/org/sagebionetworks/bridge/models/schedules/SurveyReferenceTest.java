@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.GuidCreatedOnVersionHolder;
 import org.sagebionetworks.bridge.models.GuidCreatedOnVersionHolderImpl;
@@ -20,9 +20,9 @@ public class SurveyReferenceTest {
     public void test() {
         SurveyReference ref = new SurveyReference(IDENTIFIER, GUID, CREATED_ON);
         
-        assertEquals(IDENTIFIER, ref.getIdentifier());
-        assertEquals(GUID, ref.getGuid());
-        assertEquals(CREATED_ON, ref.getCreatedOn());
+        assertEquals(ref.getIdentifier(), IDENTIFIER);
+        assertEquals(ref.getGuid(), GUID);
+        assertEquals(ref.getCreatedOn(), CREATED_ON);
         assertTrue(ref.getHref().contains("/v3/surveys/abc/revisions/2017-02-09T20:15:59.558Z"));
         
         GuidCreatedOnVersionHolder keys1 = new GuidCreatedOnVersionHolderImpl(GUID, CREATED_ON.getMillis());

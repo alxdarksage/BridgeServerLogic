@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.models.surveys;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.TreeSet;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -30,9 +30,9 @@ public class SurveyRuleTest {
                 "'skipTo':'theend','endSurvey':false}");
         SurveyRule rule = BridgeObjectMapper.get().readValue(json, SurveyRule.class);
         assertNull(rule.getEndSurvey());
-        assertEquals(Operator.EQ, rule.getOperator());
-        assertEquals("theend", rule.getSkipToTarget());
-        assertEquals("No", rule.getValue());
+        assertEquals(rule.getOperator(), Operator.EQ);
+        assertEquals(rule.getSkipToTarget(), "theend");
+        assertEquals(rule.getValue(), "No");
     }
     
     @Test
@@ -41,14 +41,14 @@ public class SurveyRuleTest {
                 .withSkipToTarget("test").withEndSurvey(Boolean.FALSE).build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(skipToRule);
-        assertEquals("eq", node.get("operator").textValue());
-        assertEquals("value", node.get("value").textValue());
-        assertEquals("test", node.get("skipTo").textValue());
+        assertEquals(node.get("operator").textValue(), "eq");
+        assertEquals(node.get("value").textValue(), "value");
+        assertEquals(node.get("skipTo").textValue(), "test");
         assertNull(node.get("endSurvey"));
-        assertEquals("SurveyRule", node.get("type").textValue());
+        assertEquals(node.get("type").textValue(), "SurveyRule");
         
         SurveyRule deser = BridgeObjectMapper.get().treeToValue(node, SurveyRule.class);
-        assertEquals(skipToRule, deser);
+        assertEquals(deser, skipToRule);
     }
 
     @Test
@@ -57,14 +57,14 @@ public class SurveyRuleTest {
                 .withEndSurvey(Boolean.TRUE).build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(endRule);
-        assertEquals("eq", node.get("operator").textValue());
-        assertEquals("value", node.get("value").textValue());
+        assertEquals(node.get("operator").textValue(), "eq");
+        assertEquals(node.get("value").textValue(), "value");
         assertNull(node.get("skipTo"));
         assertTrue(node.get("endSurvey").booleanValue());
-        assertEquals("SurveyRule", node.get("type").textValue());
+        assertEquals(node.get("type").textValue(), "SurveyRule");
         
         SurveyRule deser = BridgeObjectMapper.get().treeToValue(node, SurveyRule.class);
-        assertEquals(endRule, deser);
+        assertEquals(deser, endRule);
     }
     
     @Test
@@ -72,14 +72,14 @@ public class SurveyRuleTest {
         SurveyRule alwaysRule = new SurveyRule.Builder().withOperator(Operator.ALWAYS).withEndSurvey(true).build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(alwaysRule);
-        assertEquals("always", node.get("operator").textValue());
+        assertEquals(node.get("operator").textValue(), "always");
         assertNull(node.get("value"));
         assertNull(node.get("skipTo"));
         assertTrue(node.get("endSurvey").booleanValue());
-        assertEquals("SurveyRule", node.get("type").textValue());
+        assertEquals(node.get("type").textValue(), "SurveyRule");
         
         SurveyRule deser = BridgeObjectMapper.get().treeToValue(node, SurveyRule.class);
-        assertEquals(alwaysRule, deser);
+        assertEquals(deser, alwaysRule);
     }
     
     @Test
@@ -88,14 +88,14 @@ public class SurveyRuleTest {
                 .withAssignDataGroup("bar").build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(dataGroupRule);
-        assertEquals("eq", node.get("operator").textValue());
-        assertEquals("foo", node.get("value").textValue());
+        assertEquals(node.get("operator").textValue(), "eq");
+        assertEquals(node.get("value").textValue(), "foo");
         assertNull(node.get("skipTo"));
-        assertEquals("bar", node.get("assignDataGroup").textValue());
-        assertEquals("SurveyRule", node.get("type").textValue());
+        assertEquals(node.get("assignDataGroup").textValue(), "bar");
+        assertEquals(node.get("type").textValue(), "SurveyRule");
         
         SurveyRule deser = BridgeObjectMapper.get().treeToValue(node, SurveyRule.class);
-        assertEquals(dataGroupRule, deser);
+        assertEquals(deser, dataGroupRule);
     }
     
     @Test
@@ -107,14 +107,14 @@ public class SurveyRuleTest {
                 .withDataGroups(displayGroups).withDisplayIf(Boolean.TRUE).build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(displayIf);
-        assertEquals("any", node.get("operator").textValue());
-        assertEquals("bar", node.get("dataGroups").get(0).textValue());
-        assertEquals("foo", node.get("dataGroups").get(1).textValue());
+        assertEquals(node.get("operator").textValue(), "any");
+        assertEquals(node.get("dataGroups").get(0).textValue(), "bar");
+        assertEquals(node.get("dataGroups").get(1).textValue(), "foo");
         assertTrue(node.get("displayIf").booleanValue());
-        assertEquals("SurveyRule", node.get("type").textValue());
+        assertEquals(node.get("type").textValue(), "SurveyRule");
         
         SurveyRule deser = BridgeObjectMapper.get().treeToValue(node, SurveyRule.class);
-        assertEquals(displayIf, deser);
+        assertEquals(deser, displayIf);
     }
     
     @Test
@@ -123,13 +123,13 @@ public class SurveyRuleTest {
                 .withDataGroups(Sets.newHashSet("foo")).withDisplayUnless(Boolean.TRUE).build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(displayIf);
-        assertEquals("any", node.get("operator").textValue());
-        assertEquals("foo", node.get("dataGroups").get(0).textValue());
+        assertEquals(node.get("operator").textValue(), "any");
+        assertEquals(node.get("dataGroups").get(0).textValue(), "foo");
         assertTrue(node.get("displayUnless").booleanValue());
-        assertEquals("SurveyRule", node.get("type").textValue());
+        assertEquals(node.get("type").textValue(), "SurveyRule");
         
         SurveyRule deser = BridgeObjectMapper.get().treeToValue(node, SurveyRule.class);
-        assertEquals(displayIf, deser);
+        assertEquals(deser, displayIf);
     }
     
     // If the user sends a property set to false, ensure the field is set to null and

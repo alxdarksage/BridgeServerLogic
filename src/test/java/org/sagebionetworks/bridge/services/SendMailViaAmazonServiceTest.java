@@ -1,15 +1,14 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
 import org.sagebionetworks.bridge.models.studies.EmailTemplate;
@@ -20,7 +19,6 @@ import org.sagebionetworks.bridge.services.email.BasicEmailProvider;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.SendRawEmailResult;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SendMailViaAmazonServiceTest {
 
     private static final String SUPPORT_EMAIL = "email@email.com";
@@ -39,8 +37,10 @@ public class SendMailViaAmazonServiceTest {
     @Mock
     private SendRawEmailResult result;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         study = Study.create();
         study.setName("Name");
         study.setSupportEmail(SUPPORT_EMAIL);
@@ -63,7 +63,7 @@ public class SendMailViaAmazonServiceTest {
             service.sendEmail(provider);
             fail("Should have thrown exception");
         } catch(BridgeServiceException e) {
-            assertEquals(SendMailViaAmazonService.UNVERIFIED_EMAIL_ERROR, e.getMessage());
+            assertEquals(e.getMessage(), SendMailViaAmazonService.UNVERIFIED_EMAIL_ERROR);
         }
     }
     

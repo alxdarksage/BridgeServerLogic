@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class DateTimeZoneAttributeConverterTest {
     
@@ -14,19 +14,19 @@ public class DateTimeZoneAttributeConverterTest {
 
     private DateTimeZoneAttributeConverter converter;
     
-    @Before
+    @BeforeMethod
     public void before() {
         converter = new DateTimeZoneAttributeConverter();
     }
     
     @Test
     public void convertToDatabaseColumn() {
-        assertEquals(OFFSET_STRING, converter.convertToDatabaseColumn(ZONE));
+        assertEquals(converter.convertToDatabaseColumn(ZONE), OFFSET_STRING);
     }
 
     @Test
     public void convertToEntityAttribute() {
-        assertEquals(ZONE, converter.convertToEntityAttribute(OFFSET_STRING));
+        assertEquals(converter.convertToEntityAttribute(OFFSET_STRING), ZONE);
     }
     
     @Test

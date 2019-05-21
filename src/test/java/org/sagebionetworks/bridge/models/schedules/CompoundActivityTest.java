@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -41,9 +41,9 @@ public class CompoundActivityTest {
 
         CompoundActivity compoundActivity = new CompoundActivity.Builder().withSchemaList(inputSchemaList)
                 .withSurveyList(inputSurveyList).withTaskIdentifier("combo-activity").build();
-        assertEquals(expectedSchemaList, compoundActivity.getSchemaList());
-        assertEquals(expectedSurveyList, compoundActivity.getSurveyList());
-        assertEquals("combo-activity", compoundActivity.getTaskIdentifier());
+        assertEquals(compoundActivity.getSchemaList(), expectedSchemaList);
+        assertEquals(compoundActivity.getSurveyList(), expectedSurveyList);
+        assertEquals(compoundActivity.getTaskIdentifier(), "combo-activity");
 
         // toString() gives a lot of stuff and depends on two other classes. To make the tests robust and resilient to
         // changes in encapsulated classes, just test a few keywords
@@ -56,10 +56,10 @@ public class CompoundActivityTest {
 
         // modify original lists to verify we have a defensive copy
         inputSchemaList.add(new SchemaReference("third-schema", 4));
-        assertEquals(expectedSchemaList, compoundActivity.getSchemaList());
+        assertEquals(compoundActivity.getSchemaList(), expectedSchemaList);
 
         inputSurveyList.add(new SurveyReference("third-survey", "third-survey-guid", null));
-        assertEquals(expectedSurveyList, compoundActivity.getSurveyList());
+        assertEquals(compoundActivity.getSurveyList(), expectedSurveyList);
 
         // attempt to modify output list to verify immutability
         try {
@@ -78,7 +78,7 @@ public class CompoundActivityTest {
 
         // test copy constructor
         CompoundActivity copy = new CompoundActivity.Builder().copyOf(compoundActivity).build();
-        assertEquals(compoundActivity, copy);
+        assertEquals(copy, compoundActivity);
     }
 
     @Test
@@ -169,31 +169,31 @@ public class CompoundActivityTest {
 
         // convert to POJO
         CompoundActivity compoundActivity = BridgeObjectMapper.get().readValue(jsonText, CompoundActivity.class);
-        assertEquals("json-activity", compoundActivity.getTaskIdentifier());
+        assertEquals(compoundActivity.getTaskIdentifier(), "json-activity");
 
         List<SchemaReference> outputSchemaList = compoundActivity.getSchemaList();
-        assertEquals(2, outputSchemaList.size());
-        assertEquals(fooSchema, outputSchemaList.get(0));
-        assertEquals(barSchema, outputSchemaList.get(1));
+        assertEquals(outputSchemaList.size(), 2);
+        assertEquals(outputSchemaList.get(0), fooSchema);
+        assertEquals(outputSchemaList.get(1), barSchema);
 
         List<SurveyReference> outputSurveyList = compoundActivity.getSurveyList();
-        assertEquals(2, outputSurveyList.size());
-        assertEquals(asdfSurvey, outputSurveyList.get(0));
-        assertEquals(jklSurvey, outputSurveyList.get(1));
+        assertEquals(outputSurveyList.size(), 2);
+        assertEquals(outputSurveyList.get(0), asdfSurvey);
+        assertEquals(outputSurveyList.get(1), jklSurvey);
 
         // convert back to JSON
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(compoundActivity, JsonNode.class);
-        assertEquals(4, jsonNode.size());
-        assertEquals("json-activity", jsonNode.get("taskIdentifier").textValue());
-        assertEquals("CompoundActivity", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.size(), 4);
+        assertEquals(jsonNode.get("taskIdentifier").textValue(), "json-activity");
+        assertEquals(jsonNode.get("type").textValue(), "CompoundActivity");
 
         // For the lists, this is already tested by the encapsulated classes. Just verify that we have a list of the
         // right size.
         assertTrue(jsonNode.get("schemaList").isArray());
-        assertEquals(2, jsonNode.get("schemaList").size());
+        assertEquals(jsonNode.get("schemaList").size(), 2);
 
         assertTrue(jsonNode.get("surveyList").isArray());
-        assertEquals(2, jsonNode.get("surveyList").size());
+        assertEquals(jsonNode.get("surveyList").size(), 2);
     }
 
     @Test

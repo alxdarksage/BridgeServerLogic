@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -45,39 +45,39 @@ public class RequestInfoTest {
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(requestInfo);
 
-        assertEquals("userId", node.get("userId").textValue());
-        assertEquals(ACTIVITIES_REQUESTED_ON.withZone(MST).toString(), node.get("activitiesAccessedOn").textValue());
-        assertEquals(UPLOADED_ON.withZone(MST).toString(), node.get("uploadedOn").textValue());
-        assertEquals("en", node.get("languages").get(0).textValue());
-        assertEquals("fr", node.get("languages").get(1).textValue());
+        assertEquals(node.get("userId").textValue(), "userId");
+        assertEquals(node.get("activitiesAccessedOn").textValue(), ACTIVITIES_REQUESTED_ON.withZone(MST).toString());
+        assertEquals(node.get("uploadedOn").textValue(), UPLOADED_ON.withZone(MST).toString());
+        assertEquals(node.get("languages").get(0).textValue(), "en");
+        assertEquals(node.get("languages").get(1).textValue(), "fr");
         Set<String> groups = Sets.newHashSet(
             node.get("userDataGroups").get(0).textValue(),
             node.get("userDataGroups").get(1).textValue()
         );
-        assertEquals(TestConstants.USER_DATA_GROUPS, groups);
+        assertEquals(groups, TestConstants.USER_DATA_GROUPS);
         
         Set<String> substudyIds = Sets.newHashSet(
             node.get("userSubstudyIds").get(0).textValue(),
             node.get("userSubstudyIds").get(1).textValue()
         );
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, substudyIds);
-        assertEquals(SIGNED_IN_ON.withZone(MST).toString(), node.get("signedInOn").textValue());
-        assertEquals("+03:00", node.get("timeZone").textValue());
-        assertEquals("RequestInfo", node.get("type").textValue());
-        assertEquals(USER_AGENT_STRING, node.get("userAgent").textValue());
-        assertEquals(12, node.size());
+        assertEquals(substudyIds, TestConstants.USER_SUBSTUDY_IDS);
+        assertEquals(node.get("signedInOn").textValue(), SIGNED_IN_ON.withZone(MST).toString());
+        assertEquals(node.get("timeZone").textValue(), "+03:00");
+        assertEquals(node.get("type").textValue(), "RequestInfo");
+        assertEquals(node.get("userAgent").textValue(), USER_AGENT_STRING);
+        assertEquals(node.size(), 12);
         
         JsonNode studyIdNode = node.get("studyIdentifier");
-        assertEquals("test-study", studyIdNode.get("identifier").textValue());
-        assertEquals("StudyIdentifier", studyIdNode.get("type").textValue());
-        assertEquals(2, studyIdNode.size());
+        assertEquals(studyIdNode.get("identifier").textValue(), "test-study");
+        assertEquals(studyIdNode.get("type").textValue(), "StudyIdentifier");
+        assertEquals(studyIdNode.size(), 2);
         
         JsonNode clientInfoNode = node.get("clientInfo");
-        assertEquals("app", clientInfoNode.get("appName").textValue());
-        assertEquals(20, clientInfoNode.get("appVersion").asInt());
+        assertEquals(clientInfoNode.get("appName").textValue(), "app");
+        assertEquals(clientInfoNode.get("appVersion").asInt(), 20);
         
         RequestInfo deserClientInfo = BridgeObjectMapper.get().readValue(node.toString(), RequestInfo.class);
-        assertEquals(requestInfo, deserClientInfo);
+        assertEquals(deserClientInfo, requestInfo);
     }
     
     @Test
@@ -90,10 +90,8 @@ public class RequestInfoTest {
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(requestInfo);
         
-        assertEquals(ACTIVITIES_REQUESTED_ON.withZone(DateTimeZone.UTC).toString(),
-                node.get("activitiesAccessedOn").textValue());
-        assertEquals(SIGNED_IN_ON.withZone(DateTimeZone.UTC).toString(), 
-                node.get("signedInOn").textValue());
+        assertEquals(node.get("activitiesAccessedOn").textValue(), ACTIVITIES_REQUESTED_ON.withZone(DateTimeZone.UTC).toString());
+        assertEquals(node.get("signedInOn").textValue(), SIGNED_IN_ON.withZone(DateTimeZone.UTC).toString());
     }
     
     @Test
@@ -101,17 +99,17 @@ public class RequestInfoTest {
         RequestInfo requestInfo = createRequestInfo();
         
         RequestInfo copy = new RequestInfo.Builder().copyOf(requestInfo).build();
-        assertEquals(STUDY_ID, copy.getStudyIdentifier());
-        assertEquals(CLIENT_INFO, copy.getClientInfo());
-        assertEquals(USER_AGENT_STRING, copy.getUserAgent());
-        assertEquals(TestConstants.USER_DATA_GROUPS, copy.getUserDataGroups());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, copy.getUserSubstudyIds());
-        assertEquals(LANGUAGES, copy.getLanguages());
-        assertEquals(USER_ID, copy.getUserId());
-        assertEquals(MST, copy.getTimeZone());
-        assertEquals(ACTIVITIES_REQUESTED_ON.withZone(copy.getTimeZone()), copy.getActivitiesAccessedOn());
-        assertEquals(UPLOADED_ON.withZone(copy.getTimeZone()), copy.getUploadedOn());
-        assertEquals(SIGNED_IN_ON.withZone(copy.getTimeZone()), copy.getSignedInOn());
+        assertEquals(copy.getStudyIdentifier(), STUDY_ID);
+        assertEquals(copy.getClientInfo(), CLIENT_INFO);
+        assertEquals(copy.getUserAgent(), USER_AGENT_STRING);
+        assertEquals(copy.getUserDataGroups(), TestConstants.USER_DATA_GROUPS);
+        assertEquals(copy.getUserSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
+        assertEquals(copy.getLanguages(), LANGUAGES);
+        assertEquals(copy.getUserId(), USER_ID);
+        assertEquals(copy.getTimeZone(), MST);
+        assertEquals(copy.getActivitiesAccessedOn(), ACTIVITIES_REQUESTED_ON.withZone(copy.getTimeZone()));
+        assertEquals(copy.getUploadedOn(), UPLOADED_ON.withZone(copy.getTimeZone()));
+        assertEquals(copy.getSignedInOn(), SIGNED_IN_ON.withZone(copy.getTimeZone()));
     }
 
     private RequestInfo createRequestInfo() {

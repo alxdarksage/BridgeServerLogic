@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.json;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeConstants;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -22,7 +23,7 @@ public class JodaDateTimeDeserializerTest {
 
         // execute and validate
         DateTime result = new JodaDateTimeDeserializer().deserialize(mockJP, null);
-        assertEquals(expectedMillis, result.getMillis());
-        assertEquals("2014-02-12T16:07:00.000-08:00", result.toString());
+        assertEquals(result.getMillis(), expectedMillis);
+        assertEquals(result.toString(), "2014-02-12T16:07:00.000-08:00");
     }
 }

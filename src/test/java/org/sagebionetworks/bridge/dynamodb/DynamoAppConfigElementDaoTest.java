@@ -1,26 +1,26 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.exceptions.ConcurrentModificationException;
@@ -35,7 +35,6 @@ import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoAppConfigElementDaoTest {
 
     private static final String ID_2 = "id2";
@@ -56,8 +55,9 @@ public class DynamoAppConfigElementDaoTest {
     
     private DynamoAppConfigElementDao dao;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         dao = new DynamoAppConfigElementDao();
         dao.setMapper(mockMapper);
     }
@@ -76,17 +76,17 @@ public class DynamoAppConfigElementDaoTest {
         when(mockMapper.batchLoad(any(List.class))).thenReturn(appConfigElementMapId1And2());
         
         List<AppConfigElement> returned = dao.getMostRecentElements(TestConstants.TEST_STUDY, true);
-        assertEquals(2, returned.size());
+        assertEquals(returned.size(), 2);
         assertIdAndRevision(returned.get(0), ID_1, 3L);
         assertIdAndRevision(returned.get(1), ID_2, 3L);
         
         verify(mockMapper).query(eq(DynamoAppConfigElement.class), queryCaptor.capture());
         DynamoDBQueryExpression<DynamoAppConfigElement> query = queryCaptor.getValue();
         
-        assertEquals(DynamoAppConfigElementDao.STUDY_ID_INDEX_NAME, query.getIndexName());
+        assertEquals(query.getIndexName(), DynamoAppConfigElementDao.STUDY_ID_INDEX_NAME);
         assertFalse(query.isConsistentRead());
         assertFalse(query.isScanIndexForward());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, query.getHashKeyValues().getStudyId());
+        assertEquals(query.getHashKeyValues().getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
         assertNull(query.getHashKeyValues().getId());
     }
     
@@ -104,7 +104,7 @@ public class DynamoAppConfigElementDaoTest {
         when(mockMapper.batchLoad(any(List.class))).thenReturn(appConfigElementMapId1And2());
         
         List<AppConfigElement> returned = dao.getMostRecentElements(TestConstants.TEST_STUDY, false);
-        assertEquals(2, returned.size());
+        assertEquals(returned.size(), 2);
         assertIdAndRevision(returned.get(0), ID_1, 2L);
         assertIdAndRevision(returned.get(1), ID_2, 3L);
     }
@@ -123,17 +123,17 @@ public class DynamoAppConfigElementDaoTest {
         when(mockResults.get(0)).thenReturn(element);
         
         AppConfigElement returned = dao.getMostRecentElement(TestConstants.TEST_STUDY, "id");
-        assertEquals(element, returned);
+        assertEquals(returned, element);
         
         verify(mockMapper).query(eq(DynamoAppConfigElement.class), queryCaptor.capture());
         DynamoDBQueryExpression<DynamoAppConfigElement> query = queryCaptor.getValue();
         
-        assertEquals("api:id", query.getHashKeyValues().getKey());
+        assertEquals(query.getHashKeyValues().getKey(), "api:id");
         assertFalse(query.isScanIndexForward());
-        assertEquals(new Integer(1), query.getLimit());
+        assertEquals(query.getLimit(), new Integer(1));
         
         Condition deleteCondition = query.getQueryFilter().get("deleted");
-        assertEquals("EQ", deleteCondition.getComparisonOperator());
+        assertEquals(deleteCondition.getComparisonOperator(), "EQ");
         assertFalse(deleteCondition.getAttributeValueList().get(0).getBOOL());
     }
 
@@ -152,12 +152,12 @@ public class DynamoAppConfigElementDaoTest {
         when(mockResults.stream()).thenReturn(appConfigElementListId1().stream());
         
         List<AppConfigElement> returned = dao.getElementRevisions(TestConstants.TEST_STUDY, ID_1, true);
-        assertEquals(appConfigElementListId1(), returned);
+        assertEquals(returned, appConfigElementListId1());
         
         verify(mockMapper).query(eq(DynamoAppConfigElement.class), queryCaptor.capture());
         DynamoDBQueryExpression<DynamoAppConfigElement> query = queryCaptor.getValue();
         
-        assertEquals("api:id1", query.getHashKeyValues().getKey());
+        assertEquals(query.getHashKeyValues().getKey(), "api:id1");
         assertFalse(query.isScanIndexForward());
         assertNull(query.getQueryFilter());
     }
@@ -168,16 +168,16 @@ public class DynamoAppConfigElementDaoTest {
         when(mockResults.stream()).thenReturn(appConfigElementListId1().stream());
         
         List<AppConfigElement> returned = dao.getElementRevisions(TestConstants.TEST_STUDY, ID_1, false);
-        assertEquals(appConfigElementListId1(), returned);
+        assertEquals(returned, appConfigElementListId1());
         
         verify(mockMapper).query(eq(DynamoAppConfigElement.class), queryCaptor.capture());
         DynamoDBQueryExpression<DynamoAppConfigElement> query = queryCaptor.getValue();
         
-        assertEquals("api:id1", query.getHashKeyValues().getKey());
+        assertEquals(query.getHashKeyValues().getKey(), "api:id1");
         assertFalse(query.isScanIndexForward());
         
         Condition deleteCondition = query.getQueryFilter().get("deleted");
-        assertEquals("EQ", deleteCondition.getComparisonOperator());
+        assertEquals(deleteCondition.getComparisonOperator(), "EQ");
         assertFalse(deleteCondition.getAttributeValueList().get(0).getBOOL());
     }
     
@@ -187,11 +187,11 @@ public class DynamoAppConfigElementDaoTest {
         when(mockMapper.load(any())).thenReturn(element);
         
         AppConfigElement returned = dao.getElementRevision(TestConstants.TEST_STUDY, "id", 3L);
-        assertEquals(element, returned);
+        assertEquals(returned, element);
         
         verify(mockMapper).load(appConfigElementCaptor.capture());
-        assertEquals("api:id", appConfigElementCaptor.getValue().getKey());
-        assertEquals(new Long(3), appConfigElementCaptor.getValue().getRevision());
+        assertEquals(appConfigElementCaptor.getValue().getKey(), "api:id");
+        assertEquals(appConfigElementCaptor.getValue().getRevision(), new Long(3));
     }
     
     @Test
@@ -200,7 +200,7 @@ public class DynamoAppConfigElementDaoTest {
         element.setVersion(1L);
         
         VersionHolder returned = dao.saveElementRevision(element);
-        assertEquals(new Long(1), returned.getVersion());
+        assertEquals(returned.getVersion(), new Long(1));
         
         verify(mockMapper).save(element);
     }
@@ -216,8 +216,8 @@ public class DynamoAppConfigElementDaoTest {
         dao.deleteElementRevisionPermanently(TestConstants.TEST_STUDY, "id", 3L);
         
         verify(mockMapper).delete(appConfigElementCaptor.capture());
-        assertEquals("api:id", key.getKey());
-        assertEquals(new Long(3), key.getRevision());
+        assertEquals(key.getKey(), "api:id");
+        assertEquals(key.getRevision(), new Long(3));
     }
     
     @Test
@@ -230,7 +230,7 @@ public class DynamoAppConfigElementDaoTest {
     }
     
     // As will happen if version attribute isn't returned or is wrong
-    @Test(expected = ConcurrentModificationException.class)
+    @Test(expectedExceptions = ConcurrentModificationException.class)
     public void saveElementRevisionThrowsConditionalCheckFailedException() {
         doThrow(new ConditionalCheckFailedException("")).when(mockMapper).save(any());
         
@@ -240,7 +240,7 @@ public class DynamoAppConfigElementDaoTest {
     }
     
     // As will happen if version attribute isn't returned or is wrong
-    @Test(expected = ConcurrentModificationException.class)
+    @Test(expectedExceptions = ConcurrentModificationException.class)
     public void deleteElementRevisionPermanentlyThrowsConditionalCheckFailedException() {
         AppConfigElement element = TestUtils.getAppConfigElement();
         when(mockMapper.load(any())).thenReturn(element);
@@ -311,6 +311,6 @@ public class DynamoAppConfigElementDaoTest {
     }
     
     private void assertIdAndRevision(AppConfigElement element, String id, long revision) {
-        assertTrue("Missing: " + id + ", " + revision, element.getId().equals(id) && element.getRevision() == revision);
+        assertTrue(element.getId().equals(id) && element.getRevision() == revision, "Missing: " + id + ", " + revision);
     }    
 }

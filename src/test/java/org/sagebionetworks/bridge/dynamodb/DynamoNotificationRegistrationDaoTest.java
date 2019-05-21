@@ -1,12 +1,5 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.doReturn;
@@ -15,18 +8,24 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestUtils.getNotificationRegistration;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
@@ -50,7 +49,6 @@ import com.google.common.collect.Maps;
  * registrations across all environments. Using mocks for this DAO test instead (DynamoDB is a 
  * known system at this point so mock tests are OK).
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoNotificationRegistrationDaoTest {
 
     private static final String PLATFORM_ARN = "platformARN";
@@ -95,8 +93,10 @@ public class DynamoNotificationRegistrationDaoTest {
     @Captor
     ArgumentCaptor<DynamoDBQueryExpression<DynamoNotificationRegistration>> queryCaptor;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         dao = new DynamoNotificationRegistrationDao();
         dao.setNotificationRegistrationMapper(mockMapper);
         dao.setSnsClient(mockSnsClient);
@@ -108,9 +108,9 @@ public class DynamoNotificationRegistrationDaoTest {
 
         List<NotificationRegistration> list = dao.listRegistrations(HEALTH_CODE);
         
-        assertEquals(2, list.size());
+        assertEquals(list.size(), 2);
         DynamoDBQueryExpression<DynamoNotificationRegistration> query = queryCaptor.getValue();
-        assertEquals(HEALTH_CODE, query.getHashKeyValues().getHealthCode());
+        assertEquals(query.getHashKeyValues().getHealthCode(), HEALTH_CODE);
     }
     
     // Opted here to return an empty list, as it's a list operation and we're not asking for specific registration
@@ -120,9 +120,9 @@ public class DynamoNotificationRegistrationDaoTest {
 
         List<NotificationRegistration> list = dao.listRegistrations(HEALTH_CODE);
         
-        assertEquals(0, list.size());
+        assertEquals(list.size(), 0);
         DynamoDBQueryExpression<DynamoNotificationRegistration> query = queryCaptor.getValue();
-        assertEquals(HEALTH_CODE, query.getHashKeyValues().getHealthCode());
+        assertEquals(query.getHashKeyValues().getHealthCode(), HEALTH_CODE);
     }
     
     @Test
@@ -143,21 +143,21 @@ public class DynamoNotificationRegistrationDaoTest {
         verify(mockSnsClient).createPlatformEndpoint(createPlatformEndpointRequestCaptor.capture());
         
         CreatePlatformEndpointRequest snsRequest = createPlatformEndpointRequestCaptor.getValue();
-        assertEquals(PLATFORM_ARN, snsRequest.getPlatformApplicationArn());
-        assertEquals(DEVICE_ID, snsRequest.getToken());
+        assertEquals(snsRequest.getPlatformApplicationArn(), PLATFORM_ARN);
+        assertEquals(snsRequest.getToken(), DEVICE_ID);
         assertNull(snsRequest.getCustomUserData());
         
         assertNotNull(result.getGuid());
-        assertNotEquals(GUID, result.getGuid());
+        assertNotEquals(result.getGuid(), GUID);
         
         verify(mockMapper).save(notificationRegistrationCaptor.capture());
         
         NotificationRegistration reg = notificationRegistrationCaptor.getValue();
-        assertEquals(HEALTH_CODE, reg.getHealthCode());
-        assertEquals(result.getGuid(), reg.getGuid());
-        assertEquals(PUSH_NOTIFICATION_ENDPOINT_ARN, reg.getEndpoint());
-        assertEquals(DEVICE_ID, reg.getDeviceId());
-        assertEquals(OperatingSystem.IOS, reg.getOsName());
+        assertEquals(reg.getHealthCode(), HEALTH_CODE);
+        assertEquals(reg.getGuid(), result.getGuid());
+        assertEquals(reg.getEndpoint(), PUSH_NOTIFICATION_ENDPOINT_ARN);
+        assertEquals(reg.getDeviceId(), DEVICE_ID);
+        assertEquals(reg.getOsName(), OperatingSystem.IOS);
         assertTrue(reg.getCreatedOn() > 0L);
         assertTrue(reg.getModifiedOn() > 0L);
     }
@@ -178,13 +178,13 @@ public class DynamoNotificationRegistrationDaoTest {
         
         NotificationRegistration result = dao.createPushNotificationRegistration(PLATFORM_ARN, registration);
         
-        assertEquals(GUID, result.getGuid());
+        assertEquals(result.getGuid(), GUID);
         
         // The save needs to use the same GUID and HEALTH_CODE or it'll be a duplicate
         verify(mockMapper).save(notificationRegistrationCaptor.capture());
         NotificationRegistration reg = notificationRegistrationCaptor.getValue();
-        assertEquals(HEALTH_CODE, reg.getHealthCode());
-        assertEquals(GUID, reg.getGuid());
+        assertEquals(reg.getHealthCode(), HEALTH_CODE);
+        assertEquals(reg.getGuid(), GUID);
     }
 
     @Test
@@ -198,15 +198,15 @@ public class DynamoNotificationRegistrationDaoTest {
         // Validate saved registration.
         verify(mockMapper).save(notificationRegistrationCaptor.capture());
         NotificationRegistration savedRegistration = notificationRegistrationCaptor.getValue();
-        assertEquals(HEALTH_CODE, savedRegistration.getHealthCode());
-        assertEquals(NotificationProtocol.SMS, savedRegistration.getProtocol());
-        assertEquals(PHONE_ENDPOINT, savedRegistration.getEndpoint());
-        assertNotEquals(GUID, savedRegistration.getGuid());
+        assertEquals(savedRegistration.getHealthCode(), HEALTH_CODE);
+        assertEquals(savedRegistration.getProtocol(), NotificationProtocol.SMS);
+        assertEquals(savedRegistration.getEndpoint(), PHONE_ENDPOINT);
+        assertNotEquals(savedRegistration.getGuid(), GUID);
         assertTrue(savedRegistration.getCreatedOn() > 0L);
-        assertNotEquals(CREATED_ON, savedRegistration.getCreatedOn());
+        assertNotEquals(savedRegistration.getCreatedOn(), CREATED_ON);
         assertTrue(savedRegistration.getModifiedOn() > 0L);
 
-        assertSame(result, savedRegistration);
+        assertSame(savedRegistration, result);
     }
 
     @Test
@@ -223,14 +223,14 @@ public class DynamoNotificationRegistrationDaoTest {
         // Validate saved registration.
         verify(mockMapper).save(notificationRegistrationCaptor.capture());
         NotificationRegistration savedRegistration = notificationRegistrationCaptor.getValue();
-        assertEquals(HEALTH_CODE, savedRegistration.getHealthCode());
-        assertEquals(NotificationProtocol.SMS, savedRegistration.getProtocol());
-        assertEquals(PHONE_ENDPOINT, savedRegistration.getEndpoint());
-        assertEquals(GUID, savedRegistration.getGuid());
-        assertEquals(CREATED_ON, savedRegistration.getCreatedOn());
+        assertEquals(savedRegistration.getHealthCode(), HEALTH_CODE);
+        assertEquals(savedRegistration.getProtocol(), NotificationProtocol.SMS);
+        assertEquals(savedRegistration.getEndpoint(), PHONE_ENDPOINT);
+        assertEquals(savedRegistration.getGuid(), GUID);
+        assertEquals(savedRegistration.getCreatedOn(), CREATED_ON);
         assertTrue(savedRegistration.getModifiedOn() > 0L);
 
-        assertSame(result, savedRegistration);
+        assertSame(savedRegistration, result);
     }
 
     @Test
@@ -242,9 +242,9 @@ public class DynamoNotificationRegistrationDaoTest {
         
         verify(mockMapper).load(notificationRegistrationCaptor.capture());
         NotificationRegistration hashKey = notificationRegistrationCaptor.getValue();
-        assertEquals(HEALTH_CODE, hashKey.getHealthCode());
-        assertEquals(GUID, hashKey.getGuid());
-        assertEquals(registration, returned);
+        assertEquals(hashKey.getHealthCode(), HEALTH_CODE);
+        assertEquals(hashKey.getGuid(), GUID);
+        assertEquals(returned, registration);
     }
     
     @Test
@@ -255,11 +255,11 @@ public class DynamoNotificationRegistrationDaoTest {
             dao.getRegistration(HEALTH_CODE, GUID);
             fail("Should have thrown exception");
         } catch(EntityNotFoundException e) {
-            assertEquals("NotificationRegistration not found.", e.getMessage());
+            assertEquals(e.getMessage(), "NotificationRegistration not found.");
         }
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateNotExists() {
         // Mock mapper.
         when(mockMapper.load(any())).thenReturn(null);
@@ -279,7 +279,7 @@ public class DynamoNotificationRegistrationDaoTest {
         NotificationRegistration registrationToUpdate = getSmsNotificationRegistration();
         registrationToUpdate.setGuid(GUID);
         NotificationRegistration result = dao.updateRegistration(registrationToUpdate);
-        assertSame(existingRegistration, result);
+        assertSame(result, existingRegistration);
 
         // No back-ends called.
         verifyZeroInteractions(mockSnsClient);
@@ -299,7 +299,7 @@ public class DynamoNotificationRegistrationDaoTest {
         doReturn(mockGetEndpointAttributesResult).when(mockSnsClient).getEndpointAttributes(any());
         
         NotificationRegistration result = dao.updateRegistration(registration);
-        assertSame(registration, result);
+        assertSame(result, registration);
         
         verify(mockSnsClient, never()).setEndpointAttributes(any());
         verify(mockMapper, never()).save(any());
@@ -321,22 +321,22 @@ public class DynamoNotificationRegistrationDaoTest {
         
         verify(mockSnsClient).setEndpointAttributes(setEndpointAttributesRequestCaptor.capture());
         SetEndpointAttributesRequest request = setEndpointAttributesRequestCaptor.getValue();
-        assertEquals(registration.getEndpoint(), request.getEndpointArn());
+        assertEquals(request.getEndpointArn(), registration.getEndpoint());
 
         Map<String,String> attributes = request.getAttributes();
-        assertEquals(DEVICE_ID, attributes.get("Token"));
-        assertEquals("true", attributes.get("Enabled"));
+        assertEquals(attributes.get("Token"), DEVICE_ID);
+        assertEquals(attributes.get("Enabled"), "true");
         assertNull(attributes.get("CustomUserData"));
         
         verify(mockMapper).save(notificationRegistrationCaptor.capture());
         NotificationRegistration persisted = notificationRegistrationCaptor.getValue();
-        assertEquals(GUID, persisted.getGuid());
-        assertEquals(HEALTH_CODE, persisted.getHealthCode());
-        assertEquals(PUSH_NOTIFICATION_ENDPOINT_ARN, persisted.getEndpoint());
-        assertEquals(DEVICE_ID, persisted.getDeviceId());
-        assertEquals(OS_NAME, persisted.getOsName());
-        assertEquals(CREATED_ON, persisted.getCreatedOn());
-        assertNotEquals(MODIFIED_ON, persisted.getModifiedOn()); // modified is changed
+        assertEquals(persisted.getGuid(), GUID);
+        assertEquals(persisted.getHealthCode(), HEALTH_CODE);
+        assertEquals(persisted.getEndpoint(), PUSH_NOTIFICATION_ENDPOINT_ARN);
+        assertEquals(persisted.getDeviceId(), DEVICE_ID);
+        assertEquals(persisted.getOsName(), OS_NAME);
+        assertEquals(persisted.getCreatedOn(), CREATED_ON);
+        assertNotEquals(persisted.getModifiedOn(), MODIFIED_ON); // modified is changed
         assertTrue(persisted.getModifiedOn() > 0L);
     }
     
@@ -364,12 +364,12 @@ public class DynamoNotificationRegistrationDaoTest {
         
         verify(mockMapper).delete(notificationRegistrationCaptor.capture());
         NotificationRegistration del = notificationRegistrationCaptor.getValue();
-        assertEquals(GUID, del.getGuid());
-        assertEquals(HEALTH_CODE, del.getHealthCode());
+        assertEquals(del.getGuid(), GUID);
+        assertEquals(del.getHealthCode(), HEALTH_CODE);
         
         verify(mockSnsClient).deleteEndpoint(deleteEndpointRequestCaptor.capture());
         DeleteEndpointRequest request = deleteEndpointRequestCaptor.getValue();
-        assertEquals(PUSH_NOTIFICATION_ENDPOINT_ARN, request.getEndpointArn());
+        assertEquals(request.getEndpointArn(), PUSH_NOTIFICATION_ENDPOINT_ARN);
     }
     
     @Test
@@ -398,9 +398,9 @@ public class DynamoNotificationRegistrationDaoTest {
         // Verify DDB mapper.
         verify(mockMapper).delete(notificationRegistrationCaptor.capture());
         NotificationRegistration deletedRegistration = notificationRegistrationCaptor.getValue();
-        assertEquals(HEALTH_CODE, deletedRegistration.getHealthCode());
-        assertEquals(NotificationProtocol.SMS, deletedRegistration.getProtocol());
-        assertEquals(PHONE_ENDPOINT, deletedRegistration.getEndpoint());
+        assertEquals(deletedRegistration.getHealthCode(), HEALTH_CODE);
+        assertEquals(deletedRegistration.getProtocol(), NotificationProtocol.SMS);
+        assertEquals(deletedRegistration.getEndpoint(), PHONE_ENDPOINT);
 
         // Verify we don't call SNS delete endpoint for SMS registrations.
         verify(mockSnsClient, never()).deleteEndpoint(any());

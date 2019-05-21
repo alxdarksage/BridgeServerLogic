@@ -1,15 +1,16 @@
 package org.sagebionetworks.bridge.models.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -69,44 +70,44 @@ public class UploadViewTest {
 
         JsonNode node = BridgeObjectMapper.get().valueToTree(view);
         
-        assertEquals(1000, node.get("contentLength").intValue());
-        assertEquals("succeeded", node.get("status").textValue());
-        assertEquals("2016-07-25T16:25:32.211Z", node.get("requestedOn").textValue());
-        assertEquals("2016-07-25T16:25:32.277Z", node.get("completedOn").textValue());
-        assertEquals("app", node.get("completedBy").textValue());
-        assertEquals("schema-name", node.get("schemaId").textValue());
-        assertEquals(10, node.get("schemaRevision").intValue());
-        assertEquals("Upload", node.get("type").textValue());
-        assertEquals("succeeded", node.get("healthRecordExporterStatus").textValue());
+        assertEquals(node.get("contentLength").intValue(), 1000);
+        assertEquals(node.get("status").textValue(), "succeeded");
+        assertEquals(node.get("requestedOn").textValue(), "2016-07-25T16:25:32.211Z");
+        assertEquals(node.get("completedOn").textValue(), "2016-07-25T16:25:32.277Z");
+        assertEquals(node.get("completedBy").textValue(), "app");
+        assertEquals(node.get("schemaId").textValue(), "schema-name");
+        assertEquals(node.get("schemaRevision").intValue(), 10);
+        assertEquals(node.get("type").textValue(), "Upload");
+        assertEquals(node.get("healthRecordExporterStatus").textValue(), "succeeded");
         
         JsonNode recordNode = node.get("healthData");
-        assertEquals("appVersion", recordNode.get("appVersion").textValue());
-        assertEquals(COMPLETED_ON.toString(), recordNode.get("createdOn").textValue());
-        assertEquals("+03:00", recordNode.get("createdOnTimeZone").textValue());
-        assertEquals("id", recordNode.get("id").textValue());
-        assertEquals("phoneInfo", recordNode.get("phoneInfo").textValue());
-        assertEquals("schema-id", recordNode.get("schemaId").textValue());
-        assertEquals(5, recordNode.get("schemaRevision").intValue());
-        assertEquals("studyId", recordNode.get("studyId").textValue());
-        assertEquals("2016-10-10", recordNode.get("uploadDate").textValue());
-        assertEquals("upload-id", recordNode.get("uploadId").textValue());
-        assertEquals(REQUESTED_ON.toString(), recordNode.get("uploadedOn").textValue());
-        assertEquals("all_qualified_researchers", recordNode.get("userSharingScope").textValue());
-        assertEquals("external-id", recordNode.get("userExternalId").textValue());
+        assertEquals(recordNode.get("appVersion").textValue(), "appVersion");
+        assertEquals(recordNode.get("createdOn").textValue(), COMPLETED_ON.toString());
+        assertEquals(recordNode.get("createdOnTimeZone").textValue(), "+03:00");
+        assertEquals(recordNode.get("id").textValue(), "id");
+        assertEquals(recordNode.get("phoneInfo").textValue(), "phoneInfo");
+        assertEquals(recordNode.get("schemaId").textValue(), "schema-id");
+        assertEquals(recordNode.get("schemaRevision").intValue(), 5);
+        assertEquals(recordNode.get("studyId").textValue(), "studyId");
+        assertEquals(recordNode.get("uploadDate").textValue(), "2016-10-10");
+        assertEquals(recordNode.get("uploadId").textValue(), "upload-id");
+        assertEquals(recordNode.get("uploadedOn").textValue(), REQUESTED_ON.toString());
+        assertEquals(recordNode.get("userSharingScope").textValue(), "all_qualified_researchers");
+        assertEquals(recordNode.get("userExternalId").textValue(), "external-id");
         assertTrue(TestConstants.USER_DATA_GROUPS.contains(recordNode.get("userDataGroups").get(0).textValue()));
         assertTrue(TestConstants.USER_DATA_GROUPS.contains(recordNode.get("userDataGroups").get(1).textValue()));
-        assertEquals("some errors", recordNode.get("validationErrors").textValue());
-        assertEquals(1L, recordNode.get("version").longValue());
-        assertEquals("succeeded", recordNode.get("synapseExporterStatus").textValue());
-        assertEquals("healthCode", recordNode.get("healthCode").textValue());
+        assertEquals(recordNode.get("validationErrors").textValue(), "some errors");
+        assertEquals(recordNode.get("version").longValue(), 1L);
+        assertEquals(recordNode.get("synapseExporterStatus").textValue(), "succeeded");
+        assertEquals(recordNode.get("healthCode").textValue(), "healthCode");
         
         assertTrue(recordNode.get("data").isObject());
         assertTrue(recordNode.get("metadata").isObject());
         assertTrue(recordNode.get("userMetadata").isObject());
         
         // With recent changes to expose to admin, these should be present in JSON
-        assertEquals("some-content", node.get("contentMd5").textValue());
-        assertEquals("health-code", node.get("healthCode").textValue());
+        assertEquals(node.get("contentMd5").textValue(), "some-content");
+        assertEquals(node.get("healthCode").textValue(), "health-code");
     }
 
 }

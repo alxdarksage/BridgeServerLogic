@@ -1,14 +1,14 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.reports.ReportIndex;
 import org.sagebionetworks.bridge.models.reports.ReportType;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
@@ -30,19 +30,19 @@ public class ReportTypeResourceListTest {
         ReportTypeResourceList<ReportIndex> list = new ReportTypeResourceList<>(
                 Lists.newArrayList(index1, index2)).withRequestParam(ResourceList.REPORT_TYPE, ReportType.PARTICIPANT);
         
-        assertEquals(ReportType.PARTICIPANT, list.getReportType());
+        assertEquals(list.getReportType(), ReportType.PARTICIPANT);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(list);
-        assertEquals("participant", node.get("reportType").asText());
-        assertEquals(2, node.get("items").size());
-        assertEquals("participant", node.get("requestParams").get("reportType").asText());
-        assertEquals(ResourceList.REQUEST_PARAMS, node.get("requestParams").get(ResourceList.TYPE).textValue());
-        assertEquals("ReportTypeResourceList", node.get("type").asText());
-        assertEquals("foo", node.get("items").get(0).get("identifier").asText());
+        assertEquals(node.get("reportType").asText(), "participant");
+        assertEquals(node.get("items").size(), 2);
+        assertEquals(node.get("requestParams").get("reportType").asText(), "participant");
+        assertEquals(node.get("requestParams").get(ResourceList.TYPE).textValue(), ResourceList.REQUEST_PARAMS);
+        assertEquals(node.get("type").asText(), "ReportTypeResourceList");
+        assertEquals(node.get("items").get(0).get("identifier").asText(), "foo");
         assertFalse(node.get("items").get(0).get("public").asBoolean());
-        assertEquals("bar", node.get("items").get(1).get("identifier").asText());
+        assertEquals(node.get("items").get(1).get("identifier").asText(), "bar");
         assertTrue(node.get("items").get(1).get("public").asBoolean());
-        assertEquals(5, node.size());
+        assertEquals(node.size(), 5);
         
         // We never deserialize this on the server side (only in the SDK).
     }

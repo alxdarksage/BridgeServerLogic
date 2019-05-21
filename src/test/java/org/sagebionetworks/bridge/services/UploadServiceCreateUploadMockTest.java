@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -9,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
 
 import java.net.URL;
 
@@ -20,10 +20,10 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.config.BridgeConfig;
@@ -73,7 +73,7 @@ public class UploadServiceCreateUploadMockTest {
     private UploadRequest uploadRequest;
     private UploadService svc;
 
-    @Before
+    @BeforeMethod
     public void setup() throws Exception {
         // mock now
         DateTimeUtils.setCurrentMillisFixed(TEST_UPLOAD_REQUESTED_ON.getMillis());
@@ -112,7 +112,7 @@ public class UploadServiceCreateUploadMockTest {
         svc.setS3UploadClient(mockS3UploadClient);
     }
 
-    @After
+    @AfterMethod
     public void cleanup() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -242,17 +242,17 @@ public class UploadServiceCreateUploadMockTest {
     private void testUpload(String expectedUploadId) {
         // execute and validate
         UploadSession uploadSession = svc.createUpload(TestConstants.TEST_STUDY, TEST_USER, uploadRequest);
-        assertEquals(expectedUploadId, uploadSession.getId());
-        assertEquals(TEST_PRESIGNED_URL, uploadSession.getUrl());
+        assertEquals(uploadSession.getId(), expectedUploadId);
+        assertEquals(uploadSession.getUrl(), TEST_PRESIGNED_URL);
 
         // Verify pre-signed URL args
         // This is already tested thoroughly in UploadServiceTest, so just test basic data flow that aren't constants
         // or config, namely Upload ID, MD5, and Content Type.
         GeneratePresignedUrlRequest presignedUrlRequest = presignedUrlRequestArgumentCaptor.getValue();
-        assertEquals(TEST_BUCKET, presignedUrlRequest.getBucketName());
-        assertEquals(TEST_UPLOAD_MD5, presignedUrlRequest.getContentMd5());
-        assertEquals(TEST_CONTENT_TYPE, presignedUrlRequest.getContentType());
-        assertEquals(expectedUploadId, presignedUrlRequest.getKey());
+        assertEquals(presignedUrlRequest.getBucketName(), TEST_BUCKET);
+        assertEquals(presignedUrlRequest.getContentMd5(), TEST_UPLOAD_MD5);
+        assertEquals(presignedUrlRequest.getContentType(), TEST_CONTENT_TYPE);
+        assertEquals(presignedUrlRequest.getKey(), expectedUploadId);
 
         // Expiration is computed using Java Date instead of Joda Date, which is messy, so we're not going to test that
     }

@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -32,10 +32,10 @@ public class DynamoStudyConsentTest {
        String json = BridgeObjectMapper.get().writeValueAsString(consent);
        JsonNode node = BridgeObjectMapper.get().readTree(json);
        
-       assertEquals("1970-01-01T00:00:00.123Z", node.get("createdOn").asText());
-       assertEquals("ABC", node.get("subpopulationGuid").asText());
-       assertEquals("StudyConsent", node.get("type").asText());
-       assertEquals(3, node.size());
+       assertEquals(node.get("createdOn").asText(), "1970-01-01T00:00:00.123Z");
+       assertEquals(node.get("subpopulationGuid").asText(), "ABC");
+       assertEquals(node.get("type").asText(), "StudyConsent");
+       assertEquals(node.size(), 3);
     }
     
 }

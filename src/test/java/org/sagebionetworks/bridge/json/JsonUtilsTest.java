@@ -1,13 +1,18 @@
 package org.sagebionetworks.bridge.json;
 
-import static org.junit.Assert.*;
 import static org.sagebionetworks.bridge.Roles.ADMIN;
 import static org.sagebionetworks.bridge.Roles.RESEARCHER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.Roles;
 import org.sagebionetworks.bridge.models.schedules.ActivityType;
 import org.sagebionetworks.bridge.models.schedules.ScheduleType;
@@ -55,7 +60,7 @@ public class JsonUtilsTest {
         // Success case
         DateTime dateTime = JsonUtils.asDateTime(node, "success-with-time-zone");
         assertNotNull(dateTime);
-        assertEquals(expectedDateTimeStr, dateTime.toString());
+        assertEquals(dateTime.toString(), expectedDateTimeStr);
     }
 
     @Test
@@ -64,7 +69,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asText(node, null));
         assertNull(JsonUtils.asText(node, "badProp"));
-        assertEquals("value", JsonUtils.asText(node, "key"));
+        assertEquals(JsonUtils.asText(node, "key"), "value");
     }
 
     @Test
@@ -73,16 +78,16 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asLong(node, null));
         assertNull(JsonUtils.asLong(node, "badProp"));
-        assertEquals(new Long(3), JsonUtils.asLong(node, "key"));
+        assertEquals(JsonUtils.asLong(node, "key"), new Long(3));
     }
 
     @Test
     public void asLongPrimitive() throws Exception {
         JsonNode node = mapper.readTree(esc("{'key':3}"));
         
-        assertEquals(0L, JsonUtils.asLongPrimitive(node, null));
-        assertEquals(0L, JsonUtils.asLongPrimitive(node, "badProp"));
-        assertEquals(3L, JsonUtils.asLongPrimitive(node, "key"));
+        assertEquals(JsonUtils.asLongPrimitive(node, null), 0L);
+        assertEquals(JsonUtils.asLongPrimitive(node, "badProp"), 0L);
+        assertEquals(JsonUtils.asLongPrimitive(node, "key"), 3L);
     }
 
     @Test
@@ -91,25 +96,25 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asInt(node, null));
         assertNull(JsonUtils.asInt(node, "badProp"));
-        assertEquals(new Integer(3), JsonUtils.asInt(node, "key"));
+        assertEquals(JsonUtils.asInt(node, "key"), new Integer(3));
     }
 
     @Test
     public void asIntPrimitive() throws Exception {
         JsonNode node = mapper.readTree(esc("{'key':3}"));
         
-        assertEquals(0, JsonUtils.asIntPrimitive(node, null));
-        assertEquals(0, JsonUtils.asIntPrimitive(node, "badProp"));
-        assertEquals(3, JsonUtils.asIntPrimitive(node, "key"));
+        assertEquals(JsonUtils.asIntPrimitive(node, null), 0);
+        assertEquals(JsonUtils.asIntPrimitive(node, "badProp"), 0);
+        assertEquals(JsonUtils.asIntPrimitive(node, "key"), 3);
     }
 
     @Test
     public void asMillisDuration() throws Exception {
         JsonNode node = mapper.readTree(esc("{'key':'PT1H'}"));
         
-        assertEquals(0L, JsonUtils.asMillisDuration(node, null));
-        assertEquals(0L, JsonUtils.asMillisDuration(node, "badProp"));
-        assertEquals(1*60*60*1000, JsonUtils.asMillisDuration(node, "key"));
+        assertEquals(JsonUtils.asMillisDuration(node, null), 0L);
+        assertEquals(JsonUtils.asMillisDuration(node, "badProp"), 0L);
+        assertEquals(JsonUtils.asMillisDuration(node, "key"), 1*60*60*1000);
     }
 
     @Test
@@ -118,9 +123,9 @@ public class JsonUtilsTest {
         
         JsonNode node = mapper.readTree(esc("{'key':'2015-03-23T10:00:00.000-07:00'}"));
         
-        assertEquals(0L, JsonUtils.asMillisSinceEpoch(node, null));
-        assertEquals(0L, JsonUtils.asMillisSinceEpoch(node, "badProp"));
-        assertEquals(time.getMillis(), JsonUtils.asMillisSinceEpoch(node, "key"));
+        assertEquals(JsonUtils.asMillisSinceEpoch(node, null), 0L);
+        assertEquals(JsonUtils.asMillisSinceEpoch(node, "badProp"), 0L);
+        assertEquals(JsonUtils.asMillisSinceEpoch(node, "key"), time.getMillis());
     }
 
     @Test
@@ -131,7 +136,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asJsonNode(node, null));
         assertNull(JsonUtils.asJsonNode(node, "badProp"));
-        assertEquals(node2, JsonUtils.asJsonNode(node, "key"));
+        assertEquals(JsonUtils.asJsonNode(node, "key"), node2);
     }
 
     @Test
@@ -145,9 +150,9 @@ public class JsonUtilsTest {
         assertNull(JsonUtils.asConstraints(node, "badProp"));
         
         IntegerConstraints copy = (IntegerConstraints)JsonUtils.asConstraints(node, "key");
-        assertEquals(c.getType(), copy.getType());
-        assertEquals(c.getMinValue(), copy.getMinValue());
-        assertEquals(c.getMaxValue(), copy.getMaxValue());
+        assertEquals(copy.getType(), c.getType());
+        assertEquals(copy.getMinValue(), c.getMinValue());
+        assertEquals(copy.getMaxValue(), c.getMaxValue());
     }
 
     @Test
@@ -157,7 +162,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asObjectNode(node, null));
         assertNull(JsonUtils.asObjectNode(node, "badProp"));
-        assertEquals(subNode, JsonUtils.asObjectNode(node, "key"));
+        assertEquals(JsonUtils.asObjectNode(node, "key"), subNode);
     }
 
     @Test
@@ -175,7 +180,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asEntity(node, null, UIHint.class));
         assertNull(JsonUtils.asEntity(node, "badProp", UIHint.class));
-        assertEquals(UIHint.LIST, JsonUtils.asEntity(node, "key", UIHint.class));
+        assertEquals(JsonUtils.asEntity(node, "key", UIHint.class), UIHint.LIST);
     }
     
     @Test
@@ -184,7 +189,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asEntity(node, null, ActivityType.class));
         assertNull(JsonUtils.asEntity(node, "badProp", ActivityType.class));
-        assertEquals(ActivityType.SURVEY, JsonUtils.asEntity(node, "key", ActivityType.class));
+        assertEquals(JsonUtils.asEntity(node, "key", ActivityType.class), ActivityType.SURVEY);
     }
 
     @Test
@@ -193,7 +198,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asEntity(node, null, ScheduleType.class));
         assertNull(JsonUtils.asEntity(node, "badProp", ScheduleType.class));
-        assertEquals(ScheduleType.ONCE, JsonUtils.asEntity(node, "key", ScheduleType.class));
+        assertEquals(JsonUtils.asEntity(node, "key", ScheduleType.class), ScheduleType.ONCE);
     }
     
     @Test
@@ -203,7 +208,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asEntity(node, null, Image.class));
         assertNull(JsonUtils.asEntity(node, "badProp", Image.class));
-        assertEquals(image, JsonUtils.asEntity(node, "key", Image.class));
+        assertEquals(JsonUtils.asEntity(node, "key", Image.class), image);
     }
     
     @Test
@@ -213,7 +218,7 @@ public class JsonUtilsTest {
         
         assertNull(JsonUtils.asArrayNode(node, null));
         assertNull(JsonUtils.asArrayNode(node, "badProp"));
-        assertEquals(subNode, JsonUtils.asArrayNode(node, "key"));
+        assertEquals(JsonUtils.asArrayNode(node, "key"), subNode);
     }
 
     @Test
@@ -222,9 +227,9 @@ public class JsonUtilsTest {
         
         JsonNode node = mapper.readTree(esc("{'key':['A','B','C']}"));
         
-        assertEquals(Sets.newHashSet(), JsonUtils.asStringSet(node, null));
-        assertEquals(Sets.newHashSet(), JsonUtils.asStringSet(node, "badProp"));
-        assertEquals(set, JsonUtils.asStringSet(node, "key"));
+        assertEquals(JsonUtils.asStringSet(node, null), Sets.newHashSet());
+        assertEquals(JsonUtils.asStringSet(node, "badProp"), Sets.newHashSet());
+        assertEquals(JsonUtils.asStringSet(node, "key"), set);
     }
 
     @Test
@@ -233,9 +238,9 @@ public class JsonUtilsTest {
         
         JsonNode node = mapper.readTree(esc("{'key':['admin','researcher']}"));
 
-        assertEquals(Sets.newHashSet(), JsonUtils.asRolesSet(node, null));
-        assertEquals(Sets.newHashSet(), JsonUtils.asRolesSet(node, "badProp"));
-        assertEquals(set, JsonUtils.asRolesSet(node, "key"));
+        assertEquals(JsonUtils.asRolesSet(node, null), Sets.newHashSet());
+        assertEquals(JsonUtils.asRolesSet(node, "badProp"), Sets.newHashSet());
+        assertEquals(JsonUtils.asRolesSet(node, "key"), set);
     }
 
 }

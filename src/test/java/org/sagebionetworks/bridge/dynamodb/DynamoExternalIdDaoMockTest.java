@@ -2,10 +2,6 @@ package org.sagebionetworks.bridge.dynamodb;
 
 import static com.amazonaws.services.dynamodbv2.model.ComparisonOperator.BEGINS_WITH;
 import static com.amazonaws.services.dynamodbv2.model.ComparisonOperator.NOT_NULL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,6 +14,10 @@ import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
 import static org.sagebionetworks.bridge.dynamodb.DynamoExternalIdDao.IDENTIFIER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,16 +40,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.BridgeUtils;
@@ -66,7 +65,6 @@ import org.sagebionetworks.bridge.models.accounts.ExternalIdentifierInfo;
 import org.sagebionetworks.bridge.models.studies.StudyIdentifierImpl;
 import org.sagebionetworks.bridge.models.substudies.AccountSubstudy;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoExternalIdDaoMockTest {
 
     private static final String HEALTH_CODE = "healthCode";
@@ -87,15 +85,17 @@ public class DynamoExternalIdDaoMockTest {
 
     private ExternalIdentifier externalId;
     
-    @Before
+    @BeforeMethod
     public void setupTest() {
+        MockitoAnnotations.initMocks(this);
+        
         externalId = ExternalIdentifier.create(TEST_STUDY, ID);
         dao = new DynamoExternalIdDao();
         dao.setMapper(mapper);
         dao.setGetExternalIdRateLimiter(rateLimiter);
     }
 
-    @After
+    @AfterMethod
     public void after() {
         BridgeUtils.setRequestContext(null);
     }
@@ -107,7 +107,7 @@ public class DynamoExternalIdDaoMockTest {
         Optional<ExternalIdentifier> retrieved = dao.getExternalId(TEST_STUDY, ID);
 
         verify(mapper).load(externalId);
-        assertEquals(externalId, retrieved.get());
+        assertEquals(retrieved.get(), externalId);
     }
 
     @Test
@@ -127,46 +127,46 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> results = dao.getExternalIds(TEST_STUDY,
                 "offsetKey", 50, "offset", true);
         
-        assertEquals("foo1", results.getItems().get(0).getIdentifier());
-        assertEquals("foo2", results.getItems().get(1).getIdentifier());
-        assertEquals(2, results.getItems().size());
+        assertEquals(results.getItems().get(0).getIdentifier(), "foo1");
+        assertEquals(results.getItems().get(1).getIdentifier(), "foo2");
+        assertEquals(results.getItems().size(), 2);
         
         Map<String,Object> paramsMap = results.getRequestParams();
-        assertEquals(50, (int) paramsMap.get(ResourceList.PAGE_SIZE));
+        assertEquals((int) paramsMap.get(ResourceList.PAGE_SIZE), 50);
         assertTrue((boolean) paramsMap.get(ResourceList.ASSIGNMENT_FILTER));
-        assertEquals("offset", (String) paramsMap.get(ResourceList.ID_FILTER));
-        assertEquals("offsetKey", (String) paramsMap.get(ResourceList.OFFSET_KEY));
+        assertEquals((String) paramsMap.get(ResourceList.ID_FILTER), "offset");
+        assertEquals((String) paramsMap.get(ResourceList.OFFSET_KEY), "offsetKey");
 
         verify(mapper).queryPage(eq(DynamoExternalIdentifier.class), queryCaptor.capture());
 
         DynamoDBQueryExpression<DynamoExternalIdentifier> query = queryCaptor.getValue();
 
         Condition rangeCondition = query.getRangeKeyConditions().get(DynamoExternalIdDao.IDENTIFIER);
-        assertEquals(BEGINS_WITH.toString(), rangeCondition.getComparisonOperator());
-        assertEquals("offset", rangeCondition.getAttributeValueList().get(0).getS());
+        assertEquals(rangeCondition.getComparisonOperator(), BEGINS_WITH.toString());
+        assertEquals(rangeCondition.getAttributeValueList().get(0).getS(), "offset");
 
         Condition assignmentCondition = query.getQueryFilter().get(DynamoExternalIdDao.HEALTH_CODE);
-        assertEquals(NOT_NULL.toString(), assignmentCondition.getComparisonOperator());
+        assertEquals(assignmentCondition.getComparisonOperator(), NOT_NULL.toString());
 
         Map<String, AttributeValue> map = query.getExclusiveStartKey();
-        assertEquals(TEST_STUDY_IDENTIFIER, map.get(DynamoExternalIdDao.STUDY_ID).getS());
-        assertEquals("offsetKey", map.get(DynamoExternalIdDao.IDENTIFIER).getS());
+        assertEquals(map.get(DynamoExternalIdDao.STUDY_ID).getS(), TEST_STUDY_IDENTIFIER);
+        assertEquals(map.get(DynamoExternalIdDao.IDENTIFIER).getS(), "offsetKey");
 
-        assertEquals(ReturnConsumedCapacity.TOTAL.toString(), query.getReturnConsumedCapacity());
-        assertEquals(new Integer(DynamoExternalIdDao.PAGE_SCAN_LIMIT), query.getLimit());
+        assertEquals(query.getReturnConsumedCapacity(), ReturnConsumedCapacity.TOTAL.toString());
+        assertEquals(query.getLimit(), new Integer(DynamoExternalIdDao.PAGE_SCAN_LIMIT));
         assertTrue(query.isConsistentRead());
 
         DynamoExternalIdentifier id = query.getHashKeyValues();
-        assertEquals(TEST_STUDY_IDENTIFIER, id.getStudyId());
+        assertEquals(id.getStudyId(), TEST_STUDY_IDENTIFIER);
         assertNull(id.getIdentifier());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void pageSizeCannotBeLessThanMin() {
         dao.getExternalIds(TEST_STUDY, null, -2, null, null);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void pageSizeCannotBeGreaterThanMax() {
         dao.getExternalIds(TEST_STUDY, null, BridgeConstants.API_MAXIMUM_PAGE_SIZE+1, null, null);
     }
@@ -179,7 +179,7 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> results = dao.getExternalIds(TEST_STUDY,
                 null, BridgeConstants.API_MINIMUM_PAGE_SIZE, null, null);
         Map<String,Object> paramsMap = results.getRequestParams();
-        assertEquals(BridgeConstants.API_MINIMUM_PAGE_SIZE, (int) paramsMap.get(ResourceList.PAGE_SIZE));
+        assertEquals((int) paramsMap.get(ResourceList.PAGE_SIZE), BridgeConstants.API_MINIMUM_PAGE_SIZE);
         assertNull(paramsMap.get(ResourceList.ASSIGNMENT_FILTER));
         assertNull(paramsMap.get(ResourceList.ID_FILTER));
         assertNull(paramsMap.get(ResourceList.OFFSET_KEY));
@@ -204,11 +204,11 @@ public class DynamoExternalIdDaoMockTest {
         DynamoDBQueryExpression<DynamoExternalIdentifier> query = queryCaptor.getValue();
 
         Condition rangeCondition = query.getRangeKeyConditions().get(DynamoExternalIdDao.IDENTIFIER);
-        assertEquals(BEGINS_WITH.toString(), rangeCondition.getComparisonOperator());
-        assertEquals("foo", rangeCondition.getAttributeValueList().get(0).getS());
+        assertEquals(rangeCondition.getComparisonOperator(), BEGINS_WITH.toString());
+        assertEquals(rangeCondition.getAttributeValueList().get(0).getS(), "foo");
 
         Condition assignmentCondition = query.getQueryFilter().get(DynamoExternalIdDao.HEALTH_CODE);
-        assertEquals(NOT_NULL.toString(), assignmentCondition.getComparisonOperator());
+        assertEquals(assignmentCondition.getComparisonOperator(), NOT_NULL.toString());
 
         // This has been nullified, despite the fact that we provided an offset key
         assertNull(query.getExclusiveStartKey());
@@ -242,8 +242,8 @@ public class DynamoExternalIdDaoMockTest {
     }
     
     private void assertExternalId(ExternalIdentifierInfo info, String expectedExternalId, String substudyId) {
-        assertEquals(expectedExternalId, info.getIdentifier());
-        assertEquals(substudyId, info.getSubstudyId());
+        assertEquals(info.getIdentifier(), expectedExternalId);
+        assertEquals(info.getSubstudyId(), substudyId);
     }
     
     @Test
@@ -254,10 +254,10 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> result = dao
                 .getExternalIds(new StudyIdentifierImpl("studyId"), null, pageSize, null, false);
 
-        assertEquals(pageSize, result.getRequestParams().get("pageSize"));
+        assertEquals(result.getRequestParams().get("pageSize"), pageSize);
 
         List<ExternalIdentifierInfo> externalIds = result.getItems();
-        assertEquals(3, externalIds.size());
+        assertEquals(externalIds.size(), 3);
 
         verify(rateLimiter).acquire(anyInt());
         verify(mapper).queryPage(eq(DynamoExternalIdentifier.class), any());
@@ -272,10 +272,10 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> result = dao
                 .getExternalIds(new StudyIdentifierImpl("studyId"), null, pageSize, null, false);
 
-        assertEquals(pageSize, result.getRequestParams().get("pageSize"));
+        assertEquals(result.getRequestParams().get("pageSize"), pageSize);
 
         List<ExternalIdentifierInfo> externalIds = result.getItems();
-        assertEquals(3, externalIds.size());
+        assertEquals(externalIds.size(), 3);
 
         verify(rateLimiter).acquire(anyInt());
         verify(mapper).queryPage(eq(DynamoExternalIdentifier.class), any());
@@ -290,10 +290,10 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> result = dao
                 .getExternalIds(new StudyIdentifierImpl("studyId"), null, pageSize, null, false);
 
-        assertEquals(pageSize, result.getRequestParams().get("pageSize"));
+        assertEquals(result.getRequestParams().get("pageSize"), pageSize);
 
         List<ExternalIdentifierInfo> externalIds = result.getItems();
-        assertEquals(5, externalIds.size());
+        assertEquals(externalIds.size(), 5);
 
         verify(rateLimiter, times(2)).acquire(anyInt());
         verify(mapper, times(2)).queryPage(eq(DynamoExternalIdentifier.class), any());
@@ -308,10 +308,10 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> result = dao
                 .getExternalIds(new StudyIdentifierImpl("studyId"), null, pageSize, null, false);
 
-        assertEquals(pageSize, result.getRequestParams().get("pageSize"));
+        assertEquals(result.getRequestParams().get("pageSize"), pageSize);
 
         List<ExternalIdentifierInfo> externalIds = result.getItems();
-        assertEquals(4, externalIds.size());
+        assertEquals(externalIds.size(), 4);
 
         verify(rateLimiter, times(2)).acquire(anyInt());
         verify(mapper, times(2)).queryPage(eq(DynamoExternalIdentifier.class), any());
@@ -324,8 +324,8 @@ public class DynamoExternalIdDaoMockTest {
 
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> result = dao.getExternalIds(TEST_STUDY,
                 null, pageSize, null, false);
-        assertEquals(3, result.getItems().size());
-        assertEquals("CCC", result.getNextPageOffsetKey());
+        assertEquals(result.getItems().size(), 3);
+        assertEquals(result.getNextPageOffsetKey(), "CCC");
     }
 
     @Test
@@ -362,7 +362,7 @@ public class DynamoExternalIdDaoMockTest {
         verify(mapper, never()).save(any());
     }
     
-    @Test(expected = EntityAlreadyExistsException.class)
+    @Test(expectedExceptions = EntityAlreadyExistsException.class)
     public void commitAssignExternalIdThrows() {
         when(mapper.load(any())).thenReturn(externalId);
         doThrow(new ConditionalCheckFailedException("message")).when(mapper).save(any(),
@@ -372,12 +372,12 @@ public class DynamoExternalIdDaoMockTest {
         dao.commitAssignExternalId(externalId);
     }
     
-    @Test(expected = ConcurrentModificationException.class)
+    @Test(expectedExceptions = ConcurrentModificationException.class)
     public void commitAssignExternalWithoutHealthCodeThrows() {
         dao.commitAssignExternalId(externalId);
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @Test(expectedExceptions = ConcurrentModificationException.class)
     public void commitAssignExternalNewThrows() { 
         externalId.setHealthCode(HEALTH_CODE);
         
@@ -422,7 +422,7 @@ public class DynamoExternalIdDaoMockTest {
         dao.unassignExternalId(account, ID);
 
         verify(mapper, never()).save(any());
-        assertEquals(ID, account.getExternalId());
+        assertEquals(account.getExternalId(), ID);
         assertFalse(account.getAccountSubstudies().isEmpty());
     }
 
@@ -456,20 +456,20 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> results = dao.getExternalIds(TEST_STUDY,
                 "CCCCC", 5, "CC", null);
 
-        assertEquals(5, (int) results.getRequestParams().get("pageSize"));
-        assertEquals("CC", (String) results.getRequestParams().get("idFilter"));
-        assertEquals("CCCCC", (String) results.getRequestParams().get("offsetKey"));
+        assertEquals((int) results.getRequestParams().get("pageSize"), 5);
+        assertEquals((String) results.getRequestParams().get("idFilter"), "CC");
+        assertEquals((String) results.getRequestParams().get("offsetKey"), "CCCCC");
 
         verify(mapper).queryPage(eq(DynamoExternalIdentifier.class), queryCaptor.capture());
 
         DynamoDBQueryExpression<DynamoExternalIdentifier> query = queryCaptor.getValue();
 
         Map<String, AttributeValue> map = query.getExclusiveStartKey();
-        assertEquals(TEST_STUDY_IDENTIFIER, map.get(DynamoExternalIdDao.STUDY_ID).getS());
-        assertEquals("CCCCC", map.get(DynamoExternalIdDao.IDENTIFIER).getS());
+        assertEquals(map.get(DynamoExternalIdDao.STUDY_ID).getS(), TEST_STUDY_IDENTIFIER);
+        assertEquals(map.get(DynamoExternalIdDao.IDENTIFIER).getS(), "CCCCC");
 
         DynamoExternalIdentifier id = query.getHashKeyValues();
-        assertEquals(TEST_STUDY_IDENTIFIER, id.getStudyId());
+        assertEquals(id.getStudyId(), TEST_STUDY_IDENTIFIER);
         assertNull(id.getIdentifier());
     }
 
@@ -480,9 +480,9 @@ public class DynamoExternalIdDaoMockTest {
         ForwardCursorPagedResourceList<ExternalIdentifierInfo> results = dao.getExternalIds(TEST_STUDY, "CCCCC", 5,
                 "CCCCCCCCCC", null);
 
-        assertEquals(5, (int) results.getRequestParams().get("pageSize"));
-        assertEquals("CCCCCCCCCC", (String) results.getRequestParams().get("idFilter"));
-        assertEquals("CCCCC", (String) results.getRequestParams().get("offsetKey"));
+        assertEquals((int) results.getRequestParams().get("pageSize"), 5);
+        assertEquals((String) results.getRequestParams().get("idFilter"), "CCCCCCCCCC");
+        assertEquals((String) results.getRequestParams().get("offsetKey"), "CCCCC");
 
         verify(mapper).queryPage(eq(DynamoExternalIdentifier.class), queryCaptor.capture());
 
@@ -491,7 +491,7 @@ public class DynamoExternalIdDaoMockTest {
         assertNull(query.getExclusiveStartKey());
 
         DynamoExternalIdentifier id = query.getHashKeyValues();
-        assertEquals(TEST_STUDY_IDENTIFIER, id.getStudyId());
+        assertEquals(id.getStudyId(), TEST_STUDY_IDENTIFIER);
         assertNull(id.getIdentifier());
     }
     

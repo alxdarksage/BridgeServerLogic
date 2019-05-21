@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -22,7 +22,7 @@ public class ReportDataValidatorTest {
     
     private ReportDataValidator validator;
     
-    @Before
+    @BeforeMethod
     public void before() { 
         validator = new ReportDataValidator(null);
     }

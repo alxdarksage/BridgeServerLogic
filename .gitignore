@@ -18,6 +18,7 @@ target
 # Eclipse files
 .classpath
 .project
+test-output/
 
 # Package Files #
 *.jar

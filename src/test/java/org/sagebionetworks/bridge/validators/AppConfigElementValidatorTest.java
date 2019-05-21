@@ -2,8 +2,9 @@ package org.sagebionetworks.bridge.validators;
 
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.models.appconfig.AppConfigElement;
@@ -13,7 +14,7 @@ public class AppConfigElementValidatorTest {
     
     private AppConfigElement element;
     
-    @Before
+    @BeforeMethod
     public void before() {
         element = TestUtils.getAppConfigElement();
     }

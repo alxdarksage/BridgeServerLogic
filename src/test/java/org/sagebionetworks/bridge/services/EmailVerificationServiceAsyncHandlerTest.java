@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +22,9 @@ import com.amazonaws.services.simpleemail.model.SetIdentityNotificationTopicRequ
 import com.amazonaws.services.simpleemail.model.SetIdentityNotificationTopicResult;
 import com.amazonaws.services.simpleemail.model.VerifyEmailIdentityRequest;
 import com.amazonaws.services.simpleemail.model.VerifyEmailIdentityResult;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.config.BridgeConfig;
 
@@ -37,7 +37,7 @@ public class EmailVerificationServiceAsyncHandlerTest {
     private int numSetBounceNotificationCalls;
     private int numSetComplaintNotificationCalls;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         // Mock config.
         BridgeConfig mockConfig = mock(BridgeConfig.class);
@@ -139,9 +139,9 @@ public class EmailVerificationServiceAsyncHandlerTest {
                 .capture());
 
         List<VerifyEmailIdentityRequest> verifyEmailRequestList = verifyEmailRequestCaptor.getAllValues();
-        assertEquals(2, verifyEmailRequestList.size());
+        assertEquals(verifyEmailRequestList.size(), 2);
         for (VerifyEmailIdentityRequest oneVerifyEmailRequest : verifyEmailRequestList) {
-            assertEquals(EMAIL_ADDRESS, oneVerifyEmailRequest.getEmailAddress());
+            assertEquals(oneVerifyEmailRequest.getEmailAddress(), EMAIL_ADDRESS);
         }
 
         // Verify get notifications calls.
@@ -152,11 +152,11 @@ public class EmailVerificationServiceAsyncHandlerTest {
 
         List<GetIdentityNotificationAttributesRequest> getNotificationRequestList = getNotificationRequestCaptor
                 .getAllValues();
-        assertEquals(2, getNotificationRequestList.size());
+        assertEquals(getNotificationRequestList.size(), 2);
         for (GetIdentityNotificationAttributesRequest oneGetNotificationRequest : getNotificationRequestList) {
             List<String> identityList = oneGetNotificationRequest.getIdentities();
-            assertEquals(1, identityList.size());
-            assertEquals(EMAIL_ADDRESS, identityList.get(0));
+            assertEquals(identityList.size(), 1);
+            assertEquals(identityList.get(0), EMAIL_ADDRESS);
         }
     }
 
@@ -167,19 +167,19 @@ public class EmailVerificationServiceAsyncHandlerTest {
                 SetIdentityNotificationTopicRequest.class);
         verify(mockSesClient, times(4)).setIdentityNotificationTopic(requestCaptor.capture());
         List<SetIdentityNotificationTopicRequest> requestList = requestCaptor.getAllValues();
-        assertEquals(4, requestList.size());
+        assertEquals(requestList.size(), 4);
 
         // Verify common args in all calls.
         for (SetIdentityNotificationTopicRequest oneRequest : requestList) {
-            assertEquals(EMAIL_ADDRESS, oneRequest.getIdentity());
-            assertEquals(DUMMY_NOTIFICATION_ARN, oneRequest.getSnsTopic());
+            assertEquals(oneRequest.getIdentity(), EMAIL_ADDRESS);
+            assertEquals(oneRequest.getSnsTopic(), DUMMY_NOTIFICATION_ARN);
         }
 
         // Verify notification types.
-        assertEquals("Bounce", requestList.get(0).getNotificationType());
-        assertEquals("Bounce", requestList.get(1).getNotificationType());
-        assertEquals("Complaint", requestList.get(2).getNotificationType());
-        assertEquals("Complaint", requestList.get(3).getNotificationType());
+        assertEquals(requestList.get(0).getNotificationType(), "Bounce");
+        assertEquals(requestList.get(1).getNotificationType(), "Bounce");
+        assertEquals(requestList.get(2).getNotificationType(), "Complaint");
+        assertEquals(requestList.get(3).getNotificationType(), "Complaint");
     }
 
     private static AmazonServiceException makeAwsInternalError() {

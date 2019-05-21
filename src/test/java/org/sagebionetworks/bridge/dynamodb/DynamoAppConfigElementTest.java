@@ -1,16 +1,17 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.appconfig.AppConfigElement;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -30,18 +31,18 @@ public class DynamoAppConfigElementTest {
         DynamoAppConfigElement element = new DynamoAppConfigElement();
         element.setStudyId(TestConstants.TEST_STUDY_IDENTIFIER);
         element.setId(ID);
-        assertEquals(KEY, element.getKey());
+        assertEquals(element.getKey(), KEY);
         
         // set key, get through getters
         element = new DynamoAppConfigElement();
         element.setKey(KEY);
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, element.getStudyId());
-        assertEquals(ID, element.getId());
+        assertEquals(element.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(element.getId(), ID);
         
         // set key, get through getters
         element = new DynamoAppConfigElement();
         element.setKey(KEY);
-        assertEquals(KEY, element.getKey());
+        assertEquals(element.getKey(), KEY);
         
         // setters nullify key
         element = new DynamoAppConfigElement();
@@ -84,18 +85,18 @@ public class DynamoAppConfigElementTest {
         JsonNode node = BridgeObjectMapper.get().valueToTree(element);
         assertNull(node.get("key"));
         assertNull(node.get("studyId"));
-        assertEquals(1L, node.get("revision").longValue());
-        assertEquals(ID, node.get("id").textValue());
+        assertEquals(node.get("revision").longValue(), 1L);
+        assertEquals(node.get("id").textValue(), ID);
         assertTrue(node.get("deleted").booleanValue());
-        assertEquals(TestUtils.getClientData(), node.get("data"));
-        assertEquals(CREATED_ON.toString(), node.get("createdOn").textValue());
-        assertEquals(MODIFIED_ON.toString(), node.get("modifiedOn").textValue());
-        assertEquals(2L, node.get("version").longValue());
-        assertEquals("AppConfigElement", node.get("type").textValue());
+        assertEquals(node.get("data"), TestUtils.getClientData());
+        assertEquals(node.get("createdOn").textValue(), CREATED_ON.toString());
+        assertEquals(node.get("modifiedOn").textValue(), MODIFIED_ON.toString());
+        assertEquals(node.get("version").longValue(), 2L);
+        assertEquals(node.get("type").textValue(), "AppConfigElement");
         
         AppConfigElement deser = BridgeObjectMapper.get().readValue(node.toString(), AppConfigElement.class);
         deser.setStudyId(TestConstants.TEST_STUDY_IDENTIFIER);
-        assertEquals(element, deser);
+        assertEquals(deser, element);
     }
     
 }

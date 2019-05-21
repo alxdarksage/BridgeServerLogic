@@ -1,9 +1,9 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -13,14 +13,14 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.OAuthAccessGrantDao;
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
@@ -34,7 +34,6 @@ import org.sagebionetworks.bridge.models.studies.Study;
 
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
 public class OAuthServiceTest {
 
     private static final DateTime NOW = DateTime.now(DateTimeZone.UTC);
@@ -66,8 +65,9 @@ public class OAuthServiceTest {
     
     private Study study;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         service.setOAuthAccessGrantDao(mockGrantDao);
         service.setOAuthProviderService(mockProviderService);
         
@@ -122,17 +122,17 @@ public class OAuthServiceTest {
     }
     
     private void assertAccessToken(OAuthAccessToken authToken) {
-        assertEquals(VENDOR_ID, authToken.getVendorId());
-        assertEquals(ACCESS_TOKEN, authToken.getAccessToken());
-        assertEquals(EXPIRES_ON, authToken.getExpiresOn());
+        assertEquals(authToken.getVendorId(), VENDOR_ID);
+        assertEquals(authToken.getAccessToken(), ACCESS_TOKEN);
+        assertEquals(authToken.getExpiresOn(), EXPIRES_ON);
     }
     private void assertGrant(OAuthAccessGrant grant) {
-        assertEquals(HEALTH_CODE, grant.getHealthCode());
-        assertEquals(VENDOR_ID, grant.getVendorId());
-        assertEquals(ACCESS_TOKEN, grant.getAccessToken());
-        assertEquals(REFRESH_TOKEN, grant.getRefreshToken());
-        assertEquals(NOW.getMillis(), grant.getCreatedOn());
-        assertEquals(EXPIRES_ON.getMillis(), grant.getExpiresOn());
+        assertEquals(grant.getHealthCode(), HEALTH_CODE);
+        assertEquals(grant.getVendorId(), VENDOR_ID);
+        assertEquals(grant.getAccessToken(), ACCESS_TOKEN);
+        assertEquals(grant.getRefreshToken(), REFRESH_TOKEN);
+        assertEquals(grant.getCreatedOn(), NOW.getMillis());
+        assertEquals(grant.getExpiresOn(), EXPIRES_ON.getMillis());
     }
     
     // All of these tests are for requestAccessToken(...)
@@ -199,12 +199,12 @@ public class OAuthServiceTest {
         assertGrant(grantCaptor.getValue());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getHealthCodesThrowsExceptionOnIncorrectOAuthProvider() {
         service.getHealthCodesGrantingAccess(study, "notAVendor", 50, null);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getHealthCodesThrowsExceptionOnIncorrectOAuthProvider2() {
         service.getHealthCodesGrantingAccess(study, "notAVendor", 50, null);
     }
@@ -256,7 +256,7 @@ public class OAuthServiceTest {
         assertGrant(grantCaptor.getValue());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getExpiredGrantInvalidRefreshToken() {
         setupDaoWithExpiredGrant(); 
         setupInvalidRefreshCall();
@@ -264,7 +264,7 @@ public class OAuthServiceTest {
         service.getAccessToken(study, VENDOR_ID, HEALTH_CODE);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getNoGrant() {
         service.getAccessToken(study, VENDOR_ID, HEALTH_CODE);
     }
@@ -284,8 +284,8 @@ public class OAuthServiceTest {
         
         verify(mockGrantDao).getAccessGrants(study, VENDOR_ID, "offsetKey", 30);
         // Just verify a couple of fields to verify this is the page returned
-        assertEquals("nextPageOffset", results.getNextPageOffsetKey());
-        assertEquals(2, results.getItems().size());
+        assertEquals(results.getNextPageOffsetKey(), "nextPageOffset");
+        assertEquals(results.getItems().size(), 2);
     }
     
     @Test

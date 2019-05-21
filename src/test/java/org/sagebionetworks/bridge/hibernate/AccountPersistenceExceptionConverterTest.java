@@ -1,20 +1,19 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 import static org.mockito.Mockito.verify;
 
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 
 import org.hibernate.NonUniqueObjectException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.RequestContext;
@@ -29,7 +28,6 @@ import org.sagebionetworks.bridge.models.substudies.AccountSubstudy;
 
 import com.google.common.collect.ImmutableSet;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AccountPersistenceExceptionConverterTest {
 
     private AccountPersistenceExceptionConverter converter;
@@ -37,13 +35,14 @@ public class AccountPersistenceExceptionConverterTest {
     @Mock
     private AccountDao accountDao;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         BridgeUtils.setRequestContext(RequestContext.NULL_INSTANCE);
         converter = new AccountPersistenceExceptionConverter(accountDao);
     }
     
-    @After
+    @AfterMethod
     public void after() {
         BridgeUtils.setRequestContext(RequestContext.NULL_INSTANCE);
     }
@@ -52,7 +51,7 @@ public class AccountPersistenceExceptionConverterTest {
     public void noConversion() { 
         PersistenceException ex = new PersistenceException(new RuntimeException("message"));
         
-        assertSame(ex, converter.convert(ex, null));
+        assertSame(converter.convert(ex, null), ex);
     }
     
     @Test
@@ -74,9 +73,9 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(EntityAlreadyExistsException.class, result.getClass());
-        assertEquals("Email address has already been used by another account.", result.getMessage());
-        assertEquals("userId", ((EntityAlreadyExistsException)result).getEntityKeys().get("userId"));
+        assertEquals(result.getClass(), EntityAlreadyExistsException.class);
+        assertEquals(result.getMessage(), "Email address has already been used by another account.");
+        assertEquals(((EntityAlreadyExistsException)result).getEntityKeys().get("userId"), "userId");
     }
     
     @Test
@@ -98,9 +97,9 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(EntityAlreadyExistsException.class, result.getClass());
-        assertEquals("Phone number has already been used by another account.", result.getMessage());
-        assertEquals("userId", ((EntityAlreadyExistsException)result).getEntityKeys().get("userId"));
+        assertEquals(result.getClass(), EntityAlreadyExistsException.class);
+        assertEquals(result.getMessage(), "Phone number has already been used by another account.");
+        assertEquals(((EntityAlreadyExistsException)result).getEntityKeys().get("userId"), "userId");
     }
 
     @Test
@@ -122,9 +121,9 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(EntityAlreadyExistsException.class, result.getClass());
-        assertEquals("External ID has already been used by another account.", result.getMessage());
-        assertEquals("userId", ((EntityAlreadyExistsException)result).getEntityKeys().get("userId"));
+        assertEquals(result.getClass(), EntityAlreadyExistsException.class);
+        assertEquals(result.getMessage(), "External ID has already been used by another account.");
+        assertEquals(((EntityAlreadyExistsException)result).getEntityKeys().get("userId"), "userId");
     }
     
     @Test
@@ -152,9 +151,9 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(EntityAlreadyExistsException.class, result.getClass());
-        assertEquals("External ID has already been used by another account.", result.getMessage());
-        assertEquals("userId", ((EntityAlreadyExistsException)result).getEntityKeys().get("userId"));
+        assertEquals(result.getClass(), EntityAlreadyExistsException.class);
+        assertEquals(result.getMessage(), "External ID has already been used by another account.");
+        assertEquals(((EntityAlreadyExistsException)result).getEntityKeys().get("userId"), "userId");
     }
     
     @Test
@@ -186,9 +185,9 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(EntityAlreadyExistsException.class, result.getClass());
-        assertEquals("External ID has already been used by another account.", result.getMessage());
-        assertEquals("userId", ((EntityAlreadyExistsException)result).getEntityKeys().get("userId"));
+        assertEquals(result.getClass(), EntityAlreadyExistsException.class);
+        assertEquals(result.getMessage(), "External ID has already been used by another account.");
+        assertEquals(((EntityAlreadyExistsException)result).getEntityKeys().get("userId"), "userId");
         
         verify(accountDao).getAccount(AccountId.forExternalId(TestConstants.TEST_STUDY_IDENTIFIER, "externalIdA"));
     }
@@ -219,7 +218,7 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(EntityAlreadyExistsException.class, result.getClass());
+        assertEquals(result.getClass(), EntityAlreadyExistsException.class);
         
         verify(accountDao).getAccount(AccountId.forExternalId(TestConstants.TEST_STUDY_IDENTIFIER, "externalIdA"));
     }
@@ -238,8 +237,8 @@ public class AccountPersistenceExceptionConverterTest {
         
         // It is converted to a generic constraint violation exception
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(ConstraintViolationException.class, result.getClass());
-        assertEquals("Accounts table constraint prevented save or update.", result.getMessage());
+        assertEquals(result.getClass(), ConstraintViolationException.class);
+        assertEquals(result.getMessage(), "Accounts table constraint prevented save or update.");
     }    
     
     // This scenario should not happen, but were it to happen, it would not generate an NPE exception.
@@ -250,7 +249,7 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, null);
-        assertEquals(ConstraintViolationException.class, result.getClass());
+        assertEquals(result.getClass(), ConstraintViolationException.class);
     }
     
     @Test
@@ -263,8 +262,8 @@ public class AccountPersistenceExceptionConverterTest {
         PersistenceException pe = new PersistenceException(cve);
         
         RuntimeException result = converter.convert(pe, account);
-        assertEquals(ConstraintViolationException.class, result.getClass());
-        assertEquals("Accounts table constraint prevented save or update.", result.getMessage());
+        assertEquals(result.getClass(), ConstraintViolationException.class);
+        assertEquals(result.getMessage(), "Accounts table constraint prevented save or update.");
     }
     
     @Test
@@ -275,8 +274,8 @@ public class AccountPersistenceExceptionConverterTest {
         OptimisticLockException ole = new OptimisticLockException();
         
         RuntimeException result = converter.convert(ole, account);
-        assertEquals(ConcurrentModificationException.class, result.getClass());
-        assertEquals("Account has the wrong version number; it may have been saved in the background.", result.getMessage());
+        assertEquals(result.getClass(), ConcurrentModificationException.class);
+        assertEquals(result.getMessage(), "Account has the wrong version number; it may have been saved in the background.");
     }
     
     @Test
@@ -287,8 +286,8 @@ public class AccountPersistenceExceptionConverterTest {
         NonUniqueObjectException nuoe = new NonUniqueObjectException("message", null, null);
         
         RuntimeException result = converter.convert(nuoe, account);
-        assertEquals(ConstraintViolationException.class, result.getClass());
-        assertEquals(AccountPersistenceExceptionConverter.NON_UNIQUE_MSG, result.getMessage());
+        assertEquals(result.getClass(), ConstraintViolationException.class);
+        assertEquals(result.getMessage(), AccountPersistenceExceptionConverter.NON_UNIQUE_MSG);
     }
     
 }

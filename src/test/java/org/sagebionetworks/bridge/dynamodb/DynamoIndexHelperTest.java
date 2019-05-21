@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import javax.annotation.Nonnull;
 
@@ -24,8 +24,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class DynamoIndexHelperTest {
@@ -66,9 +66,9 @@ public class DynamoIndexHelperTest {
 
         @Override
         protected Iterable<Item> queryHelper(@Nonnull String indexKeyName, @Nonnull Object indexKeyValue, RangeKeyCondition rangeKeyCondition) {
-            assertEquals(expectedKey, indexKeyName);
-            assertEquals(expectedValue, indexKeyValue);
-            assertEquals(expectedRangeKeyCondition, rangeKeyCondition);
+            assertEquals(indexKeyName, expectedKey);
+            assertEquals(indexKeyValue, expectedValue);
+            assertEquals(rangeKeyCondition, expectedRangeKeyCondition);
             return itemIterable;
         }
     }
@@ -126,17 +126,17 @@ public class DynamoIndexHelperTest {
 
         // Validate final results. Because of wonkiness with maps and ordering, we'll convert the Things into a map and
         // validate the map.
-        assertEquals(4, resultList.size());
+        assertEquals(resultList.size(), 4);
         Map<String, String> thingMap = new HashMap<>();
         for (Thing oneThing : resultList) {
             thingMap.put(oneThing.key, oneThing.value);
         }
 
-        assertEquals(4, thingMap.size());
-        assertEquals("foo value", thingMap.get("foo key"));
-        assertEquals("bar value", thingMap.get("bar key"));
-        assertEquals("asdf value", thingMap.get("asdf key"));
-        assertEquals("jkl; value", thingMap.get("jkl; key"));
+        assertEquals(thingMap.size(), 4);
+        assertEquals(thingMap.get("foo key"), "foo value");
+        assertEquals(thingMap.get("bar key"), "bar value");
+        assertEquals(thingMap.get("asdf key"), "asdf value");
+        assertEquals(thingMap.get("jkl; key"), "jkl; value");
     }
     
     @Test
@@ -144,7 +144,7 @@ public class DynamoIndexHelperTest {
         mockResultsOfQuery(null);
         int count = helper.queryKeyCount("test key", "test value", null);
         // There are two lists of two items each
-        assertEquals(4, count);
+        assertEquals(count, 4);
     }
     
     @Test
@@ -167,23 +167,23 @@ public class DynamoIndexHelperTest {
         
         QueryOutcome result = helper.query(spec);
         
-        assertEquals(result, mockQueryOutcome);
+        assertEquals(mockQueryOutcome, result);
         verify(mockIndex).query(spec);
     }
 
     private static void validateKeyObjects(List<Thing> keyList) {
-        assertEquals(4, keyList.size());
+        assertEquals(keyList.size(), 4);
 
-        assertEquals("foo key", keyList.get(0).key);
+        assertEquals(keyList.get(0).key, "foo key");
         assertNull(keyList.get(0).value);
 
-        assertEquals("bar key", keyList.get(1).key);
+        assertEquals(keyList.get(1).key, "bar key");
         assertNull(keyList.get(1).value);
 
-        assertEquals("asdf key", keyList.get(2).key);
+        assertEquals(keyList.get(2).key, "asdf key");
         assertNull(keyList.get(2).value);
 
-        assertEquals("jkl; key", keyList.get(3).key);
+        assertEquals(keyList.get(3).key, "jkl; key");
         assertNull(keyList.get(3).value);
     }
 }

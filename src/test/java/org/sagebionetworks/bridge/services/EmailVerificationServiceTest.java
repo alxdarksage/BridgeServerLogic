@@ -1,8 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doReturn;
@@ -10,17 +7,19 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.cache.CacheProvider;
 import org.sagebionetworks.bridge.cache.CacheKey;
@@ -31,7 +30,6 @@ import com.amazonaws.services.simpleemail.model.GetIdentityVerificationAttribute
 import com.amazonaws.services.simpleemail.model.IdentityVerificationAttributes;
 import com.google.common.collect.Maps;
 
-@RunWith(MockitoJUnitRunner.class)
 public class EmailVerificationServiceTest {
 
     private static final String EMAIL_ADDRESS = "foo@foo.com";
@@ -53,8 +51,9 @@ public class EmailVerificationServiceTest {
     
     private ArgumentCaptor<GetIdentityVerificationAttributesRequest> getCaptor;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         service.setAmazonSimpleEmailServiceClient(sesClient);
         service.setAsyncExecutorService(asyncExecutorService);
         service.setCacheProvider(cacheProvider);
@@ -76,10 +75,10 @@ public class EmailVerificationServiceTest {
 
         EmailVerificationStatus status = service.verifyEmailAddress(EMAIL_ADDRESS);
 
-        assertEquals(EmailVerificationStatus.VERIFIED, status);
+        assertEquals(status, EmailVerificationStatus.VERIFIED);
         verify(asyncExecutorService, never()).execute(any());
         verify(sesClient).getIdentityVerificationAttributes(getCaptor.capture());
-        assertEquals(EMAIL_ADDRESS, getCaptor.getValue().getIdentities().get(0));
+        assertEquals(getCaptor.getValue().getIdentities().get(0), EMAIL_ADDRESS);
 
         verify(cacheProvider).setObject(eq(EMAIL_ADDRESS_KEY), eq("VERIFIED"), anyInt());
     }
@@ -90,10 +89,10 @@ public class EmailVerificationServiceTest {
 
         EmailVerificationStatus status = service.verifyEmailAddress(EMAIL_ADDRESS);
 
-        assertEquals(EmailVerificationStatus.PENDING, status);
+        assertEquals(status, EmailVerificationStatus.PENDING);
         verifyAsyncHandler();
         verify(sesClient).getIdentityVerificationAttributes(getCaptor.capture());
-        assertEquals(EMAIL_ADDRESS, getCaptor.getValue().getIdentities().get(0));
+        assertEquals(getCaptor.getValue().getIdentities().get(0), EMAIL_ADDRESS);
 
         verify(cacheProvider).setObject(eq(EMAIL_ADDRESS_KEY), eq("PENDING"), anyInt());
     }
@@ -104,10 +103,10 @@ public class EmailVerificationServiceTest {
 
         EmailVerificationStatus status = service.verifyEmailAddress(EMAIL_ADDRESS);
 
-        assertEquals(EmailVerificationStatus.PENDING, status);
+        assertEquals(status, EmailVerificationStatus.PENDING);
         verifyAsyncHandler();
         verify(sesClient).getIdentityVerificationAttributes(getCaptor.capture());
-        assertEquals(EMAIL_ADDRESS, getCaptor.getValue().getIdentities().get(0));
+        assertEquals(getCaptor.getValue().getIdentities().get(0), EMAIL_ADDRESS);
         
         verify(cacheProvider).setObject(eq(EMAIL_ADDRESS_KEY), eq("PENDING"), anyInt());
     }
@@ -119,7 +118,7 @@ public class EmailVerificationServiceTest {
         EmailVerificationStatus status = service.getEmailStatus(EMAIL_ADDRESS);
 
         verify(sesClient).getIdentityVerificationAttributes(any());
-        assertEquals(EmailVerificationStatus.VERIFIED, status);
+        assertEquals(status, EmailVerificationStatus.VERIFIED);
         verify(cacheProvider).setObject(eq(EMAIL_ADDRESS_KEY), eq("VERIFIED"), anyInt());
     }
     
@@ -133,7 +132,7 @@ public class EmailVerificationServiceTest {
         EmailVerificationStatus status = service.getEmailStatus(EMAIL_ADDRESS);
 
         verify(sesClient).getIdentityVerificationAttributes(any());
-        assertEquals(EmailVerificationStatus.UNVERIFIED, status);
+        assertEquals(status, EmailVerificationStatus.UNVERIFIED);
         
         verify(cacheProvider).setObject(eq(EMAIL_ADDRESS_KEY), eq("UNVERIFIED"), anyInt());        
     }
@@ -151,7 +150,7 @@ public class EmailVerificationServiceTest {
         EmailVerificationStatus status = service.getEmailStatus(EMAIL_ADDRESS);
 
         verify(sesClient).getIdentityVerificationAttributes(any());
-        assertEquals(EmailVerificationStatus.UNVERIFIED, status);
+        assertEquals(status, EmailVerificationStatus.UNVERIFIED);
         
         verify(cacheProvider).setObject(eq(EMAIL_ADDRESS_KEY), eq("UNVERIFIED"), anyInt());        
     }
@@ -205,6 +204,6 @@ public class EmailVerificationServiceTest {
         ArgumentCaptor<EmailVerificationService.AsyncSnsTopicHandler> handlerCaptor = ArgumentCaptor.forClass(
                 EmailVerificationService.AsyncSnsTopicHandler.class);
         verify(asyncExecutorService).execute(handlerCaptor.capture());
-        assertEquals(EMAIL_ADDRESS, handlerCaptor.getValue().getEmailAddress());
+        assertEquals(handlerCaptor.getValue().getEmailAddress(), EMAIL_ADDRESS);
     }
 }

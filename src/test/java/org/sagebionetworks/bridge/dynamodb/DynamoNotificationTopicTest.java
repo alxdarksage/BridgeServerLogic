@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +10,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.Criteria;
@@ -43,40 +43,40 @@ public class DynamoNotificationTopicTest {
 
         // Serialize to JSON.
         JsonNode node = BridgeObjectMapper.get().valueToTree(topic);
-        assertEquals("ABC", node.get("guid").textValue());
-        assertEquals("My Test Topic", node.get("name").textValue());
-        assertEquals("Test Topic", node.get("shortName").textValue());
-        assertEquals("NotificationTopic", node.get("type").textValue());
-        assertEquals("A description.", node.get("description").textValue());
-        assertEquals(DATE_TIME.toString(), node.get("createdOn").textValue());
-        assertEquals(DATE_TIME.toString(), node.get("modifiedOn").textValue());
+        assertEquals(node.get("guid").textValue(), "ABC");
+        assertEquals(node.get("name").textValue(), "My Test Topic");
+        assertEquals(node.get("shortName").textValue(), "Test Topic");
+        assertEquals(node.get("type").textValue(), "NotificationTopic");
+        assertEquals(node.get("description").textValue(), "A description.");
+        assertEquals(node.get("createdOn").textValue(), DATE_TIME.toString());
+        assertEquals(node.get("modifiedOn").textValue(), DATE_TIME.toString());
         assertNull(node.get("studyId"));
         assertNull(node.get("topicARN"));
         assertTrue(node.get("deleted").booleanValue());
 
         JsonNode criteriaNode = node.get("criteria");
         JsonNode allOfGroupsNode = criteriaNode.get("allOfGroups");
-        assertEquals(2, allOfGroupsNode.size());
+        assertEquals(allOfGroupsNode.size(), 2);
 
         Set<String> allOfGroupsJsonSet = new HashSet<>();
         for (JsonNode oneAllOfGroupNode : allOfGroupsNode) {
             allOfGroupsJsonSet.add(oneAllOfGroupNode.textValue());
         }
-        assertEquals(criteria.getAllOfGroups(), allOfGroupsJsonSet);
+        assertEquals(allOfGroupsJsonSet, criteria.getAllOfGroups());
 
         // De-serialize back to POJO.
         // The values that are not serialized are provided by the service, they aren't
         // settable by the API caller.
         NotificationTopic deser = BridgeObjectMapper.get().readValue(node.toString(), NotificationTopic.class);
-        assertEquals("ABC", deser.getGuid());
-        assertEquals("My Test Topic", deser.getName());
-        assertEquals("Test Topic", deser.getShortName());
-        assertNull("test-study", deser.getStudyId());
-        assertEquals("A description.", deser.getDescription());
-        assertEquals(TIMESTAMP, deser.getCreatedOn());
-        assertEquals(TIMESTAMP, deser.getModifiedOn());
+        assertEquals(deser.getGuid(), "ABC");
+        assertEquals(deser.getName(), "My Test Topic");
+        assertEquals(deser.getShortName(), "Test Topic");
+        assertNull(deser.getStudyId(), "test-study");
+        assertEquals(deser.getDescription(), "A description.");
+        assertEquals(deser.getCreatedOn(), TIMESTAMP);
+        assertEquals(deser.getModifiedOn(), TIMESTAMP);
         assertNull(deser.getTopicARN());
-        assertEquals(criteria, deser.getCriteria());
+        assertEquals(deser.getCriteria(), criteria);
         assertTrue(deser.isDeleted());
     }
 }

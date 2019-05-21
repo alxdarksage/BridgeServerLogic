@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.json;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import org.joda.time.LocalDate;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
 
 public class LocalDateToStringSerializerTest {
     @Test
@@ -19,6 +19,6 @@ public class LocalDateToStringSerializerTest {
         new LocalDateToStringSerializer().serialize(new LocalDate(2014, 2, 12), mockJGen, null);
         ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
         verify(mockJGen).writeString(arg.capture());
-        assertEquals("2014-02-12", arg.getValue());
+        assertEquals(arg.getValue(), "2014-02-12");
     }
 }

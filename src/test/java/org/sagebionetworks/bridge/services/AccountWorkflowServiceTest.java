@@ -1,11 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,20 +9,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.mail.internet.MimeBodyPart;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -65,7 +65,6 @@ import org.sagebionetworks.bridge.validators.SignInValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Iterables;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AccountWorkflowServiceTest {
     private static final String SUPPORT_EMAIL = "support@support.com";
     private static final String STUDY_ID = TestConstants.TEST_STUDY_IDENTIFIER;
@@ -138,8 +137,10 @@ public class AccountWorkflowServiceTest {
     @Spy
     private AccountWorkflowService service;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         EmailTemplate verifyEmailTemplate = new EmailTemplate("VE ${studyName}", "Body ${url} ${emailVerificationUrl}", MimeType.TEXT);
         EmailTemplate resetPasswordTemplate = new EmailTemplate("RP ${studyName}", "Body ${url} ${resetPasswordUrl}", MimeType.TEXT);
         EmailTemplate accountExistsTemplate = new EmailTemplate("AE ${studyName}",
@@ -195,25 +196,25 @@ public class AccountWorkflowServiceTest {
         
         String string = stringCaptor.getValue();
         JsonNode node = BridgeObjectMapper.get().readTree(string);
-        assertEquals("api", node.get("studyId").textValue());
-        assertEquals("userId", node.get("userId").textValue());
-        assertEquals("email", node.get("type").textValue());
+        assertEquals(node.get("studyId").textValue(), "api");
+        assertEquals(node.get("userId").textValue(), "userId");
+        assertEquals(node.get("type").textValue(), "email");
         
         BasicEmailProvider provider = emailProviderCaptor.getValue();
         Map<String,String> tokens = provider.getTokenMap();
-        assertEquals(SPTOKEN, tokens.get("sptoken"));
-        assertEquals("2 hours", tokens.get("emailVerificationExpirationPeriod"));
+        assertEquals(tokens.get("sptoken"), SPTOKEN);
+        assertEquals(tokens.get("emailVerificationExpirationPeriod"), "2 hours");
         
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals("\"This study name\" <support@support.com>", email.getSenderAddress());
-        assertEquals(1, email.getRecipientAddresses().size());
-        assertEquals(EMAIL, email.getRecipientAddresses().get(0));
-        assertEquals("VE This study name", email.getSubject());
+        assertEquals(email.getSenderAddress(), "\"This study name\" <support@support.com>");
+        assertEquals(email.getRecipientAddresses().size(), 1);
+        assertEquals(email.getRecipientAddresses().get(0), EMAIL);
+        assertEquals(email.getSubject(), "VE This study name");
         MimeBodyPart body = email.getMessageParts().get(0);
         String bodyString = (String)body.getContent();
         assertTrue(bodyString.contains("/mobile/verifyEmail.html?study=api&sptoken="+SPTOKEN));
         assertTrue(bodyString.contains("/ve?study=api&sptoken="+SPTOKEN));
-        assertEquals(EmailType.VERIFY_EMAIL, email.getType());
+        assertEquals(email.getType(), EmailType.VERIFY_EMAIL);
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
@@ -245,15 +246,15 @@ public class AccountWorkflowServiceTest {
         
         String string = stringCaptor.getValue();
         JsonNode node = BridgeObjectMapper.get().readTree(string);
-        assertEquals("api", node.get("studyId").textValue());
-        assertEquals("userId", node.get("userId").textValue());
-        assertEquals("phone", node.get("type").textValue());
+        assertEquals(node.get("studyId").textValue(), "api");
+        assertEquals(node.get("userId").textValue(), "userId");
+        assertEquals(node.get("type").textValue(), "phone");
         
         SmsMessageProvider provider = smsMessageProviderCaptor.getValue();
         Map<String,String> tokens = provider.getTokenMap();
-        assertEquals("012-345", tokens.get("token"));
-        assertEquals("2 hours", tokens.get("phoneVerificationExpirationPeriod"));
-        assertEquals("Transactional", provider.getSmsType());
+        assertEquals(tokens.get("token"), "012-345");
+        assertEquals(tokens.get("phoneVerificationExpirationPeriod"), "2 hours");
+        assertEquals(provider.getSmsType(), "Transactional");
         
         String message = provider.getSmsRequest().getMessage();
         assertTrue(message.contains("012-345"));
@@ -292,7 +293,7 @@ public class AccountWorkflowServiceTest {
                 eq(AccountWorkflowService.VERIFY_OR_RESET_EXPIRE_IN_SECONDS));
     }
     
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void resendEmailVerificationTokenUnsupportedType() {
         when(mockStudyService.getStudy(TEST_STUDY_IDENTIFIER)).thenReturn(study);
         when(mockAccountDao.getAccount(ACCOUNT_ID_WITH_EMAIL)).thenReturn(mockAccount);
@@ -384,7 +385,7 @@ public class AccountWorkflowServiceTest {
         Verification verification = new Verification(SPTOKEN);
         
         Account account = service.verifyChannel(ChannelType.EMAIL, verification);
-        assertEquals("accountId",account.getId());
+        assertEquals(account.getId(), "accountId");
         verify(mockCacheProvider).getObject(SPTOKEN_CACHE_KEY, String.class);
         verify(mockCacheProvider).removeObject(SPTOKEN_CACHE_KEY);
     }
@@ -400,12 +401,12 @@ public class AccountWorkflowServiceTest {
         Verification verification = new Verification(SPTOKEN);
         
         Account account = service.verifyChannel(ChannelType.EMAIL, verification);
-        assertEquals("accountId",account.getId());
+        assertEquals(account.getId(), "accountId");
         verify(mockCacheProvider).getObject(SPTOKEN_CACHE_KEY, String.class);
         verify(mockCacheProvider).removeObject(SPTOKEN_CACHE_KEY);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailBadSptokenThrowsException() {
         when(mockCacheProvider.getObject(SPTOKEN_CACHE_KEY, String.class)).thenReturn(null);
         
@@ -426,12 +427,12 @@ public class AccountWorkflowServiceTest {
         Verification verification = new Verification(SPTOKEN);
         
         Account account = service.verifyChannel(ChannelType.PHONE, verification);
-        assertEquals("accountId",account.getId());
+        assertEquals(account.getId(), "accountId");
         verify(mockCacheProvider).getObject(SPTOKEN_CACHE_KEY, String.class);
         verify(mockCacheProvider).removeObject(SPTOKEN_CACHE_KEY);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyEmailViaPhoneFails() {
         when(mockCacheProvider.getObject(SPTOKEN_CACHE_KEY, String.class)).thenReturn(
                 TestUtils.createJson("{'studyId':'api','type':'email','userId':'userId'}"));
@@ -445,7 +446,7 @@ public class AccountWorkflowServiceTest {
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifyPhoneViaEmailFails() {
         when(mockCacheProvider.getObject(SPTOKEN_CACHE_KEY, String.class)).thenReturn(
                 TestUtils.createJson("{'studyId':'api','type':'phone','userId':'userId'}"));
@@ -480,18 +481,18 @@ public class AccountWorkflowServiceTest {
         
         BasicEmailProvider provider = emailProviderCaptor.getValue();
         
-        assertEquals(TOKEN, provider.getTokenMap().get("token"));
-        assertEquals(SPTOKEN, provider.getTokenMap().get("sptoken"));
-        assertEquals("2 hours", provider.getTokenMap().get("expirationPeriod"));
-        assertEquals(BridgeUtils.encodeURIComponent(EMAIL), provider.getTokenMap().get("email"));
-        assertEquals("2", provider.getTokenMap().get("expirationWindow"));
+        assertEquals(provider.getTokenMap().get("token"), TOKEN);
+        assertEquals(provider.getTokenMap().get("sptoken"), SPTOKEN);
+        assertEquals(provider.getTokenMap().get("expirationPeriod"), "2 hours");
+        assertEquals(provider.getTokenMap().get("email"), BridgeUtils.encodeURIComponent(EMAIL));
+        assertEquals(provider.getTokenMap().get("expirationWindow"), "2");
         
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals("\"This study name\" <support@support.com>", email.getSenderAddress());
-        assertEquals(1, email.getRecipientAddresses().size());
-        assertEquals(EMAIL, email.getRecipientAddresses().get(0));
-        assertEquals("AE This study name", email.getSubject());
-        assertEquals(EmailType.RESET_PASSWORD, email.getType());
+        assertEquals(email.getSenderAddress(), "\"This study name\" <support@support.com>");
+        assertEquals(email.getRecipientAddresses().size(), 1);
+        assertEquals(email.getRecipientAddresses().get(0), EMAIL);
+        assertEquals(email.getSubject(), "AE This study name");
+        assertEquals(email.getType(), EmailType.RESET_PASSWORD);
         
         MimeBodyPart body = email.getMessageParts().get(0);
         String bodyString = (String)body.getContent();
@@ -537,15 +538,15 @@ public class AccountWorkflowServiceTest {
         assertNull(provider.getTokenMap().get("token"));
         assertNull(provider.getTokenMap().get("email"));
         
-        assertEquals(SPTOKEN, provider.getTokenMap().get("sptoken"));
-        assertEquals("2 hours", provider.getTokenMap().get("expirationPeriod"));
-        assertEquals("2", provider.getTokenMap().get("expirationWindow"));
+        assertEquals(provider.getTokenMap().get("sptoken"), SPTOKEN);
+        assertEquals(provider.getTokenMap().get("expirationPeriod"), "2 hours");
+        assertEquals(provider.getTokenMap().get("expirationWindow"), "2");
         
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals("\"This study name\" <support@support.com>", email.getSenderAddress());
-        assertEquals(1, email.getRecipientAddresses().size());
-        assertEquals(EMAIL, email.getRecipientAddresses().get(0));
-        assertEquals("AE This study name", email.getSubject());
+        assertEquals(email.getSenderAddress(), "\"This study name\" <support@support.com>");
+        assertEquals(email.getRecipientAddresses().size(), 1);
+        assertEquals(email.getRecipientAddresses().get(0), EMAIL);
+        assertEquals(email.getSubject(), "AE This study name");
         
         MimeBodyPart body = email.getMessageParts().get(0);
         String bodyString = (String)body.getContent();
@@ -581,11 +582,11 @@ public class AccountWorkflowServiceTest {
 
         List<BasicEmailProvider> emailProviderList = emailProviderCaptor.getAllValues();
         for (BasicEmailProvider oneEmailProvider : emailProviderList) {
-            assertEquals("2", oneEmailProvider.getTokenMap().get("expirationWindow"));
-            assertEquals(SPTOKEN, oneEmailProvider.getTokenMap().get("sptoken"));
-            assertEquals(TOKEN, oneEmailProvider.getTokenMap().get("token"));
-            assertEquals("2 hours", oneEmailProvider.getTokenMap().get("expirationPeriod"));
-            assertEquals(BridgeUtils.encodeURIComponent(EMAIL), oneEmailProvider.getTokenMap().get("email"));
+            assertEquals(oneEmailProvider.getTokenMap().get("expirationWindow"), "2");
+            assertEquals(oneEmailProvider.getTokenMap().get("sptoken"), SPTOKEN);
+            assertEquals(oneEmailProvider.getTokenMap().get("token"), TOKEN);
+            assertEquals(oneEmailProvider.getTokenMap().get("expirationPeriod"), "2 hours");
+            assertEquals(oneEmailProvider.getTokenMap().get("email"), BridgeUtils.encodeURIComponent(EMAIL));
             
             // Email content is verified in test above. Just verify email sign-in URL.
             MimeTypeEmail email = oneEmailProvider.getMimeTypeEmail();
@@ -615,9 +616,9 @@ public class AccountWorkflowServiceTest {
         verify(mockSendMailService).sendEmail(emailProviderCaptor.capture());
         
         BasicEmailProvider provider = emailProviderCaptor.getValue();
-        assertEquals(SPTOKEN, provider.getTokenMap().get("sptoken"));
-        assertEquals("2", provider.getTokenMap().get("expirationWindow"));
-        assertEquals("2 hours", provider.getTokenMap().get("expirationPeriod"));
+        assertEquals(provider.getTokenMap().get("sptoken"), SPTOKEN);
+        assertEquals(provider.getTokenMap().get("expirationWindow"), "2");
+        assertEquals(provider.getTokenMap().get("expirationPeriod"), "2 hours");
 
         String bodyString = (String) provider.getMimeTypeEmail().getMessageParts().get(0).getContent();
         
@@ -649,7 +650,7 @@ public class AccountWorkflowServiceTest {
         assertTrue(message.contains("Account for ShortName already exists. Reset password: "));
         assertTrue(message.contains("/rp?study=api&sptoken="+SPTOKEN));
         assertTrue(message.contains(" or "+PHONE_TOKEN.substring(0,3) + "-" + PHONE_TOKEN.substring(3,6)));
-        assertEquals("Transactional", smsMessageProviderCaptor.getValue().getSmsType());
+        assertEquals(smsMessageProviderCaptor.getValue().getSmsType(), "Transactional");
     }
     
     @Test
@@ -674,7 +675,7 @@ public class AccountWorkflowServiceTest {
         assertTrue(message.contains("Account for ShortName already exists. Reset password: "));
         assertTrue(message.contains("/rp?study=api&sptoken="+SPTOKEN));
         assertTrue(message.contains(" or ${token}"));
-        assertEquals("Transactional", smsMessageProviderCaptor.getValue().getSmsType());
+        assertEquals(smsMessageProviderCaptor.getValue().getSmsType(), "Transactional");
         verify(service, never()).getNextPhoneToken();
     }
     
@@ -801,19 +802,19 @@ public class AccountWorkflowServiceTest {
         verify(mockSendMailService).sendEmail(emailProviderCaptor.capture());
         BasicEmailProvider provider = emailProviderCaptor.getValue();
         
-        assertEquals(SPTOKEN, provider.getTokenMap().get("sptoken"));
-        assertEquals("2", provider.getTokenMap().get("expirationWindow"));
-        assertEquals("2 hours", provider.getTokenMap().get("expirationPeriod"));
+        assertEquals(provider.getTokenMap().get("sptoken"), SPTOKEN);
+        assertEquals(provider.getTokenMap().get("expirationWindow"), "2");
+        assertEquals(provider.getTokenMap().get("expirationPeriod"), "2 hours");
         
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals("\"This study name\" <support@support.com>", email.getSenderAddress());
-        assertEquals(1, email.getRecipientAddresses().size());
-        assertEquals(EMAIL, email.getRecipientAddresses().get(0));
-        assertEquals("RP This study name", email.getSubject());
+        assertEquals(email.getSenderAddress(), "\"This study name\" <support@support.com>");
+        assertEquals(email.getRecipientAddresses().size(), 1);
+        assertEquals(email.getRecipientAddresses().get(0), EMAIL);
+        assertEquals(email.getSubject(), "RP This study name");
         MimeBodyPart body = email.getMessageParts().get(0);
         String bodyString = (String)body.getContent();
         assertTrue(bodyString.contains("/rp?study=api&sptoken="+SPTOKEN));
-        assertEquals(EmailType.RESET_PASSWORD, email.getType());
+        assertEquals(email.getType(), EmailType.RESET_PASSWORD);
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
@@ -831,15 +832,15 @@ public class AccountWorkflowServiceTest {
         verify(mockCacheProvider).setObject(eq(PASSWORD_RESET_FOR_PHONE), stringCaptor.capture(), eq(60*60*2));
         verify(mockSmsService).sendSmsMessage(eq(USER_ID), smsMessageProviderCaptor.capture());
         
-        assertEquals(study, smsMessageProviderCaptor.getValue().getStudy());
-        assertEquals(TestConstants.PHONE, smsMessageProviderCaptor.getValue().getPhone());
-        assertEquals("Transactional", smsMessageProviderCaptor.getValue().getSmsType());
+        assertEquals(smsMessageProviderCaptor.getValue().getStudy(), study);
+        assertEquals(smsMessageProviderCaptor.getValue().getPhone(), TestConstants.PHONE);
+        assertEquals(smsMessageProviderCaptor.getValue().getSmsType(), "Transactional");
         String message = smsMessageProviderCaptor.getValue().getSmsRequest().getMessage();
         assertTrue(message.contains("Reset ShortName password: "));
         assertTrue(message.contains("/rp?study=api&sptoken="+SPTOKEN));
         
         Phone captured = BridgeObjectMapper.get().readValue(stringCaptor.getValue(), Phone.class);
-        assertEquals(TestConstants.PHONE, captured); 
+        assertEquals(captured, TestConstants.PHONE); 
         verifyNoMoreInteractions(mockCacheProvider);
     }
 
@@ -990,7 +991,7 @@ public class AccountWorkflowServiceTest {
             service.resetPassword(passwordReset);
             fail("Should have thrown exception");
         } catch(BadRequestException e) {
-            assertEquals("Password reset token has expired (or already been used).", e.getMessage());
+            assertEquals(e.getMessage(), "Password reset token has expired (or already been used).");
         }
         verify(mockCacheProvider).getObject(PASSWORD_RESET_FOR_EMAIL, String.class);
         verify(mockCacheProvider, never()).removeObject(any());
@@ -1027,11 +1028,11 @@ public class AccountWorkflowServiceTest {
 
         // Execute.
         String userId = service.requestEmailSignIn(SIGN_IN_REQUEST_WITH_EMAIL);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         // Verify dependent services.
         verify(mockCacheProvider).getObject(keyCaptor.capture(), eq(String.class));
-        assertEquals(EMAIL_SIGNIN_CACHE_KEY, keyCaptor.getValue());
+        assertEquals(keyCaptor.getValue(), EMAIL_SIGNIN_CACHE_KEY);
         
         verify(mockAccountDao).getAccount(SIGN_IN_REQUEST_WITH_EMAIL.getAccountId());
         
@@ -1041,9 +1042,9 @@ public class AccountWorkflowServiceTest {
         verify(mockSendMailService).sendEmail(emailProviderCaptor.capture());
         
         BasicEmailProvider provider = emailProviderCaptor.getValue();
-        assertEquals(BridgeUtils.encodeURIComponent(EMAIL), provider.getTokenMap().get("email"));
-        assertEquals(TOKEN, provider.getTokenMap().get("token"));
-        assertEquals("1 hour", provider.getTokenMap().get("emailSignInExpirationPeriod"));
+        assertEquals(provider.getTokenMap().get("email"), BridgeUtils.encodeURIComponent(EMAIL));
+        assertEquals(provider.getTokenMap().get("token"), TOKEN);
+        assertEquals(provider.getTokenMap().get("emailSignInExpirationPeriod"), "1 hour");
         
         String token = provider.getTokenMap().get("token");
         
@@ -1052,11 +1053,10 @@ public class AccountWorkflowServiceTest {
         assertTrue(provider.getTokenMap().get("shortUrl").contains("/s/api"));
         assertTrue(provider.getTokenMap().get("url").contains(token));
         assertTrue(provider.getTokenMap().get("shortUrl").contains(token));
-        assertEquals(study, provider.getStudy());
-        assertEquals(EMAIL, Iterables.getFirst(provider.getRecipientEmails(), null));
-        assertEquals("Body " + provider.getTokenMap().get("token"),
-                provider.getMimeTypeEmail().getMessageParts().get(0).getContent());
-        assertEquals(EmailType.EMAIL_SIGN_IN, provider.getType());
+        assertEquals(provider.getStudy(), study);
+        assertEquals(Iterables.getFirst(provider.getRecipientEmails(), null), EMAIL);
+        assertEquals(provider.getMimeTypeEmail().getMessageParts().get(0).getContent(), "Body " + provider.getTokenMap().get("token"));
+        assertEquals(provider.getType(), EmailType.EMAIL_SIGN_IN);
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
@@ -1075,21 +1075,21 @@ public class AccountWorkflowServiceTest {
         verifyNoMoreInteractions(mockCacheProvider);
     }    
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void emailSignInRequestMissingStudy() {
         SignIn signInRequest = new SignIn.Builder().withEmail(EMAIL).withToken(TOKEN).build();
 
         service.requestEmailSignIn(signInRequest);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void emailSignInRequestMissingEmail() {
         SignIn signInRequest = new SignIn.Builder().withStudy(STUDY_ID).withToken(TOKEN).build();
         
         service.requestEmailSignIn(signInRequest);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void requestEmailSignInDisabled() {
         study.setEmailSignInEnabled(false);
         when(mockStudyService.getStudy(study.getIdentifier())).thenReturn(study);
@@ -1097,7 +1097,7 @@ public class AccountWorkflowServiceTest {
         service.requestEmailSignIn(SIGN_IN_REQUEST_WITH_EMAIL);
     }
 
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void requestPhoneSignInDisabled() {
         study.setPhoneSignInEnabled(false);
         when(mockStudyService.getStudy(study.getIdentifier())).thenReturn(study);
@@ -1114,13 +1114,13 @@ public class AccountWorkflowServiceTest {
 
         // Throttle limit is 2. Request 3 times. Get 2 emails. (Each call should still return userId.
         String userId = service.requestEmailSignIn(SIGN_IN_REQUEST_WITH_EMAIL);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         userId = service.requestEmailSignIn(SIGN_IN_REQUEST_WITH_EMAIL);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         userId = service.requestEmailSignIn(SIGN_IN_REQUEST_WITH_EMAIL);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         verify(mockSendMailService, times(2)).sendEmail(any());
     }
@@ -1141,14 +1141,14 @@ public class AccountWorkflowServiceTest {
         verify(mockSendMailService).sendEmail(emailProviderCaptor.capture());
         
         BasicEmailProvider provider = emailProviderCaptor.getValue();
-        assertEquals(BridgeUtils.encodeURIComponent(EMAIL), provider.getTokenMap().get("email"));
-        assertEquals(TOKEN, provider.getTokenMap().get("token"));
-        assertEquals("1 hour", provider.getTokenMap().get("emailSignInExpirationPeriod"));
+        assertEquals(provider.getTokenMap().get("email"), BridgeUtils.encodeURIComponent(EMAIL));
+        assertEquals(provider.getTokenMap().get("token"), TOKEN);
+        assertEquals(provider.getTokenMap().get("emailSignInExpirationPeriod"), "1 hour");
         
-        assertEquals(EMAIL, provider.getMimeTypeEmail().getRecipientAddresses().get(0));
-        assertEquals(SUPPORT_EMAIL, provider.getPlainSenderEmail());
+        assertEquals(provider.getMimeTypeEmail().getRecipientAddresses().get(0), EMAIL);
+        assertEquals(provider.getPlainSenderEmail(), SUPPORT_EMAIL);
         String bodyString = (String)provider.getMimeTypeEmail().getMessageParts().get(0).getContent();
-        assertEquals("Body "+TOKEN, bodyString);
+        assertEquals(bodyString, "Body "+TOKEN);
         
         verify(mockCacheProvider).getObject(EMAIL_SIGNIN_CACHE_KEY, String.class);
     }
@@ -1181,18 +1181,18 @@ public class AccountWorkflowServiceTest {
 
         // Execute.
         String userId = service.requestPhoneSignIn(SIGN_IN_REQUEST_WITH_PHONE);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         // Verify dependent services.
         verify(mockCacheProvider).getObject(PHONE_SIGNIN_CACHE_KEY, String.class);
         verify(mockCacheProvider).setObject(PHONE_SIGNIN_CACHE_KEY, "123456", AccountWorkflowService.SIGNIN_EXPIRE_IN_SECONDS);
         verify(mockSmsService).sendSmsMessage(eq(USER_ID), smsMessageProviderCaptor.capture());
 
-        assertEquals(study, smsMessageProviderCaptor.getValue().getStudy());
-        assertEquals(TestConstants.PHONE, smsMessageProviderCaptor.getValue().getPhone());
-        assertEquals("Transactional", smsMessageProviderCaptor.getValue().getSmsType());
+        assertEquals(smsMessageProviderCaptor.getValue().getStudy(), study);
+        assertEquals(smsMessageProviderCaptor.getValue().getPhone(), TestConstants.PHONE);
+        assertEquals(smsMessageProviderCaptor.getValue().getSmsType(), "Transactional");
         String message = smsMessageProviderCaptor.getValue().getSmsRequest().getMessage();
-        assertEquals("Enter 123-456 to sign in to AppName", message);
+        assertEquals(message, "Enter 123-456 to sign in to AppName");
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
@@ -1218,13 +1218,13 @@ public class AccountWorkflowServiceTest {
 
         // This is currently disabled. Request 3 times, get 3 texts. (Each call should still return the user ID.)
         String userId = service.requestPhoneSignIn(SIGN_IN_REQUEST_WITH_PHONE);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         userId = service.requestPhoneSignIn(SIGN_IN_REQUEST_WITH_PHONE);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         userId = service.requestPhoneSignIn(SIGN_IN_REQUEST_WITH_PHONE);
-        assertEquals(USER_ID, userId);
+        assertEquals(userId, USER_ID);
 
         verify(mockSmsService, times(3)).sendSmsMessage(any(), any());
     }
@@ -1237,11 +1237,11 @@ public class AccountWorkflowServiceTest {
         
         verify(mockCacheProvider).getObject(EMAIL_SIGNIN_CACHE_KEY, String.class);
         verify(mockCacheProvider).removeObject(EMAIL_SIGNIN_CACHE_KEY);
-        assertEquals(SIGN_IN_WITH_EMAIL.getAccountId(), returnedAccount);
+        assertEquals(returnedAccount, SIGN_IN_WITH_EMAIL.getAccountId());
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void channelSignInUnsupportedType() {
         // use null for this test so we don't have to create a dummy type
         service.channelSignIn(null, CONTEXT, SIGN_IN_WITH_EMAIL, SignInValidator.EMAIL_SIGNIN);
@@ -1255,7 +1255,7 @@ public class AccountWorkflowServiceTest {
         
         verify(mockCacheProvider).getObject(PHONE_CACHE_KEY, String.class);
         verify(mockCacheProvider).removeObject(PHONE_CACHE_KEY);
-        assertEquals(SIGN_IN_WITH_PHONE.getAccountId(), returnedAccount);
+        assertEquals(returnedAccount, SIGN_IN_WITH_PHONE.getAccountId());
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
@@ -1270,7 +1270,7 @@ public class AccountWorkflowServiceTest {
         
         verify(mockCacheProvider).getObject(PHONE_CACHE_KEY, String.class);
         verify(mockCacheProvider).removeObject(PHONE_CACHE_KEY);
-        assertEquals(SIGN_IN_WITH_PHONE.getAccountId(), returnedAccount);
+        assertEquals(returnedAccount, SIGN_IN_WITH_PHONE.getAccountId());
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
@@ -1285,24 +1285,24 @@ public class AccountWorkflowServiceTest {
         
         verify(mockCacheProvider).getObject(PHONE_CACHE_KEY, String.class);
         verify(mockCacheProvider).removeObject(PHONE_CACHE_KEY);
-        assertEquals(SIGN_IN_WITH_PHONE.getAccountId(), returnedAccount);
+        assertEquals(returnedAccount, SIGN_IN_WITH_PHONE.getAccountId());
         verifyNoMoreInteractions(mockCacheProvider);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void channelSignInValidates() {
         // study is missing here.
         service.channelSignIn(ChannelType.PHONE, CONTEXT, new SignIn.Builder().withPhone(TestConstants.PHONE).build(),
                 SignInValidator.PHONE_SIGNIN);
     }
     
-    @Test(expected = AuthenticationFailedException.class)
+    @Test(expectedExceptions = AuthenticationFailedException.class)
     public void channelSignInMissingTokenThrowsException() {
         // This should work, except that the token will not be returned from the cache
         service.channelSignIn(ChannelType.PHONE, CONTEXT, SIGN_IN_WITH_PHONE, SignInValidator.PHONE_SIGNIN);
     }
     
-    @Test(expected = AuthenticationFailedException.class)
+    @Test(expectedExceptions = AuthenticationFailedException.class)
     public void channelSignInWrongTokenThrowsException() {
         when(mockCacheProvider.getObject(PHONE_CACHE_KEY, String.class)).thenReturn(TOKEN);
         
@@ -1313,7 +1313,7 @@ public class AccountWorkflowServiceTest {
         service.channelSignIn(ChannelType.PHONE, CONTEXT, wrongTokenSignIn, SignInValidator.PHONE_SIGNIN);
     }
     
-    @Test(expected = AuthenticationFailedException.class)
+    @Test(expectedExceptions = AuthenticationFailedException.class)
     public void channelSignInWrongEmailThrowsException() {
      // */when(mockCacheProvider.getObject(EMAIL_SIGNIN_CACHE_KEY, String.class)).thenReturn(TOKEN);
 
@@ -1323,7 +1323,7 @@ public class AccountWorkflowServiceTest {
         service.channelSignIn(ChannelType.EMAIL, CONTEXT, wrongEmailSignIn, SignInValidator.EMAIL_SIGNIN);
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test(expectedExceptions = AuthenticationFailedException.class)
     public void channelSignInWrongPhoneThrowsException() {
      // */when(mockCacheProvider.getObject(PHONE_CACHE_KEY, String.class)).thenReturn(TOKEN);
 

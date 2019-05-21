@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.Roles;
 import org.sagebionetworks.bridge.TestConstants;
@@ -63,29 +63,29 @@ public class StudyParticipantTest {
         String json = StudyParticipant.CACHE_WRITER.writeValueAsString(participant);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("firstName", node.get("firstName").asText());
-        assertEquals("lastName", node.get("lastName").asText());
-        assertEquals("email@email.com", node.get("email").asText());
-        assertEquals("externalId", node.get("externalId").asText());
-        assertEquals("newUserPassword", node.get("password").asText());
-        assertEquals("sponsors_and_partners", node.get("sharingScope").asText());
+        assertEquals(node.get("firstName").asText(), "firstName");
+        assertEquals(node.get("lastName").asText(), "lastName");
+        assertEquals(node.get("email").asText(), "email@email.com");
+        assertEquals(node.get("externalId").asText(), "externalId");
+        assertEquals(node.get("password").asText(), "newUserPassword");
+        assertEquals(node.get("sharingScope").asText(), "sponsors_and_partners");
         assertTrue(node.get("notifyByEmail").asBoolean());
         assertNull(node.get("healthCode"));
         assertNotNull(node.get("encryptedHealthCode"));
         assertTrue(node.get("consented").booleanValue());
-        assertEquals("enabled", node.get("status").asText());
-        assertEquals(CREATED_ON_UTC.toString(), node.get("createdOn").asText());
-        assertEquals(ACCOUNT_ID, node.get("id").asText());
-        assertEquals("substudyA", node.get("substudyIds").get(0).textValue());
-        assertEquals("substudyB", node.get("substudyIds").get(1).textValue());
-        assertEquals("+04:00", node.get("timeZone").asText());
-        assertEquals("externalIdA", node.get("externalIds").get("substudyA").textValue());
-        assertEquals("StudyParticipant", node.get("type").asText());
+        assertEquals(node.get("status").asText(), "enabled");
+        assertEquals(node.get("createdOn").asText(), CREATED_ON_UTC.toString());
+        assertEquals(node.get("id").asText(), ACCOUNT_ID);
+        assertEquals(node.get("substudyIds").get(0).textValue(), "substudyA");
+        assertEquals(node.get("substudyIds").get(1).textValue(), "substudyB");
+        assertEquals(node.get("timeZone").asText(), "+04:00");
+        assertEquals(node.get("externalIds").get("substudyA").textValue(), "externalIdA");
+        assertEquals(node.get("type").asText(), "StudyParticipant");
         
         JsonNode clientData = node.get("clientData");
         assertTrue(clientData.get("booleanFlag").booleanValue());
-        assertEquals("testString", clientData.get("stringValue").asText());
-        assertEquals(4, clientData.get("intValue").intValue());
+        assertEquals(clientData.get("stringValue").asText(), "testString");
+        assertEquals(clientData.get("intValue").intValue(), 4);
 
         Set<String> roleNames = Sets.newHashSet(
                 Roles.ADMIN.name().toLowerCase(), Roles.WORKER.name().toLowerCase());
@@ -95,45 +95,45 @@ public class StudyParticipantTest {
         
         // This array the order is significant, it serializes LinkedHashSet
         ArrayNode langsArray = (ArrayNode)node.get("languages"); 
-        assertEquals("en", langsArray.get(0).asText());
-        assertEquals("fr", langsArray.get(1).asText());
+        assertEquals(langsArray.get(0).asText(), "en");
+        assertEquals(langsArray.get(1).asText(), "fr");
         
         ArrayNode dataGroupsArray = (ArrayNode)node.get("dataGroups");
         assertTrue(DATA_GROUPS.contains(dataGroupsArray.get(0).asText()));
         assertTrue(DATA_GROUPS.contains(dataGroupsArray.get(1).asText()));
 
-        assertEquals("B", node.get("attributes").get("A").asText());
-        assertEquals("D", node.get("attributes").get("C").asText());
-        assertEquals(25, node.size());
+        assertEquals(node.get("attributes").get("A").asText(), "B");
+        assertEquals(node.get("attributes").get("C").asText(), "D");
+        assertEquals(node.size(), 25);
         
         StudyParticipant deserParticipant = BridgeObjectMapper.get().readValue(node.toString(), StudyParticipant.class);
-        assertEquals("firstName", deserParticipant.getFirstName());
-        assertEquals("lastName", deserParticipant.getLastName());
-        assertEquals("email@email.com", deserParticipant.getEmail());
-        assertEquals("externalId", deserParticipant.getExternalId());
-        assertEquals("newUserPassword", deserParticipant.getPassword());
-        assertEquals(TIME_ZONE, deserParticipant.getTimeZone());
-        assertEquals(SharingScope.SPONSORS_AND_PARTNERS, deserParticipant.getSharingScope());
+        assertEquals(deserParticipant.getFirstName(), "firstName");
+        assertEquals(deserParticipant.getLastName(), "lastName");
+        assertEquals(deserParticipant.getEmail(), "email@email.com");
+        assertEquals(deserParticipant.getExternalId(), "externalId");
+        assertEquals(deserParticipant.getPassword(), "newUserPassword");
+        assertEquals(deserParticipant.getTimeZone(), TIME_ZONE);
+        assertEquals(deserParticipant.getSharingScope(), SharingScope.SPONSORS_AND_PARTNERS);
         assertTrue(deserParticipant.isNotifyByEmail());
-        assertEquals(DATA_GROUPS, deserParticipant.getDataGroups());
-        assertEquals(SUBSTUDIES, deserParticipant.getSubstudyIds());
-        assertEquals(TestConstants.UNENCRYPTED_HEALTH_CODE, deserParticipant.getHealthCode());
+        assertEquals(deserParticipant.getDataGroups(), DATA_GROUPS);
+        assertEquals(deserParticipant.getSubstudyIds(), SUBSTUDIES);
+        assertEquals(deserParticipant.getHealthCode(), TestConstants.UNENCRYPTED_HEALTH_CODE);
         // This is encrypted with different series of characters each time, so just verify it is there.
         assertNotNull(deserParticipant.getEncryptedHealthCode());
-        assertEquals(ATTRIBUTES, deserParticipant.getAttributes());
+        assertEquals(deserParticipant.getAttributes(), ATTRIBUTES);
         assertTrue(deserParticipant.isConsented());
-        assertEquals(CREATED_ON_UTC, deserParticipant.getCreatedOn());
-        assertEquals(AccountStatus.ENABLED, deserParticipant.getStatus());
-        assertEquals(ACCOUNT_ID, deserParticipant.getId());
-        assertEquals("externalIdA", deserParticipant.getExternalIds().get("substudyA"));
+        assertEquals(deserParticipant.getCreatedOn(), CREATED_ON_UTC);
+        assertEquals(deserParticipant.getStatus(), AccountStatus.ENABLED);
+        assertEquals(deserParticipant.getId(), ACCOUNT_ID);
+        assertEquals(deserParticipant.getExternalIds().get("substudyA"), "externalIdA");
         
         UserConsentHistory deserHistory = deserParticipant.getConsentHistories().get("AAA").get(0);
-        assertEquals("2002-02-02", deserHistory.getBirthdate());
-        assertEquals(1000000L, deserHistory.getConsentCreatedOn());
-        assertEquals(2000000L, deserHistory.getSignedOn());
-        assertEquals("Test User", deserHistory.getName());
-        assertEquals("AAA", deserHistory.getSubpopulationGuid());
-        assertEquals(new Long(3000000L), deserHistory.getWithdrewOn());
+        assertEquals(deserHistory.getBirthdate(), "2002-02-02");
+        assertEquals(deserHistory.getConsentCreatedOn(), 1000000L);
+        assertEquals(deserHistory.getSignedOn(), 2000000L);
+        assertEquals(deserHistory.getName(), "Test User");
+        assertEquals(deserHistory.getSubpopulationGuid(), "AAA");
+        assertEquals(deserHistory.getWithdrewOn(), new Long(3000000L));
     }
     
     @Test
@@ -154,7 +154,7 @@ public class StudyParticipantTest {
         String json = StudyParticipant.API_WITH_HEALTH_CODE_WRITER.writeValueAsString(participant);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals(TestConstants.UNENCRYPTED_HEALTH_CODE, node.get("healthCode").asText());
+        assertEquals(node.get("healthCode").asText(), TestConstants.UNENCRYPTED_HEALTH_CODE);
         assertNull(node.get("encryptedHealthCode"));
     }
 
@@ -163,26 +163,26 @@ public class StudyParticipantTest {
         StudyParticipant participant = makeParticipant().build();
         StudyParticipant copy = new StudyParticipant.Builder().copyOf(participant).build();
         
-        assertEquals("firstName", copy.getFirstName());
-        assertEquals("lastName", copy.getLastName());
-        assertEquals("email@email.com", copy.getEmail());
-        assertEquals(PHONE.getNationalFormat(), copy.getPhone().getNationalFormat());
-        assertEquals(Boolean.TRUE, copy.getEmailVerified());
-        assertEquals(Boolean.TRUE, copy.getPhoneVerified());
-        assertEquals("externalId", copy.getExternalId());
-        assertEquals("newUserPassword", copy.getPassword());
-        assertEquals(TIME_ZONE, copy.getTimeZone());
-        assertEquals(SharingScope.SPONSORS_AND_PARTNERS, copy.getSharingScope());
+        assertEquals(copy.getFirstName(), "firstName");
+        assertEquals(copy.getLastName(), "lastName");
+        assertEquals(copy.getEmail(), "email@email.com");
+        assertEquals(copy.getPhone().getNationalFormat(), PHONE.getNationalFormat());
+        assertEquals(copy.getEmailVerified(), Boolean.TRUE);
+        assertEquals(copy.getPhoneVerified(), Boolean.TRUE);
+        assertEquals(copy.getExternalId(), "externalId");
+        assertEquals(copy.getPassword(), "newUserPassword");
+        assertEquals(copy.getTimeZone(), TIME_ZONE);
+        assertEquals(copy.getSharingScope(), SharingScope.SPONSORS_AND_PARTNERS);
         assertTrue(copy.isNotifyByEmail());
-        assertEquals(DATA_GROUPS, copy.getDataGroups());
-        assertEquals("healthCode", copy.getHealthCode());
-        assertEquals(ATTRIBUTES, copy.getAttributes());
+        assertEquals(copy.getDataGroups(), DATA_GROUPS);
+        assertEquals(copy.getHealthCode(), "healthCode");
+        assertEquals(copy.getAttributes(), ATTRIBUTES);
         assertTrue(copy.isConsented());
-        assertEquals(CREATED_ON, copy.getCreatedOn());
-        assertEquals(AccountStatus.ENABLED, copy.getStatus());
-        assertEquals(SUBSTUDIES, copy.getSubstudyIds());
-        assertEquals(ACCOUNT_ID, copy.getId());
-        assertEquals(TestUtils.getClientData(), copy.getClientData());
+        assertEquals(copy.getCreatedOn(), CREATED_ON);
+        assertEquals(copy.getStatus(), AccountStatus.ENABLED);
+        assertEquals(copy.getSubstudyIds(), SUBSTUDIES);
+        assertEquals(copy.getId(), ACCOUNT_ID);
+        assertEquals(copy.getClientData(), TestUtils.getClientData());
         
         // And they are equal in the Java sense
         assertEquals(copy, participant);
@@ -307,24 +307,24 @@ public class StudyParticipantTest {
         String json = "{\"email\":\"email@email.com\",\"username\":\"username@email.com\",\"password\":\"password\",\"roles\":[],\"dataGroups\":[],\"type\":\"SignUp\"}";
         
         StudyParticipant participant = BridgeObjectMapper.get().readValue(json, StudyParticipant.class);
-        assertEquals("email@email.com", participant.getEmail());
-        assertEquals("password", participant.getPassword());
+        assertEquals(participant.getEmail(), "email@email.com");
+        assertEquals(participant.getPassword(), "password");
     }
     
     @Test
     public void legacyAccountsWithoutEmailVerificationAreFixed() {
         StudyParticipant participant = new StudyParticipant.Builder().withStatus(AccountStatus.ENABLED).build();
-        assertEquals(Boolean.TRUE, participant.getEmailVerified());
-        assertEquals(AccountStatus.ENABLED, participant.getStatus());
+        assertEquals(participant.getEmailVerified(), Boolean.TRUE);
+        assertEquals(participant.getStatus(), AccountStatus.ENABLED);
         
         participant = new StudyParticipant.Builder().withStatus(AccountStatus.UNVERIFIED).build();
-        assertEquals(Boolean.FALSE, participant.getEmailVerified());
-        assertEquals(AccountStatus.UNVERIFIED, participant.getStatus());
+        assertEquals(participant.getEmailVerified(), Boolean.FALSE);
+        assertEquals(participant.getStatus(), AccountStatus.UNVERIFIED);
         
         // WHen disabled, we don't absolutely know the status of email verification.
         participant = new StudyParticipant.Builder().withStatus(AccountStatus.DISABLED).build();
         assertNull(participant.getEmailVerified());
-        assertEquals(AccountStatus.DISABLED, participant.getStatus());
+        assertEquals(participant.getStatus(), AccountStatus.DISABLED);
     }
     
     @Test
@@ -333,8 +333,8 @@ public class StudyParticipantTest {
         StudyParticipant participant = new StudyParticipant.Builder()
                 .withStatus(AccountStatus.ENABLED)
                 .withEmailVerified(Boolean.FALSE).build();
-        assertEquals(Boolean.FALSE, participant.getEmailVerified());
-        assertEquals(AccountStatus.ENABLED, participant.getStatus());
+        assertEquals(participant.getEmailVerified(), Boolean.FALSE);
+        assertEquals(participant.getStatus(), AccountStatus.ENABLED);
     }
     
 
@@ -405,6 +405,6 @@ public class StudyParticipantTest {
         StudyParticipant participant = new StudyParticipant.Builder()
                 .withLanguages(Lists.newArrayList("en", "fr", "en", "de")).build();
         
-        assertEquals(Lists.newArrayList("en","fr","de"), participant.getLanguages());
+        assertEquals(participant.getLanguages(), Lists.newArrayList("en","fr","de"));
     }
 }

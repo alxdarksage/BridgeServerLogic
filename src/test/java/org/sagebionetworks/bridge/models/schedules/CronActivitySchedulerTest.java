@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleTestUtils.asDT;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleTestUtils.assertDates;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleType.ONCE;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleType.RECURRING;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 
 import java.util.List;
@@ -16,8 +16,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoSchedulePlan;
@@ -39,7 +39,7 @@ public class CronActivitySchedulerTest {
     private List<ScheduledActivity> scheduledActivities;
     private SchedulePlan plan = new DynamoSchedulePlan();
     
-    @Before
+    @BeforeMethod
     public void before() {
         plan.setGuid("BBB");
         
@@ -134,7 +134,7 @@ public class CronActivitySchedulerTest {
         schedule.setStartsOn(asDT("2015-03-31 00:00"));
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusWeeks(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceEndsOnCronScheduleWorks() {
@@ -218,7 +218,7 @@ public class CronActivitySchedulerTest {
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusDays(4)));
         // Ultimate result: It's the 23rd, and right at enrollment, you see this task from the 21st.
         assertDates(scheduledActivities, "2015-03-21 06:00");
-        assertEquals(ScheduledActivityStatus.AVAILABLE, scheduledActivities.get(0).getStatus());
+        assertEquals(scheduledActivities.get(0).getStatus(), ScheduledActivityStatus.AVAILABLE);
         DateTimeUtils.setCurrentMillisSystem();
     }
     @Test
@@ -318,9 +318,9 @@ public class CronActivitySchedulerTest {
         List<DateTime> scheduleDates = scheduledActivities.stream()
                 .map(ScheduledActivity::getScheduledOn)
                 .collect(Collectors.toList());
-        assertEquals("2016-05-12T22:00:00.000-07:00", scheduleDates.get(0).toString());
-        assertEquals("2016-05-13T10:00:00.000-07:00", scheduleDates.get(1).toString());
-        assertEquals("2016-05-13T22:00:00.000-07:00", scheduleDates.get(2).toString());
+        assertEquals(scheduleDates.get(0).toString(), "2016-05-12T22:00:00.000-07:00");
+        assertEquals(scheduleDates.get(1).toString(), "2016-05-13T10:00:00.000-07:00");
+        assertEquals(scheduleDates.get(2).toString(), "2016-05-13T22:00:00.000-07:00");
     }
     
     private ScheduleContext getContext(DateTime endsOn) {

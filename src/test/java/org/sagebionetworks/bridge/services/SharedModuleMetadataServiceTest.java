@@ -1,10 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
@@ -14,6 +9,11 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.BridgeConstants.SHARED_STUDY_ID;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +22,14 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.dao.SharedModuleMetadataDao;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
@@ -39,7 +39,6 @@ import org.sagebionetworks.bridge.models.GuidCreatedOnVersionHolderImpl;
 import org.sagebionetworks.bridge.models.sharedmodules.SharedModuleMetadata;
 import org.sagebionetworks.bridge.models.studies.StudyIdentifierImpl;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SharedModuleMetadataServiceTest {
     private static final String MODULE_ID = "test-module";
     private static final String MODULE_NAME = "Test Module";
@@ -59,42 +58,44 @@ public class SharedModuleMetadataServiceTest {
     @Spy
     private SharedModuleMetadataService svc;
 
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         svc.setMetadataDao(mockDao);
         svc.setUploadSchemaService(mockUploadSchemaService);
         svc.setSurveyService(mockSurveyService);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createNullId() {
         SharedModuleMetadata svcInputMetadata = makeValidMetadata();
         svcInputMetadata.setId(null);
         svc.createMetadata(svcInputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createEmptyId() {
         SharedModuleMetadata svcInputMetadata = makeValidMetadata();
         svcInputMetadata.setId("");
         svc.createMetadata(svcInputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createBlankId() {
         SharedModuleMetadata svcInputMetadata = makeValidMetadata();
         svcInputMetadata.setId("   ");
         svc.createMetadata(svcInputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createNotFoundSchema() {
         SharedModuleMetadata svcInputMetadata = makeValidMetadata();
         doThrow(EntityNotFoundException.class).when(mockUploadSchemaService).getUploadSchemaByIdAndRev(SHARED_STUDY_ID, SCHEMA_ID, SCHEMA_REV);
         svc.createMetadata(svcInputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createNotFoundSurvey() {
         SharedModuleMetadata svcInputMetadata = makeValidMetadata();
         svcInputMetadata.setSchemaId(null);
@@ -104,7 +105,7 @@ public class SharedModuleMetadataServiceTest {
         svc.createMetadata(svcInputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void createSurveyWithInvalidStudyId() {
         GuidCreatedOnVersionHolder holder = new GuidCreatedOnVersionHolderImpl("some-id", 1L);
         when(mockSurveyService.getSurvey(eq(new StudyIdentifierImpl("shared")), eq(holder), eq(false), eq(false))).thenReturn(null);
@@ -193,28 +194,28 @@ public class SharedModuleMetadataServiceTest {
 
         // Validate we set the version on the metadata we send do the dao.
         SharedModuleMetadata daoInputMetadata = daoInputMetadataCaptor.getValue();
-        assertEquals(expectedVersion, daoInputMetadata.getVersion());
+        assertEquals(daoInputMetadata.getVersion(), expectedVersion);
 
         // Validate DAO input is also svcOutput.
-        assertSame(daoOutputMetadata, svcOutputMetadata);
+        assertSame(svcOutputMetadata, daoOutputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAllVersionsPermanentlyNullId() {
         svc.deleteMetadataByIdAllVersionsPermanently(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAllVersionsPermanentlyEmptyId() {
         svc.deleteMetadataByIdAllVersionsPermanently("");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAllVersionsPermanentlyBlankId() {
         svc.deleteMetadataByIdAllVersionsPermanently("   ");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteByIdAllVersionsPermanentlyNotFound() {
         svc.deleteMetadataByIdAllVersionsPermanently(MODULE_ID);
     }
@@ -229,36 +230,36 @@ public class SharedModuleMetadataServiceTest {
         verify(mockDao).queryMetadata(eq("id=:id"), parametersCaptor.capture());
         verify(mockDao).deleteMetadataByIdAllVersionsPermanently(MODULE_ID);
         
-        assertEquals(1, parametersCaptor.getValue().size());
-        assertEquals(MODULE_ID, parametersCaptor.getValue().get("id"));
+        assertEquals(parametersCaptor.getValue().size(), 1);
+        assertEquals(parametersCaptor.getValue().get("id"), MODULE_ID);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionPermanentlyNullId() {
         svc.deleteMetadataByIdAndVersionPermanently(null, MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionPermanentlyEmptyId() {
         svc.deleteMetadataByIdAndVersionPermanently("", MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionPermanentlyBlankId() {
         svc.deleteMetadataByIdAndVersionPermanently("   ", MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionPermanentlyNegativeVersion() {
         svc.deleteMetadataByIdAndVersionPermanently(MODULE_ID, -1);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionPermanentlyZeroVersion() {
         svc.deleteMetadataByIdAndVersionPermanently(MODULE_ID, 0);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteByIdAndVersionPermanentlyNotFound() {
         // mock dao to return null
         when(mockDao.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION)).thenReturn(null);
@@ -276,22 +277,22 @@ public class SharedModuleMetadataServiceTest {
         verify(mockDao).deleteMetadataByIdAndVersionPermanently(MODULE_ID, MODULE_VERSION);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAllVersionsNullId() {
         svc.deleteMetadataByIdAllVersions(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAllVersionsEmptyId() {
         svc.deleteMetadataByIdAllVersions("");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAllVersionsBlankId() {
         svc.deleteMetadataByIdAllVersions("   ");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteByIdAllVersionsNotFound() {
         doReturn(ImmutableList.of()).when(svc).queryMetadataById(MODULE_ID, true, false, null, null, null, false);
         svc.deleteMetadataByIdAllVersions(MODULE_ID);
@@ -304,32 +305,32 @@ public class SharedModuleMetadataServiceTest {
         verify(mockDao).deleteMetadataByIdAllVersions(MODULE_ID);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionNullId() {
         svc.deleteMetadataByIdAndVersion(null, MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionEmptyId() {
         svc.deleteMetadataByIdAndVersion("", MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionBlankId() {
         svc.deleteMetadataByIdAndVersion("   ", MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionNegativeVersion() {
         svc.deleteMetadataByIdAndVersion(MODULE_ID, -1);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteByIdAndVersionZeroVersion() {
         svc.deleteMetadataByIdAndVersion(MODULE_ID, 0);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteByIdAndVersionNotFound() {
         // mock dao to return null
         when(mockDao.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION)).thenReturn(null);
@@ -337,7 +338,7 @@ public class SharedModuleMetadataServiceTest {
         svc.deleteMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteByIdAndVersionAlreadyLogicallyDeleted() {
         // mock get
         SharedModuleMetadata metadata = makeValidMetadata();
@@ -357,32 +358,32 @@ public class SharedModuleMetadataServiceTest {
         verify(mockDao).deleteMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdAndVersionNullId() {
         svc.getMetadataByIdAndVersion(null, MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdAndVersionEmptyId() {
         svc.getMetadataByIdAndVersion("", MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdAndVersionBlankId() {
         svc.getMetadataByIdAndVersion("   ", MODULE_VERSION);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdAndVersionNegativeVersion() {
         svc.getMetadataByIdAndVersion(MODULE_ID, -1);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdAndVersionZeroVersion() {
         svc.getMetadataByIdAndVersion(MODULE_ID, 0);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void byIdAndVersionNotFound() {
         when(mockDao.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION)).thenReturn(null);
         svc.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION);
@@ -396,25 +397,25 @@ public class SharedModuleMetadataServiceTest {
 
         // execute and validate
         SharedModuleMetadata svcOutputMetadata = svc.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION);
-        assertSame(daoOutputMetadata, svcOutputMetadata);
+        assertSame(svcOutputMetadata, daoOutputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdLatestVersionNullId() {
         svc.getMetadataByIdLatestVersion(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdLatestVersionEmptyId() {
         svc.getMetadataByIdLatestVersion("");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void byIdLatestVersionBlankId() {
         svc.getMetadataByIdLatestVersion("   ");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void byIdLatestVersionNotFound() {
         doReturn(ImmutableList.of()).when(svc).queryMetadataById(MODULE_ID, true, false, null, null, null, false);
         svc.getMetadataByIdLatestVersion(MODULE_ID);
@@ -428,7 +429,7 @@ public class SharedModuleMetadataServiceTest {
 
         // execute and validate
         SharedModuleMetadata svcOutputMetadata = svc.getMetadataByIdLatestVersion(MODULE_ID);
-        assertSame(daoOutputMetadata, svcOutputMetadata);
+        assertSame(svcOutputMetadata, daoOutputMetadata);
     }
     
     @Test
@@ -459,7 +460,7 @@ public class SharedModuleMetadataServiceTest {
         verify(mockDao).queryMetadata("foo='bar' AND deleted!=true", null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void queryAllMostRecentWithWhere() {
         svc.queryAllMetadata(true, false, "foo='bar'", null, null, false);
     }
@@ -497,7 +498,7 @@ public class SharedModuleMetadataServiceTest {
 
         // execute and validate
         List<SharedModuleMetadata> svcOutputMetadataList = svc.queryAllMetadata(true, published, null, null, null, includeDeleted);
-        assertEquals(2, svcOutputMetadataList.size());
+        assertEquals(svcOutputMetadataList.size(), 2);
         assertTrue(svcOutputMetadataList.contains(moduleAVersion2));
         assertTrue(svcOutputMetadataList.contains(moduleBVersion4));
     }
@@ -530,7 +531,7 @@ public class SharedModuleMetadataServiceTest {
         // execute and validate
         List<SharedModuleMetadata> svcOutputMetadataList = svc.queryAllMetadata(false, published, inputWhereClause,
                 parameters, null, includeDeleted);
-        assertSame(daoOutputMetadataList, svcOutputMetadataList);
+        assertSame(svcOutputMetadataList, daoOutputMetadataList);
     }
 
     @Test
@@ -582,24 +583,24 @@ public class SharedModuleMetadataServiceTest {
 
         // execute and validate
         List<SharedModuleMetadata> svcOutputMetadataList = svc.queryAllMetadata(false, false, "foo='bar'", null, tags, false);
-        assertEquals(4, svcOutputMetadataList.size());
+        assertEquals(svcOutputMetadataList.size(), 4);
         assertTrue(svcOutputMetadataList.contains(metadata2));
         assertTrue(svcOutputMetadataList.contains(metadata3));
         assertTrue(svcOutputMetadataList.contains(metadata4));
         assertTrue(svcOutputMetadataList.contains(metadata5));
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void queryByIdNullId() {
         svc.queryMetadataById(null, true, true, "foo='bar'", null, ImmutableSet.of("foo", "bar", "baz"), false);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void queryByIdEmptyId() {
         svc.queryMetadataById("", true, true, "foo='bar'", null, ImmutableSet.of("foo", "bar", "baz"), false);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void queryByIdBlankId() {
         svc.queryMetadataById("   ", true, true, "foo='bar'", null, ImmutableSet.of("foo", "bar", "baz"), false);
     }
@@ -632,37 +633,37 @@ public class SharedModuleMetadataServiceTest {
         // execute and validate
         List<SharedModuleMetadata> svcOutputMetadataList = svc.queryMetadataById("module-B", true, true, "foo='bar'",
                 null, tags, false);
-        assertEquals(2, svcOutputMetadataList.size());
+        assertEquals(svcOutputMetadataList.size(), 2);
         assertTrue(svcOutputMetadataList.contains(moduleBVersion3));
         assertTrue(svcOutputMetadataList.contains(moduleBVersion4));
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateNullId() {
         svc.updateMetadata(null, MODULE_VERSION, makeValidMetadata());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateEmptyId() {
         svc.updateMetadata("", MODULE_VERSION, makeValidMetadata());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateBlankId() {
         svc.updateMetadata("   ", MODULE_VERSION, makeValidMetadata());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateNegativeVersion() {
         svc.updateMetadata(MODULE_ID, -1, makeValidMetadata());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateZeroVersion() {
         svc.updateMetadata(MODULE_ID, 0, makeValidMetadata());
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateNotFound() {
         // mock dao to return null
         when(mockDao.getMetadataByIdAndVersion(MODULE_ID, MODULE_VERSION)).thenReturn(null);
@@ -670,7 +671,7 @@ public class SharedModuleMetadataServiceTest {
         svc.updateMetadata(MODULE_ID, MODULE_VERSION, makeValidMetadata());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateNotFoundSchema() {
         SharedModuleMetadata svcInputMetadata = makeValidMetadata();
         when(mockDao.getMetadataByIdAndVersion(anyString(), anyInt())).thenReturn(svcInputMetadata);
@@ -679,7 +680,7 @@ public class SharedModuleMetadataServiceTest {
         svc.updateMetadata(MODULE_ID, MODULE_VERSION, svcInputMetadata);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateNotFoundSurvey() {
         SharedModuleMetadata svcInputMetadata = makeValidMetadata();
         when(mockDao.getMetadataByIdAndVersion(anyString(), anyInt())).thenReturn(svcInputMetadata);
@@ -756,7 +757,7 @@ public class SharedModuleMetadataServiceTest {
         assertFalse(metadataCaptor.getValue().isDeleted());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void cannotLogicallyDeleteLogicallyDeletedModuleMetadata() throws Exception {
         SharedModuleMetadata metadata = makeValidMetadata();
         metadata.setDeleted(true);
@@ -786,11 +787,11 @@ public class SharedModuleMetadataServiceTest {
 
         // Validate we set the ID and version before passing it to the DAO.
         SharedModuleMetadata daoInputMetadata = daoInputMetadataCaptor.getValue();
-        assertEquals(MODULE_ID, daoInputMetadata.getId());
-        assertEquals(MODULE_VERSION, daoInputMetadata.getVersion());
+        assertEquals(daoInputMetadata.getId(), MODULE_ID);
+        assertEquals(daoInputMetadata.getVersion(), MODULE_VERSION);
 
         // Validate DAO input is also svcOutput.
-        assertSame(daoOutputMetadata, svcOutputMetadata);
+        assertSame(svcOutputMetadata, daoOutputMetadata);
     }
 
     static SharedModuleMetadata makeValidMetadata() {

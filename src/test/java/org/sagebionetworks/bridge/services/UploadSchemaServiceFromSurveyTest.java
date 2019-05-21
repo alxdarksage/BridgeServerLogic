@@ -1,18 +1,18 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.UploadSchemaDao;
@@ -40,7 +40,7 @@ public class UploadSchemaServiceFromSurveyTest {
     private UploadSchemaService svc;
     private UploadSchemaDao dao;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         dao = mock(UploadSchemaDao.class);
         svc = new UploadSchemaService();
@@ -62,9 +62,8 @@ public class UploadSchemaServiceFromSurveyTest {
             svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, false);
             fail("expected exception");
         } catch (BadRequestException ex) {
-            assertEquals("Survey with identifier " + SURVEY_ID +
-                            " conflicts with schema with the same ID. Please use a different survey identifier.",
-                    ex.getMessage());
+            assertEquals(ex.getMessage(), "Survey with identifier " + SURVEY_ID
+                    + " conflicts with schema with the same ID. Please use a different survey identifier.");
         }
 
         // verify calls (or lack thereof)
@@ -87,9 +86,8 @@ public class UploadSchemaServiceFromSurveyTest {
             svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, false);
             fail("expected exception");
         } catch (BadRequestException ex) {
-            assertEquals("Survey with identifier " + SURVEY_ID +
-                            " conflicts with schema with the same ID. Please use a different survey identifier.",
-                    ex.getMessage());
+            assertEquals(ex.getMessage(), "Survey with identifier " + SURVEY_ID +
+                    " conflicts with schema with the same ID. Please use a different survey identifier.");
         }
 
         // verify calls (or lack thereof)
@@ -114,7 +112,7 @@ public class UploadSchemaServiceFromSurveyTest {
 
         // set up test dao and execute
         UploadSchema svcOutputSchema = svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, false);
-        assertSame(daoOutputSchema, svcOutputSchema);
+        assertSame(svcOutputSchema, daoOutputSchema);
 
         // verify calls
         verify(dao, never()).updateSchemaRevision(any());
@@ -136,7 +134,7 @@ public class UploadSchemaServiceFromSurveyTest {
 
         // set up test dao and execute
         UploadSchema svcOutputSchema = svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, false);
-        assertSame(daoOutputSchema, svcOutputSchema);
+        assertSame(svcOutputSchema, daoOutputSchema);
 
         // verify calls
         verify(dao, never()).updateSchemaRevision(any());
@@ -164,7 +162,7 @@ public class UploadSchemaServiceFromSurveyTest {
 
         // set up test dao and execute
         UploadSchema svcOutputSchema = svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, true);
-        assertSame(daoOutputSchema, svcOutputSchema);
+        assertSame(svcOutputSchema, daoOutputSchema);
 
         // verify calls
         verify(dao, never()).updateSchemaRevision(any());
@@ -192,7 +190,7 @@ public class UploadSchemaServiceFromSurveyTest {
 
         // set up test dao and execute
         UploadSchema svcOutputSchema = svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, false);
-        assertSame(daoOutputSchema, svcOutputSchema);
+        assertSame(svcOutputSchema, daoOutputSchema);
 
         // verify calls
         verify(dao, never()).createSchemaRevision(any());
@@ -241,7 +239,7 @@ public class UploadSchemaServiceFromSurveyTest {
 
         // set up test dao and execute
         UploadSchema svcOutputSchema = svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, false);
-        assertSame(daoOutputSchema, svcOutputSchema);
+        assertSame(svcOutputSchema, daoOutputSchema);
 
         // verify calls
         verify(dao, never()).createSchemaRevision(any());
@@ -284,7 +282,7 @@ public class UploadSchemaServiceFromSurveyTest {
 
         // set up test dao and execute
         UploadSchema svcOutputSchema = svc.createUploadSchemaFromSurvey(TestConstants.TEST_STUDY, survey, false);
-        assertSame(daoOutputSchema, svcOutputSchema);
+        assertSame(svcOutputSchema, daoOutputSchema);
 
         // verify calls
         verify(dao, never()).updateSchemaRevision(any());
@@ -342,11 +340,11 @@ public class UploadSchemaServiceFromSurveyTest {
     }
 
     private static void assertSchema(UploadSchema schema, UploadFieldDefinition... expectedFieldDefVarargs) {
-        assertEquals(ImmutableList.copyOf(expectedFieldDefVarargs), schema.getFieldDefinitions());
-        assertEquals(SURVEY_NAME, schema.getName());
-        assertEquals(SURVEY_ID, schema.getSchemaId());
-        assertEquals(UploadSchemaType.IOS_SURVEY, schema.getSchemaType());
-        assertEquals(SURVEY_GUID, schema.getSurveyGuid());
-        assertEquals(SURVEY_CREATED_ON, schema.getSurveyCreatedOn().longValue());
+        assertEquals(schema.getFieldDefinitions(), ImmutableList.copyOf(expectedFieldDefVarargs));
+        assertEquals(schema.getName(), SURVEY_NAME);
+        assertEquals(schema.getSchemaId(), SURVEY_ID);
+        assertEquals(schema.getSchemaType(), UploadSchemaType.IOS_SURVEY);
+        assertEquals(schema.getSurveyGuid(), SURVEY_GUID);
+        assertEquals(schema.getSurveyCreatedOn().longValue(), SURVEY_CREATED_ON);
     }
 }

@@ -1,8 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.eq;
@@ -12,6 +9,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
@@ -19,8 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
@@ -65,7 +65,7 @@ public class ScheduledActivityServiceResolveLinksTest {
     private ScheduledActivityService scheduledActivityService;
     private AppConfigService appConfigService;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         // Mock compound activity definition service. This compound activity contains a schema ref with an unresolved
         // revision, and a survey reference with no createdOn (published survey).
@@ -194,8 +194,8 @@ public class ScheduledActivityServiceResolveLinksTest {
         List<ScheduledActivity> scheduledActivityList = scheduledActivityService.scheduleActivitiesForPlans(
                 SCHEDULE_CONTEXT);
         CompoundActivity compoundActivity = scheduledActivityList.get(0).getActivity().getCompoundActivity();
-        assertEquals("surveyRefId", compoundActivity.getSurveyList().get(0).getIdentifier());
-        assertEquals((Integer)3, compoundActivity.getSchemaList().get(0).getRevision());
+        assertEquals(compoundActivity.getSurveyList().get(0).getIdentifier(), "surveyRefId");
+        assertEquals(compoundActivity.getSchemaList().get(0).getRevision(), (Integer)3);
 
         // Validate backends. We only called compound activity, schema, and survey services once.
         verify(mockCompoundActivityDefinitionService, times(1)).getCompoundActivityDefinition(any(), any());
@@ -267,7 +267,7 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             CompoundActivity compoundActivity = oneScheduledActivity.getActivity().getCompoundActivity();
-            assertEquals(COMPOUND_ACTIVITY_REF_TASK_ID, compoundActivity.getTaskIdentifier());
+            assertEquals(compoundActivity.getTaskIdentifier(), COMPOUND_ACTIVITY_REF_TASK_ID);
             assertTrue(compoundActivity.getSchemaList().isEmpty());
             assertTrue(compoundActivity.getSurveyList().isEmpty());
         }
@@ -303,7 +303,7 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             CompoundActivity compoundActivity = oneScheduledActivity.getActivity().getCompoundActivity();
-            assertEquals(COMPOUND_ACTIVITY_REF_TASK_ID, compoundActivity.getTaskIdentifier());
+            assertEquals(compoundActivity.getTaskIdentifier(), COMPOUND_ACTIVITY_REF_TASK_ID);
             assertTrue(compoundActivity.getSchemaList().isEmpty());
             assertTrue(compoundActivity.getSurveyList().isEmpty());
         }
@@ -320,16 +320,16 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             CompoundActivity compoundActivity = oneScheduledActivity.getActivity().getCompoundActivity();
-            assertEquals(COMPOUND_ACTIVITY_REF_TASK_ID, compoundActivity.getTaskIdentifier());
+            assertEquals(compoundActivity.getTaskIdentifier(), COMPOUND_ACTIVITY_REF_TASK_ID);
 
-            assertEquals(1, compoundActivity.getSchemaList().size());
-            assertEquals(SCHEMA_ID, compoundActivity.getSchemaList().get(0).getId());
-            assertEquals(SCHEMA_REV, compoundActivity.getSchemaList().get(0).getRevision().intValue());
+            assertEquals(compoundActivity.getSchemaList().size(), 1);
+            assertEquals(compoundActivity.getSchemaList().get(0).getId(), SCHEMA_ID);
+            assertEquals(compoundActivity.getSchemaList().get(0).getRevision().intValue(), SCHEMA_REV);
 
-            assertEquals(1, compoundActivity.getSurveyList().size());
-            assertEquals(SURVEY_ID, compoundActivity.getSurveyList().get(0).getIdentifier());
-            assertEquals(SURVEY_GUID, compoundActivity.getSurveyList().get(0).getGuid());
-            assertEquals(SURVEY_CREATED_ON_MILLIS, compoundActivity.getSurveyList().get(0).getCreatedOn().getMillis());
+            assertEquals(compoundActivity.getSurveyList().size(), 1);
+            assertEquals(compoundActivity.getSurveyList().get(0).getIdentifier(), SURVEY_ID);
+            assertEquals(compoundActivity.getSurveyList().get(0).getGuid(), SURVEY_GUID);
+            assertEquals(compoundActivity.getSurveyList().get(0).getCreatedOn().getMillis(), SURVEY_CREATED_ON_MILLIS);
         }
     }
 
@@ -390,8 +390,8 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             SurveyReference surveyRef = oneScheduledActivity.getActivity().getSurvey();
-            assertEquals(SURVEY_ID, surveyRef.getIdentifier());
-            assertEquals(SURVEY_GUID, surveyRef.getGuid());
+            assertEquals(surveyRef.getIdentifier(), SURVEY_ID);
+            assertEquals(surveyRef.getGuid(), SURVEY_GUID);
             assertNull(surveyRef.getCreatedOn());
         }
 
@@ -407,9 +407,9 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             SurveyReference surveyRef = oneScheduledActivity.getActivity().getSurvey();
-            assertEquals(SURVEY_ID, surveyRef.getIdentifier());
-            assertEquals(SURVEY_GUID, surveyRef.getGuid());
-            assertEquals(SURVEY_CREATED_ON_MILLIS, surveyRef.getCreatedOn().getMillis());
+            assertEquals(surveyRef.getIdentifier(), SURVEY_ID);
+            assertEquals(surveyRef.getGuid(), SURVEY_GUID);
+            assertEquals(surveyRef.getCreatedOn().getMillis(), SURVEY_CREATED_ON_MILLIS);
         }
     }
 
@@ -474,7 +474,7 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             SchemaReference resolvedSchemaRef = oneScheduledActivity.getActivity().getTask().getSchema();
-            assertEquals(SCHEMA_ID, resolvedSchemaRef.getId());
+            assertEquals(resolvedSchemaRef.getId(), SCHEMA_ID);
             assertNull(resolvedSchemaRef.getRevision());
         }
 
@@ -490,8 +490,8 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             SchemaReference schemaRef = oneScheduledActivity.getActivity().getTask().getSchema();
-            assertEquals(SCHEMA_ID, schemaRef.getId());
-            assertEquals(SCHEMA_REV, schemaRef.getRevision().intValue());
+            assertEquals(schemaRef.getId(), SCHEMA_ID);
+            assertEquals(schemaRef.getRevision().intValue(), SCHEMA_REV);
         }
     }
 
@@ -510,7 +510,7 @@ public class ScheduledActivityServiceResolveLinksTest {
         verifyActivityListSizeAndLabels(scheduledActivityList);
         for (ScheduledActivity oneScheduledActivity : scheduledActivityList) {
             TaskReference taskRef = oneScheduledActivity.getActivity().getTask();
-            assertEquals(TASK_ID, taskRef.getIdentifier());
+            assertEquals(taskRef.getIdentifier(), TASK_ID);
             assertNull(taskRef.getSchema());
         }
 
@@ -521,8 +521,8 @@ public class ScheduledActivityServiceResolveLinksTest {
     }
 
     private static void verifyActivityListSizeAndLabels(List<ScheduledActivity> scheduledActivityList) {
-        assertEquals(2, scheduledActivityList.size());
-        assertEquals(ACTIVITY_LABEL_PREFIX + "1", scheduledActivityList.get(0).getActivity().getLabel());
-        assertEquals(ACTIVITY_LABEL_PREFIX + "2", scheduledActivityList.get(1).getActivity().getLabel());
+        assertEquals(scheduledActivityList.size(), 2);
+        assertEquals(scheduledActivityList.get(0).getActivity().getLabel(), ACTIVITY_LABEL_PREFIX + "1");
+        assertEquals(scheduledActivityList.get(1).getActivity().getLabel(), ACTIVITY_LABEL_PREFIX + "2");
     }
 }

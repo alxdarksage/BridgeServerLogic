@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleTestUtils.asDT;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleTestUtils.assertDates;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoSchedulePlan;
@@ -32,7 +32,7 @@ public class PersistentActivitySchedulerTest {
     private SchedulePlan plan;
     private Schedule schedule;
     
-    @Before
+    @BeforeMethod
     public void before() {
         DateTimeUtils.setCurrentMillisFixed(1428340210000L);
         
@@ -48,7 +48,7 @@ public class PersistentActivitySchedulerTest {
         schedule.setScheduleType(ScheduleType.PERSISTENT);
     }
     
-    @After
+    @AfterMethod
     public void after() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -71,7 +71,7 @@ public class PersistentActivitySchedulerTest {
         schedule.setStartsOn("2015-04-10T09:00:00Z");
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusDays(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void endsOnScheduleWorks() {
@@ -80,7 +80,7 @@ public class PersistentActivitySchedulerTest {
         
         // In this case the endsOn date is before the enrollment. No activities.
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
         
         schedule.setEndsOn("2015-04-23T13:40:00Z");
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
@@ -103,7 +103,7 @@ public class PersistentActivitySchedulerTest {
         schedule.setEventId("survey:AAA:finished");
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
         
         // Once that occurs, a task is issued for "right now"
         events.put("survey:AAA:finished", asDT("2015-04-10 11:40"));

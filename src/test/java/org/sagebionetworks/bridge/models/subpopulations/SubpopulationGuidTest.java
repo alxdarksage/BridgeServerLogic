@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.models.subpopulations;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -13,6 +13,6 @@ public class SubpopulationGuidTest {
     }
     @Test
     public void testToString() {
-        assertEquals("ABC", SubpopulationGuid.create("ABC").toString());
+        assertEquals(SubpopulationGuid.create("ABC").toString(), "ABC");
     }
 }

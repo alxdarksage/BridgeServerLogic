@@ -4,12 +4,11 @@ import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.RequestContext;
@@ -22,7 +21,6 @@ import org.sagebionetworks.bridge.services.SubstudyService;
 
 import com.google.common.collect.ImmutableSet;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ExternalIdValidatorTest {
     
     private ExternalIdValidator validatorV4;
@@ -30,12 +28,14 @@ public class ExternalIdValidatorTest {
     @Mock
     private SubstudyService substudyService;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         validatorV4 = new ExternalIdValidator(substudyService, false);
     }
     
-    @After
+    @AfterMethod
     public void after() {
         BridgeUtils.setRequestContext(null);
     }
@@ -143,7 +143,7 @@ public class ExternalIdValidatorTest {
         assertValidatorMessage(validatorV4, id, "substudyId", "is not a valid substudy");
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void studyIdCannotBeBlank() { 
         ExternalIdentifier.create(new StudyIdentifierImpl("   "), "one-id");
     }

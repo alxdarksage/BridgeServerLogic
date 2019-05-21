@@ -1,15 +1,13 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.accounts.AccountId;
 
+import static org.testng.Assert.assertEquals;
+
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -28,13 +26,13 @@ public class CriteriaContextTest {
         CriteriaContext context = new CriteriaContext.Builder()
                 .withUserId(USER_ID)
                 .withStudyIdentifier(TestConstants.TEST_STUDY).build();
-        assertEquals(ClientInfo.UNKNOWN_CLIENT, context.getClientInfo());
-        assertEquals(ImmutableList.of(), context.getLanguages());
-        assertEquals(ImmutableSet.of(), context.getUserDataGroups());
-        assertEquals(ImmutableSet.of(), context.getUserSubstudyIds());
+        assertEquals(context.getClientInfo(), ClientInfo.UNKNOWN_CLIENT);
+        assertEquals(context.getLanguages(), ImmutableList.of());
+        assertEquals(context.getUserDataGroups(), ImmutableList.of());
+        assertEquals(context.getUserSubstudyIds(), ImmutableList.of());
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void requiresStudyIdentifier() {
         new CriteriaContext.Builder().withUserId(USER_ID).build();
     }
@@ -49,16 +47,16 @@ public class CriteriaContextTest {
                 .withUserSubstudyIds(TestConstants.USER_SUBSTUDY_IDS).build();
         
         // There are defaults
-        assertEquals(CLIENT_INFO, context.getClientInfo());
-        assertEquals(TestConstants.USER_DATA_GROUPS, context.getUserDataGroups());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, context.getUserSubstudyIds());
+        assertEquals(context.getClientInfo(), CLIENT_INFO);
+        assertEquals(context.getUserDataGroups(), TestConstants.USER_DATA_GROUPS);
+        assertEquals(context.getUserSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
         
         CriteriaContext copy = new CriteriaContext.Builder().withContext(context).build();
-        assertEquals(CLIENT_INFO, copy.getClientInfo());
-        assertEquals(TestConstants.TEST_STUDY, copy.getStudyIdentifier());
-        assertEquals(USER_ID, copy.getUserId());
-        assertEquals(TestConstants.USER_DATA_GROUPS, copy.getUserDataGroups());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, copy.getUserSubstudyIds());
+        assertEquals(copy.getClientInfo(), CLIENT_INFO);
+        assertEquals(copy.getStudyIdentifier(), TestConstants.TEST_STUDY);
+        assertEquals(copy.getUserId(), USER_ID);
+        assertEquals(copy.getUserDataGroups(), TestConstants.USER_DATA_GROUPS);
+        assertEquals(copy.getUserSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
     }
     
     @Test
@@ -68,7 +66,7 @@ public class CriteriaContextTest {
                 .withUserId(USER_ID).build();
         
         AccountId accountId = context.getAccountId();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, accountId.getStudyId());
-        assertEquals(USER_ID, accountId.getId());
+        assertEquals(accountId.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(accountId.getId(), USER_ID);
     }
 }

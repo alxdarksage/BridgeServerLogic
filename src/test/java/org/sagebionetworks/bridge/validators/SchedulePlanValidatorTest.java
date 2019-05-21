@@ -1,14 +1,15 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.validation.Errors;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -29,7 +30,7 @@ public class SchedulePlanValidatorTest {
     
     private SchedulePlanValidator validator;
 
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
         validator = new SchedulePlanValidator(TestConstants.USER_DATA_GROUPS, TestConstants.USER_SUBSTUDY_IDS,
                 TASK_IDENTIFIERS);
@@ -107,7 +108,7 @@ public class SchedulePlanValidatorTest {
             Validate.entityThrowingException(validator, plan);
             fail("Should have thrown exception");
         } catch (InvalidEntityException e) {
-            assertEquals(message, e.getErrors().get(fieldName).get(0));
+            assertEquals(e.getErrors().get(fieldName).get(0), message);
         }
     }
 

@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.models.oauth;
 
-import static org.junit.Assert.assertEquals;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -20,15 +21,15 @@ public class OAuthAuthorizationTokenTest {
         OAuthAuthorizationToken token = new OAuthAuthorizationToken("vendorId", "authToken");
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(token);
-        assertEquals("vendorId", node.get("vendorId").textValue());
-        assertEquals("authToken", node.get("authToken").textValue());
-        assertEquals("OAuthAuthorizationToken", node.get("type").textValue());
-        assertEquals(3, node.size());
+        assertEquals(node.get("vendorId").textValue(), "vendorId");
+        assertEquals(node.get("authToken").textValue(), "authToken");
+        assertEquals(node.get("type").textValue(), "OAuthAuthorizationToken");
+        assertEquals(node.size(), 3);
         
         OAuthAuthorizationToken deser = BridgeObjectMapper.get().readValue(node.toString(), OAuthAuthorizationToken.class);
-        assertEquals("vendorId", deser.getVendorId());
-        assertEquals("authToken", deser.getAuthToken());
+        assertEquals(deser.getVendorId(), "vendorId");
+        assertEquals(deser.getAuthToken(), "authToken");
         
-        assertEquals(token, deser);
+        assertEquals(deser, token);
     }
 }

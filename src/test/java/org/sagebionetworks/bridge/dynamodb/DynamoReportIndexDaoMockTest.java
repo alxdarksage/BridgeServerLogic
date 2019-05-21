@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -14,13 +14,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
@@ -37,7 +36,6 @@ import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.google.common.collect.ImmutableList;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoReportIndexDaoMockTest {
 
     DynamoReportIndexDao dao;
@@ -64,8 +62,9 @@ public class DynamoReportIndexDaoMockTest {
             .withIdentifier("report-name").withStudyIdentifier(TEST_STUDY)
             .withReportType(ReportType.STUDY).build();
 
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         dao = new DynamoReportIndexDao();
         dao.setReportIndexMapper(mapper);
     }
@@ -77,8 +76,8 @@ public class DynamoReportIndexDaoMockTest {
         verify(mapper).load(loadIndexCaptor.capture());
         
         DynamoReportIndex index = loadIndexCaptor.getValue();
-        assertEquals(KEY.getIndexKeyString(), index.getKey());
-        assertEquals(KEY.getIdentifier(), index.getIdentifier());
+        assertEquals(index.getKey(), KEY.getIndexKeyString());
+        assertEquals(index.getIdentifier(), KEY.getIdentifier());
     }
 
     @Test
@@ -89,14 +88,14 @@ public class DynamoReportIndexDaoMockTest {
         verify(mapper).save(saveIndexCaptor.capture(), eq(DynamoReportIndexDao.DOES_NOT_EXIST_EXPRESSION));
         
         DynamoReportIndex lookupKey = loadIndexCaptor.getValue();
-        assertEquals(KEY.getIndexKeyString(), lookupKey.getKey());
-        assertEquals(KEY.getIdentifier(), lookupKey.getIdentifier());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, lookupKey.getSubstudyIds());
+        assertEquals(lookupKey.getKey(), KEY.getIndexKeyString());
+        assertEquals(lookupKey.getIdentifier(), KEY.getIdentifier());
+        assertEquals(lookupKey.getSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
         
         DynamoReportIndex savedIndex = saveIndexCaptor.getValue();
-        assertEquals(KEY.getIndexKeyString(), savedIndex.getKey());
-        assertEquals(KEY.getIdentifier(), savedIndex.getIdentifier());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, savedIndex.getSubstudyIds());
+        assertEquals(savedIndex.getKey(), KEY.getIndexKeyString());
+        assertEquals(savedIndex.getIdentifier(), KEY.getIdentifier());
+        assertEquals(savedIndex.getSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
     }
     
     @Test
@@ -127,8 +126,8 @@ public class DynamoReportIndexDaoMockTest {
         verify(mapper).delete(index);
         
         DynamoReportIndex lookupKey = loadIndexCaptor.getValue();
-        assertEquals(KEY.getIndexKeyString(), lookupKey.getKey());
-        assertEquals(KEY.getIdentifier(), lookupKey.getIdentifier());
+        assertEquals(lookupKey.getKey(), KEY.getIndexKeyString());
+        assertEquals(lookupKey.getIdentifier(), KEY.getIdentifier());
     }
     
     @Test
@@ -155,18 +154,18 @@ public class DynamoReportIndexDaoMockTest {
         verify(mapper).save(saveIndexCaptor.capture(), saveExpressionCaptor.capture());
         
         DynamoReportIndex index = saveIndexCaptor.getValue();
-        assertEquals("api:STUDY", index.getKey());
-        assertEquals(updatedIndex.getIdentifier(), index.getIdentifier());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, index.getSubstudyIds());
+        assertEquals(index.getKey(), "api:STUDY");
+        assertEquals(index.getIdentifier(), updatedIndex.getIdentifier());
+        assertEquals(index.getSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
         assertTrue(index.isPublic());
         
         DynamoDBSaveExpression expr = saveExpressionCaptor.getValue();
         Map<String,ExpectedAttributeValue> map = expr.getExpected();
-        assertEquals(index.getKey(), map.get("key").getValue().getS());
-        assertEquals(index.getIdentifier(), map.get("identifier").getValue().getS());
+        assertEquals(map.get("key").getValue().getS(), index.getKey());
+        assertEquals(map.get("identifier").getValue().getS(), index.getIdentifier());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateIndexConditionalCheckFailedThrows() {
         doThrow(new ConditionalCheckFailedException("message"))
             .when(mapper).save(any(), any(DynamoDBSaveExpression.class));
@@ -186,14 +185,14 @@ public class DynamoReportIndexDaoMockTest {
         ReportTypeResourceList<? extends ReportIndex> indices = dao.getIndices(
                 TestConstants.TEST_STUDY, ReportType.PARTICIPANT);
         
-        assertEquals(1, indices.getItems().size());
-        assertEquals(ReportType.PARTICIPANT, indices.getRequestParams().get("reportType"));
+        assertEquals(indices.getItems().size(), 1);
+        assertEquals(indices.getRequestParams().get("reportType"), ReportType.PARTICIPANT);
         
         verify(mapper).query(eq(DynamoReportIndex.class), queryCaptor.capture());
         
         DynamoDBQueryExpression<DynamoReportIndex> query = queryCaptor.getValue();
         DynamoReportIndex hashKey = query.getHashKeyValues();
         
-        assertEquals("api:PARTICIPANT", hashKey.getKey());
+        assertEquals(hashKey.getKey(), "api:PARTICIPANT");
     }    
 }

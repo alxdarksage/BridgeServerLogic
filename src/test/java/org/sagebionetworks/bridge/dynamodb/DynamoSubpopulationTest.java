@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -50,54 +50,54 @@ public class DynamoSubpopulationTest {
 
         // This does not need to be passed to the user; the user is never allowed to set it.
         // This should be standard across the API, BTW, but this is leaked out by some classes.
-        assertEquals("Name", node.get("name").textValue());
-        assertEquals("Description", node.get("description").textValue());
-        assertEquals("guid", node.get("guid").textValue());
-        assertEquals(PUBLISHED_CONSENT_TIMESTAMP.toString(), node.get("publishedConsentCreatedOn").textValue());
+        assertEquals(node.get("name").textValue(), "Name");
+        assertEquals(node.get("description").textValue(), "Description");
+        assertEquals(node.get("guid").textValue(), "guid");
+        assertEquals(node.get("publishedConsentCreatedOn").textValue(), PUBLISHED_CONSENT_TIMESTAMP.toString());
         assertTrue(node.get("required").booleanValue());
         assertTrue(node.get("defaultGroup").booleanValue());
         assertTrue(node.get("autoSendConsentSuppressed").booleanValue());
         assertTrue(node.get("deleted").booleanValue()); // users do not see this flag, they never get deleted items
-        assertEquals("study-key", node.get("studyIdentifier").textValue());
+        assertEquals(node.get("studyIdentifier").textValue(), "study-key");
         assertTrue(node.get("deleted").booleanValue());
-        assertEquals(3L, node.get("version").longValue());
+        assertEquals(node.get("version").longValue(), 3L);
         
         Set<String> dataGroups = ImmutableSet.of(node.get("dataGroupsAssignedWhileConsented").get(0).textValue(),
                 node.get("dataGroupsAssignedWhileConsented").get(1).textValue());                
-        assertEquals(TestConstants.USER_DATA_GROUPS, dataGroups);
+        assertEquals(dataGroups, TestConstants.USER_DATA_GROUPS);
         
         Set<String> substudyIds = ImmutableSet.of(node.get("substudyIdsAssignedOnConsent").get(0).textValue(),
                 node.get("substudyIdsAssignedOnConsent").get(1).textValue());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, substudyIds);
-        assertEquals("Subpopulation", node.get("type").textValue());
+        assertEquals(substudyIds, TestConstants.USER_SUBSTUDY_IDS);
+        assertEquals(node.get("type").textValue(), "Subpopulation");
         
         JsonNode critNode = node.get("criteria");
-        assertEquals(ALL_OF_GROUPS, JsonUtils.asStringSet(critNode, "allOfGroups"));
-        assertEquals(NONE_OF_GROUPS, JsonUtils.asStringSet(critNode, "noneOfGroups"));
-        assertEquals(2, critNode.get("minAppVersions").get(IOS).asInt());
-        assertEquals(10, critNode.get("maxAppVersions").get(IOS).asInt());
+        assertEquals(JsonUtils.asStringSet(critNode, "allOfGroups"), ALL_OF_GROUPS);
+        assertEquals(JsonUtils.asStringSet(critNode, "noneOfGroups"), NONE_OF_GROUPS);
+        assertEquals(critNode.get("minAppVersions").get(IOS).asInt(), 2);
+        assertEquals(critNode.get("maxAppVersions").get(IOS).asInt(), 10);
         
         Subpopulation newSubpop = BridgeObjectMapper.get().treeToValue(node, Subpopulation.class);
         // Not serialized, these values have to be added back to have equal objects 
         newSubpop.setStudyIdentifier("study-key");
         
-        assertEquals(subpop, newSubpop);
+        assertEquals(newSubpop, subpop);
         
         // Finally, check the publication site URLs
         assertEqualsAndNotNull(newSubpop.getConsentHTML(), JsonUtils.asText(node, "consentHTML"));
         assertEqualsAndNotNull(newSubpop.getConsentPDF(), JsonUtils.asText(node, "consentPDF"));
 
         String htmlURL = "http://" + BridgeConfigFactory.getConfig().getHostnameWithPostfix("docs") + "/" + newSubpop.getGuidString() + "/consent.html";
-        assertEquals(htmlURL, newSubpop.getConsentHTML());
+        assertEquals(newSubpop.getConsentHTML(), htmlURL);
         
         String pdfURL = "http://" + BridgeConfigFactory.getConfig().getHostnameWithPostfix("docs") + "/" + newSubpop.getGuidString() + "/consent.pdf";
-        assertEquals(pdfURL, newSubpop.getConsentPDF());
+        assertEquals(newSubpop.getConsentPDF(), pdfURL);
         
         Criteria critObject = newSubpop.getCriteria();
-        assertEquals(new Integer(2), critObject.getMinAppVersion(IOS));
-        assertEquals(new Integer(10), critObject.getMaxAppVersion(IOS));
-        assertEquals(ALL_OF_GROUPS, critObject.getAllOfGroups());
-        assertEquals(NONE_OF_GROUPS, critObject.getNoneOfGroups());
+        assertEquals(critObject.getMinAppVersion(IOS), new Integer(2));
+        assertEquals(critObject.getMaxAppVersion(IOS), new Integer(10));
+        assertEquals(critObject.getAllOfGroups(), ALL_OF_GROUPS);
+        assertEquals(critObject.getNoneOfGroups(), NONE_OF_GROUPS);
     }
 
     private Subpopulation makeSubpopulation() {
@@ -123,8 +123,8 @@ public class DynamoSubpopulationTest {
         // Set some values to verify that null resets these to the empty set
         subpop.setDataGroupsAssignedWhileConsented(ImmutableSet.of("A"));
         subpop.setSubstudyIdsAssignedOnConsent(ImmutableSet.of("B"));
-        assertEquals(ImmutableSet.of("A"), subpop.getDataGroupsAssignedWhileConsented());
-        assertEquals(ImmutableSet.of("B"), subpop.getSubstudyIdsAssignedOnConsent());
+        assertEquals(subpop.getDataGroupsAssignedWhileConsented(), ImmutableSet.of("A"));
+        assertEquals(subpop.getSubstudyIdsAssignedOnConsent(), ImmutableSet.of("B"));
         
         subpop.setDataGroupsAssignedWhileConsented(null);
         subpop.setSubstudyIdsAssignedOnConsent(null);
@@ -146,37 +146,37 @@ public class DynamoSubpopulationTest {
     public void guidAndGuidStringInterchangeable() throws Exception {
         Subpopulation subpop = Subpopulation.create();
         subpop.setGuid(SubpopulationGuid.create("abc"));
-        assertEquals("abc", subpop.getGuid().getGuid());
+        assertEquals(subpop.getGuid().getGuid(), "abc");
         
         String json = BridgeObjectMapper.get().writeValueAsString(subpop);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("abc", node.get("guid").asText());
+        assertEquals(node.get("guid").asText(), "abc");
         assertNull(node.get("guidString"));
         
         Subpopulation newSubpop = BridgeObjectMapper.get().readValue(json, Subpopulation.class);
-        assertEquals("abc", newSubpop.getGuidString());
-        assertEquals("abc", newSubpop.getGuid().getGuid());
+        assertEquals(newSubpop.getGuidString(), "abc");
+        assertEquals(newSubpop.getGuid().getGuid(), "abc");
 
         subpop = Subpopulation.create();
         subpop.setGuidString("abc");
-        assertEquals("abc", subpop.getGuidString());
+        assertEquals(subpop.getGuidString(), "abc");
         
         json = BridgeObjectMapper.get().writeValueAsString(subpop);
         node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("abc", node.get("guid").asText());
+        assertEquals(node.get("guid").asText(), "abc");
         assertNull(node.get("guidString"));
         
         newSubpop = BridgeObjectMapper.get().readValue(json, Subpopulation.class);
-        assertEquals("abc", newSubpop.getGuidString());
-        assertEquals("abc", newSubpop.getGuid().getGuid());
+        assertEquals(newSubpop.getGuidString(), "abc");
+        assertEquals(newSubpop.getGuid().getGuid(), "abc");
     }
     
     void assertEqualsAndNotNull(Object expected, Object actual) {
         assertNotNull(expected);
         assertNotNull(actual);
-        assertEquals(expected, actual);
+        assertEquals(actual, expected);
     }
     
 }

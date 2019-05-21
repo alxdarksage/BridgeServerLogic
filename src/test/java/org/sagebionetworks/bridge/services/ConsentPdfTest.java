@@ -1,6 +1,6 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 import java.io.FileInputStream;
 
@@ -8,10 +8,10 @@ import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dynamodb.DynamoStudy;
@@ -35,7 +35,7 @@ public class ConsentPdfTest {
     private String consentBodyTemplate;
     private Study study;
     
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
         DateTimeUtils.setCurrentMillisFixed(TIMESTAMP);
         consentBodyTemplate = IOUtils.toString(new FileInputStream(new ClassPathResource(
@@ -49,7 +49,7 @@ public class ConsentPdfTest {
         study.setConsentNotificationEmailVerified(true);
     }
     
-    @After
+    @AfterMethod
     public void after() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -73,7 +73,7 @@ public class ConsentPdfTest {
         
         String output = consentPdf.getFormattedConsentDocument();
         String dateStr = ConsentPdf.FORMATTER.print(DateTime.now(DateTimeZone.UTC));
-        assertTrue("Signing date formatted with default zone", output.contains(dateStr));
+        assertTrue(output.contains(dateStr), "Signing date formatted with default zone");
     }
     
     @Test
@@ -189,7 +189,7 @@ public class ConsentPdfTest {
                 NEW_DOCUMENT_FRAGMENT, consentBodyTemplate);
         String output = consentPdf.getFormattedConsentDocument();
 
-        assertTrue("Contains formatted date", output.contains("October 4, 2017 (GMT)"));
+        assertTrue(output.contains("October 4, 2017 (GMT)"), "Contains formatted date");
     }
     
     private static ConsentSignature makeSignatureWithoutImage() {
@@ -209,20 +209,20 @@ public class ConsentPdfTest {
 
     private static void validateLegacyDocBody(String bodyContent) throws Exception {
         String dateStr = ConsentPdf.FORMATTER.print(DateTime.now());
-        assertTrue("Signing date correct", bodyContent.contains(dateStr));
-        assertTrue("Name correct", bodyContent.contains("|Test Person|"));
-        assertTrue("User email correct", bodyContent.contains("|user@user.com|"));
-        assertTrue("Sharing correct", bodyContent.contains("|Not Sharing|"));
-        assertTrue("HTML markup preserved", bodyContent.contains("<html><head></head><body>Passed through as is."));
+        assertTrue(bodyContent.contains(dateStr), "Signing date correct");
+        assertTrue(bodyContent.contains("|Test Person|"), "Name correct");
+        assertTrue(bodyContent.contains("|user@user.com|"), "User email correct");
+        assertTrue(bodyContent.contains("|Not Sharing|"), "Sharing correct");
+        assertTrue(bodyContent.contains("<html><head></head><body>Passed through as is."), "HTML markup preserved");
     }
 
     private static void validateNewDocBody(String bodyContent) throws Exception {
         String dateStr = ConsentPdf.FORMATTER.print(DateTime.now());
-        assertTrue("Signing date correct", bodyContent.contains(dateStr));
-        assertTrue("Study name correct", bodyContent.contains("<title>Study Name Consent To Research</title>"));
-        assertTrue("Name correct", bodyContent.contains(">Test Person<"));
-        assertTrue("User email correct", bodyContent.contains(">user@user.com<"));
-        assertTrue("Sharing correct", bodyContent.contains(">Not Sharing<"));
-        assertTrue("Contact correctly labeled", bodyContent.contains(">Email Address<"));
+        assertTrue(bodyContent.contains(dateStr), "Signing date correct");
+        assertTrue(bodyContent.contains("<title>Study Name Consent To Research</title>"), "Study name correct");
+        assertTrue(bodyContent.contains(">Test Person<"), "Name correct");
+        assertTrue(bodyContent.contains(">user@user.com<"), "User email correct");
+        assertTrue(bodyContent.contains(">Not Sharing<"), "Sharing correct");
+        assertTrue(bodyContent.contains(">Email Address<"), "Contact correctly labeled");
     }
 }

@@ -1,22 +1,21 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 
 import org.hibernate.exception.ConstraintViolationException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.ConcurrentModificationException;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SubstudyPersistenceExceptionConverterTest {
     
     private SubstudyPersistenceExceptionConverter converter;
@@ -24,8 +23,9 @@ public class SubstudyPersistenceExceptionConverterTest {
     @Mock
     private ConstraintViolationException cve;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         this.converter = new SubstudyPersistenceExceptionConverter();
     }
     
@@ -33,7 +33,7 @@ public class SubstudyPersistenceExceptionConverterTest {
     public void noConversion() { 
         PersistenceException ex = new PersistenceException(new RuntimeException("message"));
         
-        assertSame(ex, converter.convert(ex, null));
+        assertSame(converter.convert(ex, null), ex);
     }
     
     @Test
@@ -44,8 +44,8 @@ public class SubstudyPersistenceExceptionConverterTest {
         OptimisticLockException ole = new OptimisticLockException();
         
         RuntimeException result = converter.convert(ole, substudy);
-        assertEquals(ConcurrentModificationException.class, result.getClass());
-        assertEquals("Substudy has the wrong version number; it may have been saved in the background.", result.getMessage());
+        assertEquals(result.getClass(), ConcurrentModificationException.class);
+        assertEquals(result.getMessage(), "Substudy has the wrong version number; it may have been saved in the background.");
     }
     
     @Test
@@ -58,8 +58,8 @@ public class SubstudyPersistenceExceptionConverterTest {
 
         RuntimeException result = converter.convert(ex, substudy);
 
-        assertEquals(org.sagebionetworks.bridge.exceptions.ConstraintViolationException.class, result.getClass());
-        assertEquals("Substudy table constraint prevented save or update.", result.getMessage());
+        assertEquals(result.getClass(), org.sagebionetworks.bridge.exceptions.ConstraintViolationException.class);
+        assertEquals(result.getMessage(), "Substudy table constraint prevented save or update.");
     }
     
     @Test
@@ -72,7 +72,7 @@ public class SubstudyPersistenceExceptionConverterTest {
 
         RuntimeException result = converter.convert(ex, substudy);
 
-        assertEquals(org.sagebionetworks.bridge.exceptions.ConstraintViolationException.class, result.getClass());
-        assertEquals("Substudy cannot be deleted, it is referenced by an account", result.getMessage());
+        assertEquals(result.getClass(), org.sagebionetworks.bridge.exceptions.ConstraintViolationException.class);
+        assertEquals(result.getMessage(), "Substudy cannot be deleted, it is referenced by an account");
     }
 }

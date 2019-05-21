@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
@@ -32,23 +32,23 @@ public class AccountSummaryTest {
                 TestConstants.TEST_STUDY, ImmutableSet.of("sub1", "sub2"));
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(summary);
-        assertEquals("firstName", node.get("firstName").textValue());
-        assertEquals("lastName", node.get("lastName").textValue());
-        assertEquals("email@email.com", node.get("email").textValue());
-        assertEquals("ABC", node.get("id").textValue());
-        assertEquals(TestConstants.PHONE.getNumber(), node.get("phone").get("number").textValue());
-        assertEquals(TestConstants.PHONE.getRegionCode(), node.get("phone").get("regionCode").textValue());
-        assertEquals(TestConstants.PHONE.getNationalFormat(), node.get("phone").get("nationalFormat").textValue());
-        assertEquals("oldExternalId", node.get("externalId").textValue());
-        assertEquals("externalId", node.get("externalIds").get("sub1").textValue());
-        assertEquals(dateTime.withZone(DateTimeZone.UTC).toString(), node.get("createdOn").textValue());
-        assertEquals("unverified", node.get("status").textValue());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, node.get("studyIdentifier").get("identifier").textValue());
-        assertEquals("sub1", node.get("substudyIds").get(0).textValue());
-        assertEquals("sub2", node.get("substudyIds").get(1).textValue());
-        assertEquals("AccountSummary", node.get("type").textValue());
+        assertEquals(node.get("firstName").textValue(), "firstName");
+        assertEquals(node.get("lastName").textValue(), "lastName");
+        assertEquals(node.get("email").textValue(), "email@email.com");
+        assertEquals(node.get("id").textValue(), "ABC");
+        assertEquals(node.get("phone").get("number").textValue(), TestConstants.PHONE.getNumber());
+        assertEquals(node.get("phone").get("regionCode").textValue(), TestConstants.PHONE.getRegionCode());
+        assertEquals(node.get("phone").get("nationalFormat").textValue(), TestConstants.PHONE.getNationalFormat());
+        assertEquals(node.get("externalId").textValue(), "oldExternalId");
+        assertEquals(node.get("externalIds").get("sub1").textValue(), "externalId");
+        assertEquals(node.get("createdOn").textValue(), dateTime.withZone(DateTimeZone.UTC).toString());
+        assertEquals(node.get("status").textValue(), "unverified");
+        assertEquals(node.get("studyIdentifier").get("identifier").textValue(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(node.get("substudyIds").get(0).textValue(), "sub1");
+        assertEquals(node.get("substudyIds").get(1).textValue(), "sub2");
+        assertEquals(node.get("type").textValue(), "AccountSummary");
         
         AccountSummary newSummary = BridgeObjectMapper.get().treeToValue(node, AccountSummary.class);
-        assertEquals(summary, newSummary);
+        assertEquals(newSummary, summary);
     }
 }

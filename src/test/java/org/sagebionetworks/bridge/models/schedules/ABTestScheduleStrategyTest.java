@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.validation.Errors;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestConstants;
@@ -42,7 +42,7 @@ public class ABTestScheduleStrategyTest {
     private ArrayList<String> healthCodes;
     private Study study;
 
-    @Before
+    @BeforeMethod
     public void before() {
         study = TestUtils.getValidStudy(ScheduleStrategyTest.class);
         healthCodes = Lists.newArrayList();
@@ -63,10 +63,10 @@ public class ABTestScheduleStrategyTest {
         SchedulePlan plan = TestUtils.getABTestSchedulePlan(studyId);
         
         List<Schedule> schedules = plan.getStrategy().getAllPossibleSchedules();
-        assertEquals(3, schedules.size());
-        assertEquals("Schedule 1", schedules.get(0).getLabel());
-        assertEquals("Schedule 2", schedules.get(1).getLabel());
-        assertEquals("Schedule 3", schedules.get(2).getLabel());
+        assertEquals(schedules.size(), 3);
+        assertEquals(schedules.get(0).getLabel(), "Schedule 1");
+        assertEquals(schedules.get(1).getLabel(), "Schedule 2");
+        assertEquals(schedules.get(2).getLabel(), "Schedule 3");
         assertTrue(schedules instanceof ImmutableList);
     }
     
@@ -79,12 +79,12 @@ public class ABTestScheduleStrategyTest {
         DynamoSchedulePlan newPlan = DynamoSchedulePlan.fromJson(node);
         newPlan.setStudyKey(plan.getStudyKey()); // not serialized.
 
-        assertEquals("Plan with AB testing strategy was serialized/deserialized", plan, newPlan);
+        assertEquals(newPlan, plan, "Plan with AB testing strategy was serialized/deserialized");
 
         ABTestScheduleStrategy strategy = (ABTestScheduleStrategy) plan.getStrategy();
         ABTestScheduleStrategy newStrategy = (ABTestScheduleStrategy) newPlan.getStrategy();
-        assertEquals("Deserialized AB testing strategy is complete", strategy.getScheduleGroups().get(0).getSchedule(),
-                        newStrategy.getScheduleGroups().get(0).getSchedule());
+        assertEquals(newStrategy.getScheduleGroups().get(0).getSchedule(), strategy.getScheduleGroups().get(0).getSchedule(),
+                "Deserialized AB testing strategy is complete");
     }
 
     @Test
@@ -105,9 +105,9 @@ public class ABTestScheduleStrategyTest {
         for (Schedule schedule : schedules) {
             countsByLabel.add(schedule.getLabel());
         }
-        assertTrue("40% users assigned to A", Math.abs(countsByLabel.count("A") - 400) < 50);
-        assertTrue("40% users assigned to B", Math.abs(countsByLabel.count("B") - 400) < 50);
-        assertTrue("20% users assigned to C", Math.abs(countsByLabel.count("C") - 200) < 50);
+        assertTrue(Math.abs(countsByLabel.count("A") - 400) < 50, "40% users assigned to A");
+        assertTrue(Math.abs(countsByLabel.count("B") - 400) < 50, "40% users assigned to B");
+        assertTrue(Math.abs(countsByLabel.count("C") - 200) < 50, "20% users assigned to C");
     }
     
     @Test
@@ -124,9 +124,9 @@ public class ABTestScheduleStrategyTest {
         Map<String,List<String>> map = Validate.convertErrorsToSimpleMap(errors);
         
         List<String> errorMessages = map.get("scheduleGroups");
-        assertEquals("scheduleGroups groups must add up to 100%", errorMessages.get(0));
+        assertEquals(errorMessages.get(0), "scheduleGroups groups must add up to 100%");
         errorMessages = map.get("scheduleGroups[0].schedule.expires");
-        assertEquals("scheduleGroups[0].schedule.expires must be set if schedule repeats", errorMessages.get(0));
+        assertEquals(errorMessages.get(0), "scheduleGroups[0].schedule.expires must be set if schedule repeats");
     }
     
     private DynamoSchedulePlan createABSchedulePlan() {

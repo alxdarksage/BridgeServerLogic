@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.studies;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.services.EmailVerificationStatus;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -18,10 +18,10 @@ public class EmailVerificationStatusHolderTest {
         String json = BridgeObjectMapper.get().writeValueAsString(holder);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("EmailVerificationStatus", node.get("type").asText());
-        assertEquals("pending", node.get("status").asText());
+        assertEquals(node.get("type").asText(), "EmailVerificationStatus");
+        assertEquals(node.get("status").asText(), "pending");
         
         EmailVerificationStatusHolder newHolder = BridgeObjectMapper.get().readValue(json, EmailVerificationStatusHolder.class);
-        assertEquals(holder.getStatus(), newHolder.getStatus());
+        assertEquals(newHolder.getStatus(), holder.getStatus());
     }
 }

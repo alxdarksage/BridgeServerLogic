@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -18,14 +18,14 @@ public class FPHSExternalIdentifierTest {
         String json = BridgeObjectMapper.get().writeValueAsString(identifier);
         
         JsonNode node = BridgeObjectMapper.get().readTree(json);
-        assertEquals("foo", node.get("externalId").asText());
-        assertEquals(false, node.get("registered").asBoolean());
-        assertEquals("ExternalIdentifier", node.get("type").asText());
-        assertEquals(3, node.size());
+        assertEquals(node.get("externalId").asText(), "foo");
+        assertEquals(node.get("registered").asBoolean(), false);
+        assertEquals(node.get("type").asText(), "ExternalIdentifier");
+        assertEquals(node.size(), 3);
         
         json = json.replace("\"registered\":false", "\"registered\":true");
         FPHSExternalIdentifier externalId = BridgeObjectMapper.get().readValue(json, FPHSExternalIdentifier.class);
-        assertEquals("foo", externalId.getExternalId());
+        assertEquals(externalId.getExternalId(), "foo");
         assertTrue(externalId.isRegistered());
     }
 }

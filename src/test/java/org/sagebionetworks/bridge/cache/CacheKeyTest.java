@@ -1,10 +1,11 @@
 package org.sagebionetworks.bridge.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.accounts.SignIn;
 import org.sagebionetworks.bridge.models.subpopulations.SubpopulationGuid;
@@ -20,69 +21,69 @@ public class CacheKeyTest {
         EqualsVerifier.forClass(CacheKey.class).allFieldsShouldBeUsed().verify();
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void nullsRejected() {
         CacheKey.appConfigList(null);
     }
     
     @Test
     public void reauthTokenLookupKey() {
-        assertEquals("ABC:api:ReauthToken", CacheKey.reauthTokenLookupKey("ABC", TestConstants.TEST_STUDY).toString());
+        assertEquals(CacheKey.reauthTokenLookupKey("ABC", TestConstants.TEST_STUDY).toString(), "ABC:api:ReauthToken");
     }
     
     @Test
     public void shortenUrl() {
-        assertEquals("ABC:ShortenedUrl", CacheKey.shortenUrl("ABC").toString());
+        assertEquals(CacheKey.shortenUrl("ABC").toString(), "ABC:ShortenedUrl");
     }
     
     @Test
     public void appConfigList() {
-        assertEquals("api:AppConfigList", CacheKey.appConfigList(TestConstants.TEST_STUDY).toString());
+        assertEquals(CacheKey.appConfigList(TestConstants.TEST_STUDY).toString(), "api:AppConfigList");
     }
     
     @Test
     public void channelThrottling() {
-        assertEquals("userId:email:channel-throttling", CacheKey.channelThrottling("email", "userId").toString());
+        assertEquals(CacheKey.channelThrottling("email", "userId").toString(), "userId:email:channel-throttling");
     }
     
     @Test
     public void emailSignInRequest() {
         SignIn signIn = new SignIn.Builder().withStudy(TestConstants.TEST_STUDY_IDENTIFIER)
                 .withEmail("email@email.com").build();
-        assertEquals("email@email.com:api:signInRequest", CacheKey.emailSignInRequest(signIn).toString());
+        assertEquals(CacheKey.emailSignInRequest(signIn).toString(), "email@email.com:api:signInRequest");
     }
     
     @Test
     public void emailVerification() {
-        assertEquals("email@email.com:emailVerificationStatus", CacheKey.emailVerification("email@email.com").toString());
+        assertEquals(CacheKey.emailVerification("email@email.com").toString(), "email@email.com:emailVerificationStatus");
     }
     
     @Test
     public void itpWithPhone() {
-        assertEquals("guid:"+TestConstants.PHONE.getNumber()+":api:itp",
-                CacheKey.itp(SUBPOP_GUID, TestConstants.TEST_STUDY, TestConstants.PHONE).toString());
+        assertEquals(CacheKey.itp(SUBPOP_GUID, TestConstants.TEST_STUDY, TestConstants.PHONE).toString(),
+                "guid:" + TestConstants.PHONE.getNumber() + ":api:itp");
     }
     
     @Test
     public void itpWithEmail() {
-        assertEquals("guid:email@email.com:api:itp",
-                CacheKey.itp(SUBPOP_GUID, TestConstants.TEST_STUDY, "email@email.com").toString());
+        assertEquals(CacheKey.itp(SUBPOP_GUID, TestConstants.TEST_STUDY, "email@email.com").toString(),
+                "guid:email@email.com:api:itp");
     }
     
     @Test
     public void lock() {
-        assertEquals("value:java.lang.String:lock", CacheKey.lock("value", String.class).toString());
+        assertEquals(CacheKey.lock("value", String.class).toString(), "value:java.lang.String:lock");
     }
     
     @Test
     public void passwordResetForEmail() {
-        assertEquals("sptoken:api", CacheKey.passwordResetForEmail("sptoken", "api").toString());
+        assertEquals(CacheKey.passwordResetForEmail("sptoken", "api").toString(), "sptoken:api");
     }
     
     @Test
     public void passwordResetForPhone() {
-        assertEquals("sptoken:phone:" + TestConstants.PHONE.getNumber(),
-                CacheKey.passwordResetForPhone("sptoken", TestConstants.PHONE.getNumber()).toString());
+        assertEquals(CacheKey.passwordResetForPhone("sptoken", TestConstants.PHONE.getNumber()).toString(),
+                "sptoken:phone:" + TestConstants.PHONE.getNumber());
     }
     
     @Test
@@ -90,48 +91,48 @@ public class CacheKeyTest {
         SignIn signIn = new SignIn.Builder().withStudy(TestConstants.TEST_STUDY_IDENTIFIER)
                 .withPhone(TestConstants.PHONE).build();
         
-        assertEquals(TestConstants.PHONE.getNumber() + ":api:phoneSignInRequest",
-                CacheKey.phoneSignInRequest(signIn).toString());
+        assertEquals(CacheKey.phoneSignInRequest(signIn).toString(),
+                TestConstants.PHONE.getNumber() + ":api:phoneSignInRequest");
     }
     
     @Test
     public void requestInfo() {
-        assertEquals("userId:request-info", CacheKey.requestInfo("userId").toString());
+        assertEquals(CacheKey.requestInfo("userId").toString(), "userId:request-info");
     }
     
     @Test
     public void study() {
-        assertEquals("api:study", CacheKey.study("api").toString());
+        assertEquals(CacheKey.study("api").toString(), "api:study");
     }    
     
     @Test
     public void subpop() {
-        assertEquals("guid:api:Subpopulation", CacheKey.subpop(SUBPOP_GUID, TestConstants.TEST_STUDY).toString());
+        assertEquals(CacheKey.subpop(SUBPOP_GUID, TestConstants.TEST_STUDY).toString(), "guid:api:Subpopulation");
     }
     
     @Test
     public void subpopList() {
-        assertEquals("api:SubpopulationList", CacheKey.subpopList(TestConstants.TEST_STUDY).toString());
+        assertEquals(CacheKey.subpopList(TestConstants.TEST_STUDY).toString(), "api:SubpopulationList");
     }
     
     @Test
     public void verificationToken() {
-        assertEquals("token", CacheKey.verificationToken("token").toString());
+        assertEquals(CacheKey.verificationToken("token").toString(), "token");
     }
     
     @Test
     public void viewKey() {
-        assertEquals("a:b:StringBuilder:view", CacheKey.viewKey(StringBuilder.class, "a", "b").toString());
+        assertEquals(CacheKey.viewKey(StringBuilder.class, "a", "b").toString(), "a:b:StringBuilder:view");
     }
     
     @Test
     public void userIdToSession() {
-        assertEquals("userId:session2:user", CacheKey.userIdToSession("userId").toString());
+        assertEquals(CacheKey.userIdToSession("userId").toString(), "userId:session2:user");
     }
     
     @Test
     public void tokenToUserId() { 
-        assertEquals("aSessionToken:session2", CacheKey.tokenToUserId("aSessionToken").toString());
+        assertEquals(CacheKey.tokenToUserId("aSessionToken").toString(), "aSessionToken:session2");
     }
     
     @Test

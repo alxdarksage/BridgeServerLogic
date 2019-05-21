@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
 
 import java.util.Map;
 import java.util.Set;
@@ -12,10 +12,11 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.AccountDao;
 import org.sagebionetworks.bridge.models.accounts.Account;
@@ -23,7 +24,6 @@ import org.sagebionetworks.bridge.models.accounts.SharingScope;
 import org.sagebionetworks.bridge.models.healthdata.HealthDataRecord;
 import org.sagebionetworks.bridge.models.substudies.AccountSubstudy;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TranscribeConsentHandlerTest {
     private static final String TEST_HEALTHCODE = "test-healthcode";
     private static final String TEST_EXTERNAL_ID = "test-external-id";
@@ -34,6 +34,11 @@ public class TranscribeConsentHandlerTest {
     
     @Mock
     private Account mockAccount;
+    
+    @BeforeMethod
+    public void beforeMethod() { 
+        MockitoAnnotations.initMocks(this);
+    }
     
     @Test
     public void test() {
@@ -50,14 +55,14 @@ public class TranscribeConsentHandlerTest {
         HealthDataRecord record = HealthDataRecord.create();
         HealthDataRecord outputRecord = setupContextAndRunHandler(record);
         
-        assertSame(record, outputRecord);
-        assertEquals(SharingScope.SPONSORS_AND_PARTNERS, outputRecord.getUserSharingScope());
-        assertEquals(TEST_EXTERNAL_ID, outputRecord.getUserExternalId());
-        assertEquals(Sets.newHashSet("test-group1","test-group2"), outputRecord.getUserDataGroups());
+        assertSame(outputRecord, record);
+        assertEquals(outputRecord.getUserSharingScope(), SharingScope.SPONSORS_AND_PARTNERS);
+        assertEquals(outputRecord.getUserExternalId(), TEST_EXTERNAL_ID);
+        assertEquals(outputRecord.getUserDataGroups(), Sets.newHashSet("test-group1","test-group2"));
         
         Map<String,String> substudyMemberships = outputRecord.getUserSubstudyMemberships();
-        assertEquals("<none>", substudyMemberships.get("subA"));
-        assertEquals("extB", substudyMemberships.get("subB"));
+        assertEquals(substudyMemberships.get("subA"), "<none>");
+        assertEquals(substudyMemberships.get("subB"), "extB");
     }
 
     @Test
@@ -67,8 +72,8 @@ public class TranscribeConsentHandlerTest {
         HealthDataRecord record = HealthDataRecord.create();
         HealthDataRecord outputRecord = setupContextAndRunHandler(record);
 
-        assertSame(record, outputRecord);
-        assertEquals(SharingScope.NO_SHARING, outputRecord.getUserSharingScope());
+        assertSame(outputRecord, record);
+        assertEquals(outputRecord.getUserSharingScope(), SharingScope.NO_SHARING);
         assertNull(outputRecord.getUserExternalId());
         assertNull(outputRecord.getUserDataGroups());
         assertNull(outputRecord.getUserSubstudyMemberships());

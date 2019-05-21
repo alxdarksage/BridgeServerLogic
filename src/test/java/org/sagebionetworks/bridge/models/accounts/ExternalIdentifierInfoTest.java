@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -22,13 +22,13 @@ public class ExternalIdentifierInfoTest {
         ExternalIdentifierInfo info = new ExternalIdentifierInfo("AAA", null, true);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(info);
-        assertEquals("AAA", node.get("identifier").textValue());
-        assertEquals(true, node.get("assigned").booleanValue());
-        assertEquals("ExternalIdentifier", node.get("type").textValue());
-        assertEquals(3, node.size());
+        assertEquals(node.get("identifier").textValue(), "AAA");
+        assertEquals(node.get("assigned").booleanValue(), true);
+        assertEquals(node.get("type").textValue(), "ExternalIdentifier");
+        assertEquals(node.size(), 3);
         
         ExternalIdentifierInfo resInfo = BridgeObjectMapper.get().treeToValue(node, ExternalIdentifierInfo.class);
-        assertEquals(info, resInfo);
+        assertEquals(resInfo, info);
     }
     
     @Test

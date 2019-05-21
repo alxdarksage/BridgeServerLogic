@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.healthdata;
 
-import static org.junit.Assert.assertEquals;
 import static org.sagebionetworks.bridge.TestUtils.assertDatesWithTimeZoneEqual;
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -45,35 +45,35 @@ public class HealthDataSubmissionTest {
         // convert to POJO
         HealthDataSubmission healthDataSubmission = BridgeObjectMapper.get().readValue(jsonText,
                 HealthDataSubmission.class);
-        assertEquals(APP_VERSION, healthDataSubmission.getAppVersion());
+        assertEquals(healthDataSubmission.getAppVersion(), APP_VERSION);
         assertDatesWithTimeZoneEqual(CREATED_ON, healthDataSubmission.getCreatedOn());
-        assertEquals(PHONE_INFO, healthDataSubmission.getPhoneInfo());
-        assertEquals(SCHEMA_ID, healthDataSubmission.getSchemaId());
-        assertEquals(SCHEMA_REV, healthDataSubmission.getSchemaRevision().intValue());
+        assertEquals(healthDataSubmission.getPhoneInfo(), PHONE_INFO);
+        assertEquals(healthDataSubmission.getSchemaId(), SCHEMA_ID);
+        assertEquals(healthDataSubmission.getSchemaRevision().intValue(), SCHEMA_REV);
         assertDatesWithTimeZoneEqual(SURVEY_CREATED_ON, healthDataSubmission.getSurveyCreatedOn());
-        assertEquals(SURVEY_GUID, healthDataSubmission.getSurveyGuid());
+        assertEquals(healthDataSubmission.getSurveyGuid(), SURVEY_GUID);
 
         JsonNode pojoData = healthDataSubmission.getData();
-        assertEquals(2, pojoData.size());
-        assertEquals("foo-value", pojoData.get("foo").textValue());
-        assertEquals(42, pojoData.get("bar").intValue());
+        assertEquals(pojoData.size(), 2);
+        assertEquals(pojoData.get("foo").textValue(), "foo-value");
+        assertEquals(pojoData.get("bar").intValue(), 42);
 
         JsonNode pojoMetadata = healthDataSubmission.getMetadata();
-        assertEquals(1, pojoMetadata.size());
-        assertEquals("sample-metadata-value", pojoMetadata.get("sample-metadata-key").textValue());
+        assertEquals(pojoMetadata.size(), 1);
+        assertEquals(pojoMetadata.get("sample-metadata-key").textValue(), "sample-metadata-value");
 
         // convert back to JSON
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(healthDataSubmission, JsonNode.class);
-        assertEquals(10, jsonNode.size());
-        assertEquals(APP_VERSION, jsonNode.get("appVersion").textValue());
+        assertEquals(jsonNode.size(), 10);
+        assertEquals(jsonNode.get("appVersion").textValue(), APP_VERSION);
         assertDatesWithTimeZoneEqual(CREATED_ON, DateTime.parse(jsonNode.get("createdOn").textValue()));
-        assertEquals(pojoData, jsonNode.get("data"));
-        assertEquals(pojoMetadata, jsonNode.get("metadata"));
-        assertEquals(PHONE_INFO, jsonNode.get("phoneInfo").textValue());
-        assertEquals(SCHEMA_ID, jsonNode.get("schemaId").textValue());
-        assertEquals(SCHEMA_REV, jsonNode.get("schemaRevision").intValue());
+        assertEquals(jsonNode.get("data"), pojoData);
+        assertEquals(jsonNode.get("metadata"), pojoMetadata);
+        assertEquals(jsonNode.get("phoneInfo").textValue(), PHONE_INFO);
+        assertEquals(jsonNode.get("schemaId").textValue(), SCHEMA_ID);
+        assertEquals(jsonNode.get("schemaRevision").intValue(), SCHEMA_REV);
         assertDatesWithTimeZoneEqual(SURVEY_CREATED_ON, DateTime.parse(jsonNode.get("surveyCreatedOn").textValue()));
-        assertEquals(SURVEY_GUID, jsonNode.get("surveyGuid").textValue());
-        assertEquals("HealthDataSubmission", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.get("surveyGuid").textValue(), SURVEY_GUID);
+        assertEquals(jsonNode.get("type").textValue(), "HealthDataSubmission");
     }
 }

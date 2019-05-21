@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.models.studies;
 
-import static org.junit.Assert.assertEquals;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +23,7 @@ public class SmsTemplateTest {
         String json = "{\"message\":\"a message\"}";
         
         SmsTemplate template = new ObjectMapper().readValue(json, SmsTemplate.class);
-        assertEquals("a message", template.getMessage());
+        assertEquals(template.getMessage(), "a message");
     }
     
     @Test
@@ -32,9 +33,9 @@ public class SmsTemplateTest {
         String json = BridgeObjectMapper.get().writeValueAsString(template);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("a message", node.get("message").textValue());
+        assertEquals(node.get("message").textValue(), "a message");
         
         SmsTemplate template2 = BridgeObjectMapper.get().readValue(json, SmsTemplate.class);
-        assertEquals(template, template2);
+        assertEquals(template2, template);
     }
 }

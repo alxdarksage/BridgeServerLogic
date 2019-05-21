@@ -6,7 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.ExecutorService;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
 import org.sagebionetworks.bridge.models.studies.Study;

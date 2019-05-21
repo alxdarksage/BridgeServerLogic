@@ -1,6 +1,6 @@
 package org.sagebionetworks.bridge.services.email;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -9,7 +9,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 public class MimeTypeEmailTest {
     private static final String SUBJECT = "subject";
@@ -35,53 +36,53 @@ public class MimeTypeEmailTest {
     @Test
     public void testAttributes() throws Exception {
         MimeTypeEmail email = makeEmailWithSender("test@example.com");
-        assertEquals(SUBJECT, email.getSubject());
-        assertEquals(EmailType.EMAIL_SIGN_IN, email.getType());
+        assertEquals(email.getSubject(), SUBJECT);
+        assertEquals(email.getType(), EmailType.EMAIL_SIGN_IN);
 
-        assertEquals(1, email.getMessageParts().size());
-        assertEquals("dummy content", email.getMessageParts().get(0).getContent());
+        assertEquals(email.getMessageParts().size(), 1);
+        assertEquals(email.getMessageParts().get(0).getContent(), "dummy content");
     }
 
     @Test
     public void senderUnadornedEmailNotChanged() throws Exception {
         MimeTypeEmail email = makeEmailWithSender("test@test.com");
-        assertEquals("test@test.com", email.getSenderAddress());
+        assertEquals(email.getSenderAddress(), "test@test.com");
     }
     
     @Test
     public void senderOddlyFormattedButLegal() throws Exception {
         MimeTypeEmail email = makeEmailWithSender("<test@test.com>");
-        assertEquals("<test@test.com>", email.getSenderAddress());
+        assertEquals(email.getSenderAddress(), "<test@test.com>");
     }
     
     @Test
     public void senderAddressWithNameQuoted() throws Exception {
         MimeTypeEmail email = makeEmailWithSender("A, B, and C <test@test.com>");
-        assertEquals("\"A, B, and C\" <test@test.com>", email.getSenderAddress());
+        assertEquals(email.getSenderAddress(), "\"A, B, and C\" <test@test.com>");
     }
     
     @Test
     public void senderAddressWithNameWithQuotesItsAllQuoted() throws Exception {
         MimeTypeEmail email = makeEmailWithSender("The \"Fun Guys\" at UofW <test@test.com>");
-        assertEquals("\"The \\\"Fun Guys\\\" at UofW\" <test@test.com>", email.getSenderAddress());
+        assertEquals(email.getSenderAddress(), "\"The \\\"Fun Guys\\\" at UofW\" <test@test.com>");
     }
 
     @Test
     public void recipientUnadornedEmailNotChanged() throws Exception {
         MimeTypeEmail email = makeEmailWithRecipient("test@test.com");
-        assertEquals("test@test.com", email.getRecipientAddresses().get(0));
+        assertEquals(email.getRecipientAddresses().get(0), "test@test.com");
     }
     
     @Test
     public void recipientAddressWithNameQuoted() throws Exception {
         MimeTypeEmail email = makeEmailWithRecipient("A, B, and C <test@test.com>");
-        assertEquals("\"A, B, and C\" <test@test.com>", email.getRecipientAddresses().get(0));
+        assertEquals(email.getRecipientAddresses().get(0), "\"A, B, and C\" <test@test.com>");
     }
     
     @Test
     public void recipientAddressWithNameWithQuotesItsAllQuoted() throws Exception {
         MimeTypeEmail email = makeEmailWithRecipient("The \"Fun Guys\" at UofW <test@test.com>");
-        assertEquals("\"The \\\"Fun Guys\\\" at UofW\" <test@test.com>", email.getRecipientAddresses().get(0));
+        assertEquals(email.getRecipientAddresses().get(0), "\"The \\\"Fun Guys\\\" at UofW\" <test@test.com>");
     }
 
     @Test
@@ -91,10 +92,10 @@ public class MimeTypeEmailTest {
         MimeTypeEmail email = new MimeTypeEmailBuilder().withSubject(SUBJECT).withSender("sender@example.com")
                 .withRecipients(recipientList).withMessageParts(makeBodyPart("dummy content"))
                 .withType(EmailType.EMAIL_SIGN_IN).build();
-        assertEquals(recipientList, email.getRecipientAddresses());
+        assertEquals(email.getRecipientAddresses(), recipientList);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void filterOutNullMessagePartVarargs() {
         // This will throw an IllegalArgumentException, since we don't allow null message parts list.
         new MimeTypeEmailBuilder().withSubject(SUBJECT).withSender("sender@example.com")
@@ -110,9 +111,9 @@ public class MimeTypeEmailTest {
                 .withType(EmailType.EMAIL_SIGN_IN).build();
 
         List<MimeBodyPart> partList = email.getMessageParts();
-        assertEquals(2, partList.size());
-        assertEquals("foo", partList.get(0).getContent());
-        assertEquals("bar", partList.get(1).getContent());
+        assertEquals(partList.size(), 2);
+        assertEquals(partList.get(0).getContent(), "foo");
+        assertEquals(partList.get(1).getContent(), "bar");
     }
 
     @Test
@@ -120,6 +121,6 @@ public class MimeTypeEmailTest {
         MimeTypeEmail email = new MimeTypeEmailBuilder().withSubject(SUBJECT).withSender("sender@example.com")
                 .withRecipient("recipient@example.com").withMessageParts(makeBodyPart("dummy content"))
                 .withType(null).build();
-        assertEquals(EmailType.UNKNOWN, email.getType());
+        assertEquals(email.getType(), EmailType.UNKNOWN);
     }
 }

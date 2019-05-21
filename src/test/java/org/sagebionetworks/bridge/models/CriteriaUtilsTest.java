@@ -1,18 +1,18 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.OperatingSystem.ANDROID;
 import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.validation.Errors;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.validators.Validate;
@@ -33,7 +33,7 @@ public class CriteriaUtilsTest {
     
     private Criteria criteria;
     
-    @Before
+    @BeforeMethod
     public void before() {
         criteria = Criteria.create();
         criteria.setKey(KEY);
@@ -178,7 +178,8 @@ public class CriteriaUtilsTest {
         
         Errors errors = Validate.getErrorsFor(criteria);
         CriteriaUtils.validate(criteria, EMPTY_SET, EMPTY_SET, errors);
-        assertEquals("cannot be less than minAppVersions.iphone_os", errors.getFieldErrors("maxAppVersions.iphone_os").get(0).getCode());
+        assertEquals(errors.getFieldErrors("maxAppVersions.iphone_os").get(0).getCode(),
+                "cannot be less than minAppVersions.iphone_os");
     }
     
     @Test
@@ -187,7 +188,7 @@ public class CriteriaUtilsTest {
         
         Errors errors = Validate.getErrorsFor(criteria);
         CriteriaUtils.validate(criteria, EMPTY_SET, EMPTY_SET, errors);
-        assertEquals("cannot be negative", errors.getFieldErrors("minAppVersions.iphone_os").get(0).getCode());
+        assertEquals(errors.getFieldErrors("minAppVersions.iphone_os").get(0).getCode(), "cannot be negative");
     }
     
     // Try these again with a different os name. If two different values work, any value should work.
@@ -207,7 +208,8 @@ public class CriteriaUtilsTest {
         
         Errors errors = Validate.getErrorsFor(criteria);
         CriteriaUtils.validate(criteria, EMPTY_SET, EMPTY_SET, errors);
-        assertEquals("cannot be less than minAppVersions.android", errors.getFieldErrors("maxAppVersions.android").get(0).getCode());
+        assertEquals(errors.getFieldErrors("maxAppVersions.android").get(0).getCode(),
+                "cannot be less than minAppVersions.android");
     }
     
     @Test
@@ -216,7 +218,7 @@ public class CriteriaUtilsTest {
         
         Errors errors = Validate.getErrorsFor(criteria);
         CriteriaUtils.validate(criteria, EMPTY_SET, EMPTY_SET, errors);
-        assertEquals("cannot be negative", errors.getFieldErrors("minAppVersions.android").get(0).getCode());
+        assertEquals(errors.getFieldErrors("minAppVersions.android").get(0).getCode(), "cannot be negative");
     }
     
     @Test
@@ -253,10 +255,10 @@ public class CriteriaUtilsTest {
         
         Errors errors = Validate.getErrorsFor(criteria);
         CriteriaUtils.validate(criteria, EMPTY_SET, EMPTY_SET, errors);
-        assertEquals("cannot be null", errors.getFieldErrors("allOfGroups").get(0).getCode());
-        assertEquals("cannot be null", errors.getFieldErrors("noneOfGroups").get(0).getCode());
-        assertEquals("cannot be null", errors.getFieldErrors("allOfSubstudyIds").get(0).getCode());
-        assertEquals("cannot be null", errors.getFieldErrors("noneOfSubstudyIds").get(0).getCode());
+        assertEquals(errors.getFieldErrors("allOfGroups").get(0).getCode(), "cannot be null");
+        assertEquals(errors.getFieldErrors("noneOfGroups").get(0).getCode(), "cannot be null");
+        assertEquals(errors.getFieldErrors("allOfSubstudyIds").get(0).getCode(), "cannot be null");
+        assertEquals(errors.getFieldErrors("noneOfSubstudyIds").get(0).getCode(), "cannot be null");
     }
     
     @Test
@@ -264,8 +266,8 @@ public class CriteriaUtilsTest {
         Criteria criteria = getCriteria(ImmutableSet.of("group1"), ImmutableSet.of("group2"), null, null, null);
         Errors errors = Validate.getErrorsFor(criteria);
         CriteriaUtils.validate(criteria, ImmutableSet.of("group3"), EMPTY_SET, errors);
-        assertEquals("'group1' is not in enumeration: group3", errors.getFieldErrors("allOfGroups").get(0).getCode());
-        assertEquals("'group2' is not in enumeration: group3", errors.getFieldErrors("noneOfGroups").get(0).getCode());
+        assertEquals(errors.getFieldErrors("allOfGroups").get(0).getCode(), "'group1' is not in enumeration: group3");
+        assertEquals(errors.getFieldErrors("noneOfGroups").get(0).getCode(), "'group2' is not in enumeration: group3");
     }
     
     @Test
@@ -287,8 +289,8 @@ public class CriteriaUtilsTest {
         
         Errors errors = Validate.getErrorsFor(criteria);
         CriteriaUtils.validate(criteria, EMPTY_SET, ImmutableSet.of("substudyC"), errors);
-        assertEquals("'substudyA' is not in enumeration: substudyC", errors.getFieldErrors("allOfSubstudyIds").get(0).getCode());
-        assertEquals("'substudyB' is not in enumeration: substudyC", errors.getFieldErrors("noneOfSubstudyIds").get(0).getCode());
+        assertEquals(errors.getFieldErrors("allOfSubstudyIds").get(0).getCode(), "'substudyA' is not in enumeration: substudyC");
+        assertEquals(errors.getFieldErrors("noneOfSubstudyIds").get(0).getCode(), "'substudyB' is not in enumeration: substudyC");
     }
     
     @Test

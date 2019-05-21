@@ -1,9 +1,9 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
 import org.sagebionetworks.bridge.models.notifications.NotificationMessage;
@@ -51,7 +51,7 @@ public class NotificationMessageValidatorTest {
             Validate.entityThrowingException(NotificationMessageValidator.INSTANCE, message);
             fail("Should have thrown exception");
         } catch(InvalidEntityException e) {
-            assertEquals(fieldName+error, e.getErrors().get(fieldName).get(0));
+            assertEquals(e.getErrors().get(fieldName).get(0), fieldName+error);
         }
     }
 

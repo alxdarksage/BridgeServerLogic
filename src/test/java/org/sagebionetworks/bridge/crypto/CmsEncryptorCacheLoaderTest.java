@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.crypto;
 
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
 import java.nio.file.Files;
 
 import com.google.common.base.Charsets;
-import org.junit.Test;
 import org.sagebionetworks.bridge.s3.S3Helper;
 import org.springframework.core.io.ClassPathResource;
+import org.testng.annotations.Test;
 
 public class CmsEncryptorCacheLoaderTest {
     @Test

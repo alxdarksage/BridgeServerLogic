@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +24,8 @@ import com.amazonaws.services.dynamodbv2.document.internal.IteratorSupport;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
@@ -51,7 +51,7 @@ public class DynamoHealthDataDaoTest {
         // validate that the returned ID matches the ID received by the DDB mapper
         ArgumentCaptor<DynamoHealthDataRecord> arg = ArgumentCaptor.forClass(DynamoHealthDataRecord.class);
         verify(mockMapper).save(arg.capture());
-        assertEquals(id, arg.getValue().getId());
+        assertEquals(arg.getValue().getId(), id);
     }
 
     @Test
@@ -81,12 +81,12 @@ public class DynamoHealthDataDaoTest {
         dao.setMapper(mockMapper);
         dao.setHealthCodeIndex(mockIndexHelper);
         int numDeleted = dao.deleteRecordsForHealthCode("test health code");
-        assertEquals(1, numDeleted);
+        assertEquals(numDeleted, 1);
 
         // validate intermediate results
         List<HealthDataRecord> recordKeyList = arg.getValue();
-        assertEquals(1, recordKeyList.size());
-        assertEquals("test ID", recordKeyList.get(0).getId());
+        assertEquals(recordKeyList.size(), 1);
+        assertEquals(recordKeyList.get(0).getId(), "test ID");
     }
 
     @Test
@@ -134,8 +134,8 @@ public class DynamoHealthDataDaoTest {
 
         // validate intermediate results
         List<HealthDataRecord> recordKeyList = arg.getValue();
-        assertEquals(1, recordKeyList.size());
-        assertEquals("error record", recordKeyList.get(0).getId());
+        assertEquals(recordKeyList.size(), 1);
+        assertEquals(recordKeyList.get(0).getId(), "error record");
     }
 
     @Test
@@ -150,7 +150,7 @@ public class DynamoHealthDataDaoTest {
 
         // execute and validate
         List<HealthDataRecord> retVal = dao.getRecordsForUploadDate("2015-02-11");
-        assertSame(mockResult, retVal);
+        assertSame(retVal, mockResult);
     }
 
     @Test
@@ -174,21 +174,21 @@ public class DynamoHealthDataDaoTest {
         // Execute and validate.
         List<HealthDataRecord> retVal = dao.getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE, TEST_CREATED_ON,
                 TEST_CREATED_ON_END);
-        assertEquals(1, retVal.size());
-        assertSame(record, retVal.get(0));
+        assertEquals(retVal.size(), 1);
+        assertSame(retVal.get(0), record);
 
         // Verify query.
         ArgumentCaptor<DynamoDBQueryExpression> queryCaptor = ArgumentCaptor.forClass(DynamoDBQueryExpression.class);
         verify(mockMapper).queryPage(eq(DynamoHealthDataRecord.class), queryCaptor.capture());
 
         DynamoDBQueryExpression<DynamoHealthDataRecord> query = queryCaptor.getValue();
-        assertEquals(TEST_HEALTH_CODE, query.getHashKeyValues().getHealthCode());
+        assertEquals(query.getHashKeyValues().getHealthCode(), TEST_HEALTH_CODE);
         assertFalse(query.isConsistentRead());
-        assertEquals(BridgeConstants.DUPE_RECORDS_MAX_COUNT, query.getLimit().intValue());
+        assertEquals(query.getLimit().intValue(), BridgeConstants.DUPE_RECORDS_MAX_COUNT);
 
         Condition rangeKeyCondition = query.getRangeKeyConditions().get("createdOn");
-        assertEquals(ComparisonOperator.BETWEEN.toString(), rangeKeyCondition.getComparisonOperator());
-        assertEquals(String.valueOf(TEST_CREATED_ON), rangeKeyCondition.getAttributeValueList().get(0).getN());
-        assertEquals(String.valueOf(TEST_CREATED_ON_END), rangeKeyCondition.getAttributeValueList().get(1).getN());
+        assertEquals(rangeKeyCondition.getComparisonOperator(), ComparisonOperator.BETWEEN.toString());
+        assertEquals(rangeKeyCondition.getAttributeValueList().get(0).getN(), String.valueOf(TEST_CREATED_ON));
+        assertEquals(rangeKeyCondition.getAttributeValueList().get(1).getN(), String.valueOf(TEST_CREATED_ON_END));
     }
 }

@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.sms;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.sms.SmsType;
@@ -38,28 +39,28 @@ public class SmsMessageProviderTest {
             .withTransactionType()
             .withExpirationPeriod("expirationPeriod", 60*60*4) // 4 hours
             .withToken("url", "some-url").build();
-        assertEquals("Transactional", provider.getSmsType());
-        assertEquals(SmsType.TRANSACTIONAL, provider.getSmsTypeEnum());
-        assertEquals(expectedMessage, provider.getFormattedMessage());
+        assertEquals(provider.getSmsType(), "Transactional");
+        assertEquals(provider.getSmsTypeEnum(), SmsType.TRANSACTIONAL);
+        assertEquals(provider.getFormattedMessage(), expectedMessage);
 
         // Check email
         PublishRequest request = provider.getSmsRequest();
-        assertEquals(expectedMessage, request.getMessage());
-        assertEquals(study.getShortName(),
-                request.getMessageAttributes().get(BridgeConstants.AWS_SMS_SENDER_ID).getStringValue());
-        assertEquals("Transactional",
-                request.getMessageAttributes().get(BridgeConstants.AWS_SMS_TYPE).getStringValue());
+        assertEquals(request.getMessage(), expectedMessage);
+        assertEquals(request.getMessageAttributes().get(BridgeConstants.AWS_SMS_SENDER_ID).getStringValue(),
+                study.getShortName());
+        assertEquals(request.getMessageAttributes().get(BridgeConstants.AWS_SMS_TYPE).getStringValue(),
+                "Transactional");
         
-        assertEquals("some-url", provider.getTokenMap().get("url"));
-        assertEquals("4 hours", provider.getTokenMap().get("expirationPeriod"));
+        assertEquals(provider.getTokenMap().get("url"), "some-url");
+        assertEquals(provider.getTokenMap().get("expirationPeriod"), "4 hours");
         // BridgeUtils.studyTemplateVariables() has been called
-        assertEquals("Name", provider.getTokenMap().get("studyName"));
-        assertEquals("ShortName", provider.getTokenMap().get("studyShortName"));
-        assertEquals("id", provider.getTokenMap().get("studyId"));
-        assertEquals("SponsorName", provider.getTokenMap().get("sponsorName"));
-        assertEquals("support@email.com", provider.getTokenMap().get("supportEmail"));
-        assertEquals("tech@email.com", provider.getTokenMap().get("technicalEmail"));
-        assertEquals("consent@email.com", provider.getTokenMap().get("consentEmail"));
+        assertEquals(provider.getTokenMap().get("studyName"), "Name");
+        assertEquals(provider.getTokenMap().get("studyShortName"), "ShortName");
+        assertEquals(provider.getTokenMap().get("studyId"), "id");
+        assertEquals(provider.getTokenMap().get("sponsorName"), "SponsorName");
+        assertEquals(provider.getTokenMap().get("supportEmail"), "support@email.com");
+        assertEquals(provider.getTokenMap().get("technicalEmail"), "tech@email.com");
+        assertEquals(provider.getTokenMap().get("consentEmail"), "consent@email.com");
     }
     
     @Test

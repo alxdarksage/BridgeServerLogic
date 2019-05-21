@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.models.notifications;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -23,12 +23,12 @@ public class NotificationMessageTest {
         String json = TestUtils.createJson("{'subject':'The Subject','message':'The Message'}");
 
         NotificationMessage message = BridgeObjectMapper.get().readValue(json, NotificationMessage.class);
-        assertEquals("The Subject", message.getSubject());
-        assertEquals("The Message", message.getMessage());
+        assertEquals(message.getSubject(), "The Subject");
+        assertEquals(message.getMessage(), "The Message");
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(message);
-        assertEquals("The Subject", node.get("subject").asText());
-        assertEquals("The Message", node.get("message").asText());
-        assertEquals("NotificationMessage", node.get("type").asText());
+        assertEquals(node.get("subject").asText(), "The Subject");
+        assertEquals(node.get("message").asText(), "The Message");
+        assertEquals(node.get("type").asText(), "NotificationMessage");
     }
 }

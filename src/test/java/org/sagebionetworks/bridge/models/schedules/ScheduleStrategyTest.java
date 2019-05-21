@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -21,8 +22,8 @@ public class ScheduleStrategyTest {
         String output = BridgeObjectMapper.get().writeValueAsString(strategy);
         JsonNode node = BridgeObjectMapper.get().readTree(output);
         assertNull(node.get("allPossibleSchedules"));
-        assertEquals("ABTestScheduleStrategy", node.get("type").asText());
-        assertEquals(3, ((ArrayNode)node.get("scheduleGroups")).size());
+        assertEquals(node.get("type").asText(), "ABTestScheduleStrategy");
+        assertEquals(((ArrayNode)node.get("scheduleGroups")).size(), 3);
     }
     
     @Test
@@ -43,7 +44,7 @@ public class ScheduleStrategyTest {
     private ScheduleStrategy serializeAndDeserialize(ScheduleStrategy strategy, String typeName) throws Exception {
         String output = BridgeObjectMapper.get().writeValueAsString(strategy);
         JsonNode node = BridgeObjectMapper.get().readTree(output);
-        assertEquals(typeName, node.get("type").asText());
+        assertEquals(node.get("type").asText(), typeName);
         return BridgeObjectMapper.get().readValue(output, ScheduleStrategy.class);
     }
 

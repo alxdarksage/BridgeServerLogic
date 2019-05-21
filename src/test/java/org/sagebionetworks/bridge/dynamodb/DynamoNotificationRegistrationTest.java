@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.OperatingSystem;
 import org.sagebionetworks.bridge.models.notifications.NotificationProtocol;
 import org.sagebionetworks.bridge.models.notifications.NotificationRegistration;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -28,11 +28,11 @@ public class DynamoNotificationRegistrationTest {
     public void defaultProtocol() {
         // Default value is protocol.
         DynamoNotificationRegistration reg = new DynamoNotificationRegistration();
-        assertEquals(NotificationProtocol.APPLICATION, reg.getProtocol());
+        assertEquals(reg.getProtocol(), NotificationProtocol.APPLICATION);
 
         // Set another value.
         reg.setProtocol(NotificationProtocol.SMS);
-        assertEquals(NotificationProtocol.SMS, reg.getProtocol());
+        assertEquals(reg.getProtocol(), NotificationProtocol.SMS);
     }
 
     @Test
@@ -48,15 +48,15 @@ public class DynamoNotificationRegistrationTest {
         reg.setModifiedOn(MODIFIED_ON);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(reg);
-        assertEquals(GUID, node.get("guid").asText());
-        assertEquals("sms", node.get("protocol").textValue());
-        assertEquals(ENDPOINT, node.get("endpoint").textValue());
-        assertEquals(DEVICE_ID, node.get("deviceId").asText());
-        assertEquals(OperatingSystem.ANDROID, node.get("osName").asText());
-        assertEquals(CREATED_ON_STRING, node.get("createdOn").asText());
-        assertEquals(MODIFIED_ON_STRING, node.get("modifiedOn").asText());
-        assertEquals("NotificationRegistration", node.get("type").asText());
-        assertEquals(8, node.size()); // and no other fields like healthCode;
+        assertEquals(node.get("guid").asText(), GUID);
+        assertEquals(node.get("protocol").textValue(), "sms");
+        assertEquals(node.get("endpoint").textValue(), ENDPOINT);
+        assertEquals(node.get("deviceId").asText(), DEVICE_ID);
+        assertEquals(node.get("osName").asText(), OperatingSystem.ANDROID);
+        assertEquals(node.get("createdOn").asText(), CREATED_ON_STRING);
+        assertEquals(node.get("modifiedOn").asText(), MODIFIED_ON_STRING);
+        assertEquals(node.get("type").asText(), "NotificationRegistration");
+        assertEquals(node.size(), 8); // and no other fields like healthCode;
         
         // In creating a registration, the deviceId, osName and sometimes the  guid, so these must 
         // deserialize correctly. Other fields will be set on the server.
@@ -64,9 +64,9 @@ public class DynamoNotificationRegistrationTest {
                 "'osName':'iPhone OS'}");
         
         NotificationRegistration deser = BridgeObjectMapper.get().readValue(json, NotificationRegistration.class);
-        assertEquals(GUID, deser.getGuid());
-        assertEquals(NotificationProtocol.SMS, deser.getProtocol());
-        assertEquals(DEVICE_ID, deser.getDeviceId());
-        assertEquals(OperatingSystem.IOS, deser.getOsName());
+        assertEquals(deser.getGuid(), GUID);
+        assertEquals(deser.getProtocol(), NotificationProtocol.SMS);
+        assertEquals(deser.getDeviceId(), DEVICE_ID);
+        assertEquals(deser.getOsName(), OperatingSystem.IOS);
     }
 }

@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -31,22 +31,22 @@ public class ResourceListTest {
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(list);
         
-        assertEquals(4, node.size());
-        assertEquals(3, node.get("total").intValue());
-        assertEquals(13, node.get("requestParams").get("test").intValue());
-        assertEquals(ResourceList.REQUEST_PARAMS, node.get("requestParams").get(ResourceList.TYPE).textValue());
-        assertEquals(3, node.get("items").size());
-        assertEquals("ResourceList", node.get("type").asText());
+        assertEquals(node.size(), 4);
+        assertEquals(node.get("total").intValue(), 3);
+        assertEquals(node.get("requestParams").get("test").intValue(), 13);
+        assertEquals(node.get("requestParams").get(ResourceList.TYPE).textValue(), ResourceList.REQUEST_PARAMS);
+        assertEquals(node.get("items").size(), 3);
+        assertEquals(node.get("type").asText(), "ResourceList");
         
         ResourceList<String> deser = BridgeObjectMapper.get().readValue(node.toString(), new TypeReference<ResourceList<String>>() {});
         
-        assertEquals("A", deser.getItems().get(0));
-        assertEquals("B", deser.getItems().get(1));
-        assertEquals("C", deser.getItems().get(2));
+        assertEquals(deser.getItems().get(0), "A");
+        assertEquals(deser.getItems().get(1), "B");
+        assertEquals(deser.getItems().get(2), "C");
         // This is deserialized as an integer, not a long, that is a property of the library. Looks the same in JSON.
-        assertEquals((Integer)13, (Integer)deser.getRequestParams().get("test"));
-        assertEquals((Integer)3, deser.getTotal());
-        assertEquals(ResourceList.REQUEST_PARAMS, deser.getRequestParams().get(ResourceList.TYPE));
+        assertEquals((Integer)deser.getRequestParams().get("test"), (Integer)13);
+        assertEquals(deser.getTotal(), (Integer)3);
+        assertEquals(deser.getRequestParams().get(ResourceList.TYPE), ResourceList.REQUEST_PARAMS);
     }
     
     @Test
@@ -60,7 +60,7 @@ public class ResourceListTest {
     public void requestParams() {
         ResourceList<String> list = makeResourceList();
         
-        assertEquals("bar", list.getRequestParams().get("foo"));
+        assertEquals(list.getRequestParams().get("foo"), "bar");
         assertNull(list.getRequestParams().get("baz"));
     }
     
@@ -92,8 +92,8 @@ public class ResourceListTest {
         list.withRequestParam("localDate1", localDate);
         list.withRequestParam("localDate2", localDate.toString());
         
-        assertEquals(localDate, list.getLocalDate("localDate1"));
-        assertEquals(localDate, list.getLocalDate("localDate2"));
+        assertEquals(list.getLocalDate("localDate1"), localDate);
+        assertEquals(list.getLocalDate("localDate2"), localDate);
     }
     
     @Test
@@ -108,10 +108,10 @@ public class ResourceListTest {
     public void getTotal() {
         ResourceList<String> list = makeResourceList();
         
-        assertEquals((Integer)3, list.getTotal());
+        assertEquals(list.getTotal(), (Integer)3);
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void nullList() {
         new ResourceList<>(null);
     }
@@ -134,8 +134,8 @@ public class ResourceListTest {
         list.withRequestParam("", "a");
         list.withRequestParam("  ", "a");
         
-        assertEquals(1, list.getRequestParams().size());
-        assertEquals(ResourceList.REQUEST_PARAMS, list.getRequestParams().get(ResourceList.TYPE));
+        assertEquals(list.getRequestParams().size(), 1);
+        assertEquals(list.getRequestParams().get(ResourceList.TYPE), ResourceList.REQUEST_PARAMS);
     }
 
     @Test
@@ -144,8 +144,8 @@ public class ResourceListTest {
         ResourceList<String> list = new ResourceList<>(items);
         list.withRequestParam("a valid key", null);
         
-        assertEquals(1, list.getRequestParams().size());
-        assertEquals(ResourceList.REQUEST_PARAMS, list.getRequestParams().get(ResourceList.TYPE));
+        assertEquals(list.getRequestParams().size(), 1);
+        assertEquals(list.getRequestParams().get(ResourceList.TYPE), ResourceList.REQUEST_PARAMS);
     }
     
     @Test
@@ -153,7 +153,7 @@ public class ResourceListTest {
         List<String> items = Lists.newArrayList("A","B","C");
         ResourceList<String> list = new ResourceList<>(items);
         list.withRequestParam("type", "not the right type");
-        assertEquals(ResourceList.REQUEST_PARAMS, list.getRequestParams().get(ResourceList.TYPE));
+        assertEquals(list.getRequestParams().get(ResourceList.TYPE), ResourceList.REQUEST_PARAMS);
     }
     
     private ResourceList<String> makeResourceList() {

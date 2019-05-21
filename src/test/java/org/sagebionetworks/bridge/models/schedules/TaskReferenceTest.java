@@ -1,10 +1,11 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -21,7 +22,7 @@ public class TaskReferenceTest {
         // SchemaReference.toString() is already tested elsewhere. Use that string directly so we don't have to depend
         // on another class's implementaiton.
         TaskReference taskRef = new TaskReference("test-task", SCHEMA_REF);
-        assertEquals("TaskReference [identifier=test-task, schema=" + SCHEMA_REF.toString() + "]", taskRef.toString());
+        assertEquals(taskRef.toString(), "TaskReference [identifier=test-task, schema=" + SCHEMA_REF.toString() + "]");
     }
 
     @Test
@@ -35,14 +36,14 @@ public class TaskReferenceTest {
 
         // Convert to POJO and validate.
         TaskReference taskRef = BridgeObjectMapper.get().readValue(jsonText, TaskReference.class);
-        assertEquals("json-task", taskRef.getIdentifier());
-        assertEquals(SCHEMA_REF, taskRef.getSchema());
+        assertEquals(taskRef.getIdentifier(), "json-task");
+        assertEquals(taskRef.getSchema(), SCHEMA_REF);
 
         // Convert back to JSON and validate.
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(taskRef, JsonNode.class);
-        assertEquals(3, jsonNode.size());
-        assertEquals("json-task", jsonNode.get("identifier").textValue());
-        assertEquals(BridgeObjectMapper.get().convertValue(SCHEMA_REF, JsonNode.class), jsonNode.get("schema"));
-        assertEquals("TaskReference", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.size(), 3);
+        assertEquals(jsonNode.get("identifier").textValue(), "json-task");
+        assertEquals(jsonNode.get("schema"), BridgeObjectMapper.get().convertValue(SCHEMA_REF, JsonNode.class));
+        assertEquals(jsonNode.get("type").textValue(), "TaskReference");
     }
 }

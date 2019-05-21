@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.OperatingSystem.ANDROID;
 import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.AppVersionHelper;
 import org.sagebionetworks.bridge.TestUtils;
@@ -47,36 +47,36 @@ public class DynamoCriteriaTest {
         criteria.setLanguage("fr");
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(criteria);
-        assertEquals("fr", node.get("language").asText());
-        assertEquals(SET_A, JsonUtils.asStringSet(node, "allOfGroups"));
-        assertEquals(SET_B, JsonUtils.asStringSet(node, "noneOfGroups"));
-        assertEquals(SET_A, JsonUtils.asStringSet(node, "allOfSubstudyIds"));
-        assertEquals(SET_B, JsonUtils.asStringSet(node, "noneOfSubstudyIds"));
+        assertEquals(node.get("language").asText(), "fr");
+        assertEquals(JsonUtils.asStringSet(node, "allOfGroups"), SET_A);
+        assertEquals(JsonUtils.asStringSet(node, "noneOfGroups"), SET_B);
+        assertEquals(JsonUtils.asStringSet(node, "allOfSubstudyIds"), SET_A);
+        assertEquals(JsonUtils.asStringSet(node, "noneOfSubstudyIds"), SET_B);
         
         JsonNode minValues = node.get("minAppVersions");
-        assertEquals(2, minValues.get(IOS).asInt());
-        assertEquals(10, minValues.get(ANDROID).asInt());
+        assertEquals(minValues.get(IOS).asInt(), 2);
+        assertEquals(minValues.get(ANDROID).asInt(), 10);
         
         JsonNode maxValues = node.get("maxAppVersions");
-        assertEquals(8, maxValues.get(IOS).asInt());
-        assertEquals(15, maxValues.get(ANDROID).asInt());
+        assertEquals(maxValues.get(IOS).asInt(), 8);
+        assertEquals(maxValues.get(ANDROID).asInt(), 15);
         
-        assertEquals("Criteria", node.get("type").asText());
+        assertEquals(node.get("type").asText(), "Criteria");
         assertNull(node.get("key"));
-        assertEquals(8, node.size()); // Nothing else is serialized here. (That's important.)
+        assertEquals(node.size(), 8); // Nothing else is serialized here. (That's important.)
         
         // However, we will except the older variant of JSON for the time being
         String json = makeJson("{'minAppVersion':2,'maxAppVersion':8,'language':'de','allOfGroups':['a','b'],"+
         "'noneOfGroups':['c','d'],'allOfSubstudyIds':['a','b'],'noneOfSubstudyIds':['c','d']}");
         
         Criteria crit = BridgeObjectMapper.get().readValue(json, Criteria.class);
-        assertEquals(new Integer(2), crit.getMinAppVersion(IOS));
-        assertEquals(new Integer(8), crit.getMaxAppVersion(IOS));
-        assertEquals("de", crit.getLanguage());
-        assertEquals(SET_A, crit.getAllOfGroups());
-        assertEquals(SET_B, crit.getNoneOfGroups());
-        assertEquals(SET_A, crit.getAllOfSubstudyIds());
-        assertEquals(SET_B, crit.getNoneOfSubstudyIds());
+        assertEquals(crit.getMinAppVersion(IOS), new Integer(2));
+        assertEquals(crit.getMaxAppVersion(IOS), new Integer(8));
+        assertEquals(crit.getLanguage(), "de");
+        assertEquals(crit.getAllOfGroups(), SET_A);
+        assertEquals(crit.getNoneOfGroups(), SET_B);
+        assertEquals(crit.getAllOfSubstudyIds(), SET_A);
+        assertEquals(crit.getNoneOfSubstudyIds(), SET_B);
         assertNull(crit.getKey());
     }
 
@@ -106,11 +106,11 @@ public class DynamoCriteriaTest {
         criteria.setMinAppVersion(IOS, 8);
         criteria.setMinAppVersion(4);
         // Using legacy setter does not set value if it already exists in the map
-        assertEquals(new Integer(8), criteria.getMinAppVersion(IOS));
+        assertEquals(criteria.getMinAppVersion(IOS), new Integer(8));
         
         // But of course you can update the value in the map
         criteria.setMinAppVersion(IOS, 10);
-        assertEquals(new Integer(10), criteria.getMinAppVersion(IOS));
+        assertEquals(criteria.getMinAppVersion(IOS), new Integer(10));
     }
 
     @Test

@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.util.HashMap;
@@ -22,10 +22,10 @@ import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
 import org.sagebionetworks.bridge.file.InMemoryFileHelper;
@@ -57,7 +57,7 @@ public class IosSchemaValidationHandler2Test {
     private InMemoryFileHelper inMemoryFileHelper;
     private File tmpDir;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         DateTimeUtils.setCurrentMillisFixed(MOCK_NOW.getMillis());
 
@@ -149,7 +149,7 @@ public class IosSchemaValidationHandler2Test {
         handler.setUploadFileHelper(mockUploadFileHelper);
     }
 
-    @After
+    @AfterMethod
     public void cleanup() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -303,29 +303,28 @@ public class IosSchemaValidationHandler2Test {
 
         // validate
         HealthDataRecord record = context.getHealthDataRecord();
-        assertEquals(DateTime.parse("2015-04-02T03:27:09-07:00").getMillis(),
-                record.getCreatedOn().longValue());
-        assertEquals("-0700", record.getCreatedOnTimeZone());
-        assertEquals("test-survey", record.getSchemaId());
-        assertEquals(1, record.getSchemaRevision());
+        assertEquals(record.getCreatedOn().longValue(), DateTime.parse("2015-04-02T03:27:09-07:00").getMillis());
+        assertEquals(record.getCreatedOnTimeZone(), "-0700");
+        assertEquals(record.getSchemaId(), "test-survey");
+        assertEquals(record.getSchemaRevision(), 1);
 
         JsonNode dataNode = record.getData();
-        assertEquals(10, dataNode.size());
-        assertEquals("foo answer", dataNode.get("foo").textValue());
-        assertEquals(42, dataNode.get("bar").intValue());
-        assertEquals("lb", dataNode.get("bar_unit").textValue());
-        assertEquals("2017-01-31", dataNode.get("calendar-date").textValue());
-        assertEquals("16:42:52.256", dataNode.get("time-without-date").textValue());
-        assertEquals("2017-01-31T16:42:52.256-0800", dataNode.get("legacy-date-time").textValue());
-        assertEquals("2017-02-02T09:13:27.212-0800", dataNode.get("new-date-time").textValue());
-        assertEquals("1337", dataNode.get("int-as-string").textValue());
-        assertEquals("2015-12-25", dataNode.get("timestamp-as-date").textValue());
+        assertEquals(dataNode.size(), 10);
+        assertEquals(dataNode.get("foo").textValue(), "foo answer");
+        assertEquals(dataNode.get("bar").intValue(), 42);
+        assertEquals(dataNode.get("bar_unit").textValue(), "lb");
+        assertEquals(dataNode.get("calendar-date").textValue(), "2017-01-31");
+        assertEquals(dataNode.get("time-without-date").textValue(), "16:42:52.256");
+        assertEquals(dataNode.get("legacy-date-time").textValue(), "2017-01-31T16:42:52.256-0800");
+        assertEquals(dataNode.get("new-date-time").textValue(), "2017-02-02T09:13:27.212-0800");
+        assertEquals(dataNode.get("int-as-string").textValue(), "1337");
+        assertEquals(dataNode.get("timestamp-as-date").textValue(), "2015-12-25");
 
         JsonNode inlineJsonBlobNode = dataNode.get("inline-json-blob");
-        assertEquals(3, inlineJsonBlobNode.size());
-        assertEquals("inline", inlineJsonBlobNode.get(0).textValue());
-        assertEquals("json", inlineJsonBlobNode.get(1).textValue());
-        assertEquals("blob", inlineJsonBlobNode.get(2).textValue());
+        assertEquals(inlineJsonBlobNode.size(), 3);
+        assertEquals(inlineJsonBlobNode.get(0).textValue(), "inline");
+        assertEquals(inlineJsonBlobNode.get(1).textValue(), "json");
+        assertEquals(inlineJsonBlobNode.get(2).textValue(), "blob");
 
         // "baz" attachment.
         ArgumentCaptor<JsonNode> blobNodeCaptor = ArgumentCaptor.forClass(JsonNode.class);
@@ -333,9 +332,9 @@ public class IosSchemaValidationHandler2Test {
                 eq("baz"));
 
         JsonNode blobNode = blobNodeCaptor.getValue();
-        assertEquals(2, blobNode.size());
-        assertEquals("survey", blobNode.get(0).textValue());
-        assertEquals("blob", blobNode.get(1).textValue());
+        assertEquals(blobNode.size(), 2);
+        assertEquals(blobNode.get(0).textValue(), "survey");
+        assertEquals(blobNode.get(1).textValue(), "blob");
 
         // Survey "answers" attachment. Note that "answers" is not completely identical to dataNode. This is the raw
         // key-value pairing, so it includes attachments and doesn't canonicalize strings. This is fine, because the
@@ -345,18 +344,18 @@ public class IosSchemaValidationHandler2Test {
                 eq(UploadUtil.FIELD_ANSWERS));
 
         JsonNode answersNode = answersNodeCaptor.getValue();
-        assertEquals(11, answersNode.size());
-        assertEquals("foo answer", answersNode.get("foo").textValue());
-        assertEquals(42, answersNode.get("bar").intValue());
-        assertEquals("lb", answersNode.get("bar_unit").textValue());
-        assertEquals(blobNode, answersNode.get("baz"));
-        assertEquals("2017-01-31", answersNode.get("calendar-date").textValue());
-        assertEquals("16:42:52.256", answersNode.get("time-without-date").textValue());
-        assertEquals("2017-01-31T16:42:52.256-0800", answersNode.get("legacy-date-time").textValue());
-        assertEquals("2017-02-02T09:13:27.212-0800", answersNode.get("new-date-time").textValue());
-        assertEquals(1337, answersNode.get("int-as-string").intValue());
-        assertEquals("2015-12-25T14:41-0800", answersNode.get("timestamp-as-date").textValue());
-        assertEquals(inlineJsonBlobNode, answersNode.get("inline-json-blob"));
+        assertEquals(answersNode.size(), 11);
+        assertEquals(answersNode.get("foo").textValue(), "foo answer");
+        assertEquals(answersNode.get("bar").intValue(), 42);
+        assertEquals(answersNode.get("bar_unit").textValue(), "lb");
+        assertEquals(answersNode.get("baz"), blobNode);
+        assertEquals(answersNode.get("calendar-date").textValue(), "2017-01-31");
+        assertEquals(answersNode.get("time-without-date").textValue(), "16:42:52.256");
+        assertEquals(answersNode.get("legacy-date-time").textValue(), "2017-01-31T16:42:52.256-0800");
+        assertEquals(answersNode.get("new-date-time").textValue(), "2017-02-02T09:13:27.212-0800");
+        assertEquals(answersNode.get("int-as-string").intValue(), 1337);
+        assertEquals(answersNode.get("timestamp-as-date").textValue(), "2015-12-25T14:41-0800");
+        assertEquals(answersNode.get("inline-json-blob"), inlineJsonBlobNode);
 
         // We should have no messages.
         assertTrue(context.getMessageList().isEmpty());
@@ -392,14 +391,14 @@ public class IosSchemaValidationHandler2Test {
 
         // validate
         HealthDataRecord record = context.getHealthDataRecord();
-        assertEquals(DateTime.parse("2015-04-13T18:47:41-07:00").getMillis(), record.getCreatedOn().longValue());
-        assertEquals("-0700", record.getCreatedOnTimeZone());
-        assertEquals("non-survey", record.getSchemaId());
-        assertEquals(1, record.getSchemaRevision());
+        assertEquals(record.getCreatedOn().longValue(), DateTime.parse("2015-04-13T18:47:41-07:00").getMillis());
+        assertEquals(record.getCreatedOnTimeZone(), "-0700");
+        assertEquals(record.getSchemaId(), "non-survey");
+        assertEquals(record.getSchemaRevision(), 1);
 
         JsonNode dataNode = record.getData();
-        assertEquals(1, dataNode.size());
-        assertEquals("dummy-attachment-id", dataNode.get("sanitize____attachment.txt").textValue());
+        assertEquals(dataNode.size(), 1);
+        assertEquals(dataNode.get("sanitize____attachment.txt").textValue(), "dummy-attachment-id");
 
         // Verify call to Upload File Helper
         ArgumentCaptor<Map> sanizitedFileMapCaptor = ArgumentCaptor.forClass(Map.class);
@@ -408,12 +407,12 @@ public class IosSchemaValidationHandler2Test {
                 fieldDefCaptor.capture(), any());
 
         Map<String, File> sanitizedFileMap = sanizitedFileMapCaptor.getValue();
-        assertEquals(1, sanitizedFileMap.size());
+        assertEquals(sanitizedFileMap.size(), 1);
         assertTrue(sanitizedFileMap.containsKey("sanitize____attachment.txt"));
-        assertEquals(fileMap.get("sanitize!@#$attachment.txt"), sanitizedFileMap.get("sanitize____attachment.txt"));
+        assertEquals(sanitizedFileMap.get("sanitize____attachment.txt"), fileMap.get("sanitize!@#$attachment.txt"));
 
         UploadFieldDefinition fieldDef = fieldDefCaptor.getValue();
-        assertEquals("sanitize____attachment.txt", fieldDef.getName());
+        assertEquals(fieldDef.getName(), "sanitize____attachment.txt");
 
         // We should have no messages.
         assertTrue(context.getMessageList().isEmpty());
@@ -443,7 +442,7 @@ public class IosSchemaValidationHandler2Test {
 
         // validate
         HealthDataRecord record = context.getHealthDataRecord();
-        assertEquals(MOCK_NOW.getMillis(), record.getCreatedOn().longValue());
+        assertEquals(record.getCreatedOn().longValue(), MOCK_NOW.getMillis());
         assertNull(record.getCreatedOnTimeZone());
     }
 
@@ -476,8 +475,8 @@ public class IosSchemaValidationHandler2Test {
 
         // validate
         HealthDataRecord record = context.getHealthDataRecord();
-        assertEquals(createdOnMillis, record.getCreatedOn().longValue());
-        assertEquals("+0900", record.getCreatedOnTimeZone());
+        assertEquals(record.getCreatedOn().longValue(), createdOnMillis);
+        assertEquals(record.getCreatedOnTimeZone(), "+0900");
     }
 
     private void addFileToMap(Map<String, File> fileMap, String name, String content) {
