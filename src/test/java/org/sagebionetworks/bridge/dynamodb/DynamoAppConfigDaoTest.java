@@ -15,8 +15,6 @@ import java.util.List;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.google.common.collect.ImmutableList;
 
@@ -26,16 +24,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.CriteriaDao;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
 import org.sagebionetworks.bridge.models.Criteria;
 import org.sagebionetworks.bridge.models.appconfig.AppConfig;
-import org.sagebionetworks.bridge.models.studies.StudyIdentifier;
 
 public class DynamoAppConfigDaoTest extends Mockito {
 
@@ -68,7 +63,6 @@ public class DynamoAppConfigDaoTest extends Mockito {
     ArgumentCaptor<AppConfig> configCaptor;
     
     @InjectMocks
-    @Spy
     DynamoAppConfigDao dao;
 
     @BeforeMethod

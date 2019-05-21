@@ -28,7 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -53,7 +52,6 @@ public class DynamoActivityEventDaoTest extends Mockito {
             .withHealthCode(HEALTH_CODE).withObjectType(ACTIVITY).withObjectId("AAA-BBB-CCC").withEventType(FINISHED)
             .withTimestamp(TIMESTAMP).build();
     
-    @Spy
     @InjectMocks
     DynamoActivityEventDao dao;
     
