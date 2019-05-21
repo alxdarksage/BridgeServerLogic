@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -55,7 +54,7 @@ public class UploadArchiveServiceZipTest {
         // Need to check each entry in the map, since byte[].equals() doesn't do what you expect.
         assertEquals(result.size(), UNZIPPED_FILE_MAP.size());
         for (String oneUnzippedFileName : UNZIPPED_FILE_MAP.keySet()) {
-            assertArrayEquals(result.get(oneUnzippedFileName), UNZIPPED_FILE_MAP.get(oneUnzippedFileName));
+            assertEquals(result.get(oneUnzippedFileName), UNZIPPED_FILE_MAP.get(oneUnzippedFileName));
         }
     }
 

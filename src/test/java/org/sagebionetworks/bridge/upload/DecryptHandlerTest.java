@@ -1,7 +1,6 @@
 package org.sagebionetworks.bridge.upload;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -64,6 +63,6 @@ public class DecryptHandlerTest {
         ArgumentCaptor<InputStream> encryptedInputStreamCaptor = ArgumentCaptor.forClass(InputStream.class);
         verify(mockSvc).decrypt(eq(study.getIdentifier()), encryptedInputStreamCaptor.capture());
         InputStream encryptedInputStream = encryptedInputStreamCaptor.getValue();
-        assertArrayEquals(ByteStreams.toByteArray(encryptedInputStream), dataFileContent);
+        assertEquals(ByteStreams.toByteArray(encryptedInputStream), dataFileContent);
     }
 }

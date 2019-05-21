@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
@@ -720,7 +719,7 @@ public class UploadHandlersEndToEndTest {
         verify(mockS3UploadHelper).writeFileToS3(eq(TestConstants.ATTACHMENT_BUCKET), eq(expectedRawDataAttachmentId),
                 any(), metadataCaptor.capture());
         byte[] rawDataBytes = uploadedFileContentMap.get(expectedRawDataAttachmentId);
-        assertArrayEquals(rawDataBytes, zippedFile);
+        assertEquals(rawDataBytes, zippedFile);
         assertEquals(metadataCaptor.getValue().getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
     }
 }

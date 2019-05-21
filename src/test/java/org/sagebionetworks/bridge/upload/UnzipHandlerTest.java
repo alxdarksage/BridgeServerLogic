@@ -1,7 +1,6 @@
 package org.sagebionetworks.bridge.upload;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -80,7 +79,7 @@ public class UnzipHandlerTest {
         for (String oneUnzippedFileName : mockUnzippedDataMap.keySet()) {
             File unzippedFile = unzippedFileMap.get(oneUnzippedFileName);
             byte[] unzippedFileContent = inMemoryFileHelper.getBytes(unzippedFile);
-            assertArrayEquals(unzippedFileContent, mockUnzippedDataMap.get(oneUnzippedFileName));
+            assertEquals(unzippedFileContent, mockUnzippedDataMap.get(oneUnzippedFileName));
         }
 
         // verify stream passed into mockSvc
@@ -89,6 +88,6 @@ public class UnzipHandlerTest {
 
         InputStream zippedFileInputStream = zippedFileInputStreamCaptor.getValue();
         byte[] zippedFileInputStreamContent = ByteStreams.toByteArray(zippedFileInputStream);
-        assertArrayEquals(zippedFileInputStreamContent, ZIPPED_FILE_DUMMY_CONTENT);
+        assertEquals(zippedFileInputStreamContent, ZIPPED_FILE_DUMMY_CONTENT);
     }
 }

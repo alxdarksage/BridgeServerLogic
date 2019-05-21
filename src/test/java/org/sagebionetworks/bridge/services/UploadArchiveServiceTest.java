@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.notNull;
 import static org.mockito.Mockito.when;
@@ -88,7 +87,7 @@ public class UploadArchiveServiceTest {
     @Test
     public void decryptSuccess() {
         byte[] decryptedData = archiveService.decrypt("test-study", encryptedData);
-        assertArrayEquals(decryptedData, PLAIN_TEXT_DATA);
+        assertEquals(decryptedData, PLAIN_TEXT_DATA);
     }
 
     @Test(expectedExceptions = BridgeServiceException.class)
