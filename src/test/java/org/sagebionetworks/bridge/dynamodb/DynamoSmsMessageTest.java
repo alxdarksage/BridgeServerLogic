@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -35,22 +36,22 @@ public class DynamoSmsMessageTest {
 
         // Convert to POJO.
         SmsMessage smsMessage = BridgeObjectMapper.get().readValue(jsonText, SmsMessage.class);
-        assertEquals(PHONE_NUMBER, smsMessage.getPhoneNumber());
-        assertEquals(SENT_ON_MILLIS, smsMessage.getSentOn());
-        assertEquals(HEALTH_CODE, smsMessage.getHealthCode());
-        assertEquals(MESSAGE_BODY, smsMessage.getMessageBody());
-        assertEquals(MESSAGE_ID, smsMessage.getMessageId());
-        assertEquals(SmsType.PROMOTIONAL, smsMessage.getSmsType());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, smsMessage.getStudyId());
+        assertEquals(smsMessage.getPhoneNumber(), PHONE_NUMBER);
+        assertEquals(smsMessage.getSentOn(), SENT_ON_MILLIS);
+        assertEquals(smsMessage.getHealthCode(), HEALTH_CODE);
+        assertEquals(smsMessage.getMessageBody(), MESSAGE_BODY);
+        assertEquals(smsMessage.getMessageId(), MESSAGE_ID);
+        assertEquals(smsMessage.getSmsType(), SmsType.PROMOTIONAL);
+        assertEquals(smsMessage.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
 
         // Convert back to JSON node.
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(smsMessage, JsonNode.class);
-        assertEquals(PHONE_NUMBER, jsonNode.get("phoneNumber").textValue());
-        assertEquals(SENT_ON_STRING, jsonNode.get("sentOn").textValue());
-        assertEquals(HEALTH_CODE, jsonNode.get("healthCode").textValue());
-        assertEquals(MESSAGE_BODY, jsonNode.get("messageBody").textValue());
-        assertEquals(MESSAGE_ID, jsonNode.get("messageId").textValue());
-        assertEquals(SmsType.PROMOTIONAL.getValue().toLowerCase(), jsonNode.get("smsType").textValue());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, jsonNode.get("studyId").textValue());
+        assertEquals(jsonNode.get("phoneNumber").textValue(), PHONE_NUMBER);
+        assertEquals(jsonNode.get("sentOn").textValue(), SENT_ON_STRING);
+        assertEquals(jsonNode.get("healthCode").textValue(), HEALTH_CODE);
+        assertEquals(jsonNode.get("messageBody").textValue(), MESSAGE_BODY);
+        assertEquals(jsonNode.get("messageId").textValue(), MESSAGE_ID);
+        assertEquals(jsonNode.get("smsType").textValue(), SmsType.PROMOTIONAL.getValue().toLowerCase());
+        assertEquals(jsonNode.get("studyId").textValue(), TestConstants.TEST_STUDY_IDENTIFIER);
     }
 }

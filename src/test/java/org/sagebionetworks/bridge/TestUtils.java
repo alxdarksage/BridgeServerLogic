@@ -1,9 +1,9 @@
 package org.sagebionetworks.bridge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doAnswer;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -112,7 +112,7 @@ public class TestUtils {
         // I don't know of a one line test for this... maybe just comparing ISO string formats of the date.
         assertTrue(date1.isEqual(date2));
         // This ensures that zones such as "America/Los_Angeles" and "-07:00" are equal 
-        assertEquals( date1.getZone().getOffset(date1), date2.getZone().getOffset(date2) );
+        assertEquals(date2.getZone().getOffset(date2), date1.getZone().getOffset(date1));
     }
 
     public static <E> void assertListIsImmutable(List<E> list, E sampleElement) {

@@ -1,8 +1,5 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.notNull;
@@ -13,6 +10,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 import static org.mockito.Mockito.eq;
 
 import javax.annotation.Nonnull;
@@ -24,8 +24,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import org.joda.time.LocalDate;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -73,7 +73,7 @@ public class UploadValidationTaskTest {
     private UploadValidationTask task;
     private Upload upload;
 
-    @Before
+    @BeforeMethod
     public void setup() throws IOException {
         // Mock health data service
         testRecord = makeRecordWithId(RECORD_ID);
@@ -120,10 +120,10 @@ public class UploadValidationTaskTest {
 
         // validate that the handlers ran by checking the messages they wrote
         List<String> messageList = ctx.getMessageList();
-        assertEquals(3, messageList.size());
-        assertEquals("foo was here", messageList.get(0));
-        assertEquals("bar was here", messageList.get(1));
-        assertEquals("kilroy was here", messageList.get(2));
+        assertEquals(messageList.size(), 3);
+        assertEquals(messageList.get(0), "foo was here");
+        assertEquals(messageList.get(1), "bar was here");
+        assertEquals(messageList.get(2), "kilroy was here");
     }
 
     @Test
@@ -164,8 +164,8 @@ public class UploadValidationTaskTest {
         // Validate validation messages. First message is foo handler. Second message is error message. Just check that
         // the second message exists.
         List<String> messageList = ctx.getMessageList();
-        assertEquals(2, messageList.size());
-        assertEquals("foo succeeded", messageList.get(0));
+        assertEquals(messageList.size(), 2);
+        assertEquals(messageList.get(0), "foo succeeded");
         assertFalse(Strings.isNullOrEmpty(messageList.get(1)));
     }
 

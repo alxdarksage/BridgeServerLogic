@@ -1,17 +1,18 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoStudy;
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
@@ -81,9 +82,9 @@ public class TestingHandlerTest {
         verifyZeroInteractions(mockValidator);
 
         UploadValidationContext testContext = testContextCaptor.getValue();
-        assertEquals(TEST_STUDY_ID, testContext.getStudy().getIdentifier());
-        assertEquals(TEST_UPLOAD_ID, testContext.getUpload().getUploadId());
-        assertEquals(TEST_FILENAME, testContext.getUpload().getFilename());
+        assertEquals(testContext.getStudy().getIdentifier(), TEST_STUDY_ID);
+        assertEquals(testContext.getUpload().getUploadId(), TEST_UPLOAD_ID);
+        assertEquals(testContext.getUpload().getFilename(), TEST_FILENAME);
     }
 
     @Test
@@ -111,14 +112,14 @@ public class TestingHandlerTest {
                 UploadValidationContext.class);
         verify(mockTestHandler).handle(testHandlerArgCaptor.capture());
         UploadValidationContext testHandlerArg = testHandlerArgCaptor.getValue();
-        assertEquals(TEST_STUDY_ID, testHandlerArg.getStudy().getIdentifier());
-        assertEquals(TEST_UPLOAD_ID, testHandlerArg.getUpload().getUploadId());
-        assertEquals(TEST_FILENAME, testHandlerArg.getUpload().getFilename());
+        assertEquals(testHandlerArg.getStudy().getIdentifier(), TEST_STUDY_ID);
+        assertEquals(testHandlerArg.getUpload().getUploadId(), TEST_UPLOAD_ID);
+        assertEquals(testHandlerArg.getUpload().getFilename(), TEST_FILENAME);
 
         ArgumentCaptor<UploadValidationContext> validatorTestContextArgCaptor = ArgumentCaptor.forClass(
                 UploadValidationContext.class);
         verify(mockValidator).validate(same(mockProdContext), validatorTestContextArgCaptor.capture());
-        assertSame(testHandlerArg, validatorTestContextArgCaptor.getValue());
+        assertSame(validatorTestContextArgCaptor.getValue(), testHandlerArg);
     }
 
     @Test
@@ -151,11 +152,11 @@ public class TestingHandlerTest {
                 UploadValidationContext.class);
         verify(mockTestHandler).handle(testHandlerArgCaptor.capture());
         UploadValidationContext testHandlerArg = testHandlerArgCaptor.getValue();
-        assertEquals(TEST_STUDY_ID, testHandlerArg.getStudy().getIdentifier());
-        assertEquals(TEST_UPLOAD_ID, testHandlerArg.getUpload().getUploadId());
-        assertEquals(TEST_FILENAME, testHandlerArg.getUpload().getFilename());
+        assertEquals(testHandlerArg.getStudy().getIdentifier(), TEST_STUDY_ID);
+        assertEquals(testHandlerArg.getUpload().getUploadId(), TEST_UPLOAD_ID);
+        assertEquals(testHandlerArg.getUpload().getFilename(), TEST_FILENAME);
 
-        assertSame(testHandlerArg, validatorTestContextArgCaptor.getValue());
+        assertSame(validatorTestContextArgCaptor.getValue(), testHandlerArg);
     }
 
     private static UploadValidationContext mockContext() {

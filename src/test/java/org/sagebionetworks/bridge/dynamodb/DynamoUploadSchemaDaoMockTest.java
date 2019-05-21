@@ -1,10 +1,5 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -12,6 +7,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -24,9 +24,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.upload.UploadSchema;
@@ -40,7 +40,7 @@ public class DynamoUploadSchemaDaoMockTest {
     private DynamoUploadSchema daoInputSchema;
     private DynamoUploadSchemaDao dao;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         daoInputSchema = new DynamoUploadSchema();
         mapper = mock(DynamoDBMapper.class);
@@ -66,7 +66,7 @@ public class DynamoUploadSchemaDaoMockTest {
         assertFalse(mapperInputSchema.isDeleted());
 
         // schema returned by dao is the same one that was sent to the mapper
-        assertSame(mapperInputSchema, daoOutputSchema);
+        assertSame(daoOutputSchema, mapperInputSchema);
     }
 
     @Test
@@ -109,10 +109,10 @@ public class DynamoUploadSchemaDaoMockTest {
 
         // validate index hash key
         DynamoUploadSchema indexHashKey = indexHashKeyCaptor.getValue();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, indexHashKey.getStudyId());
+        assertEquals(indexHashKey.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
 
         // Verify DAO output
-        assertSame(mapperOutputSchemaList, daoOutputSchemaList);
+        assertSame(daoOutputSchemaList, mapperOutputSchemaList);
     }
 
     @Test
@@ -128,10 +128,10 @@ public class DynamoUploadSchemaDaoMockTest {
 
         // validate index hash key
         DynamoUploadSchema indexHashKey = indexHashKeyCaptor.getValue();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, indexHashKey.getStudyId());
+        assertEquals(indexHashKey.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
 
         // Verify DAO output
-        assertSame(mapperOutputSchemaList, daoOutputSchemaList);
+        assertSame(daoOutputSchemaList, mapperOutputSchemaList);
     }
 
     @Test
@@ -151,13 +151,13 @@ public class DynamoUploadSchemaDaoMockTest {
         when(mapper.batchLoad(pql)).thenReturn(map);
         
         List<UploadSchema> results1 = dao.indexHelper("indexName", new DynamoUploadSchema(), false);
-        assertEquals(1, results1.size());
-        assertEquals(undeletedSchema, results1.get(0));
+        assertEquals(results1.size(), 1);
+        assertEquals(results1.get(0), undeletedSchema);
         
         List<UploadSchema> results2 = dao.indexHelper("indexName", new DynamoUploadSchema(), true);
-        assertEquals(2, results2.size());
-        assertEquals(undeletedSchema, results2.get(0));
-        assertEquals(deletedSchema, results2.get(1));
+        assertEquals(results2.size(), 2);
+        assertEquals(results2.get(0), undeletedSchema);
+        assertEquals(results2.get(1), deletedSchema);
     }
 
     @Test
@@ -175,13 +175,13 @@ public class DynamoUploadSchemaDaoMockTest {
         // validate query
         DynamoDBQueryExpression<DynamoUploadSchema> mapperQuery = mapperQueryCaptor.getValue();
         assertFalse(mapperQuery.isScanIndexForward());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, mapperQuery.getHashKeyValues().getStudyId());
-        assertEquals(SCHEMA_ID, mapperQuery.getHashKeyValues().getSchemaId());
+        assertEquals(mapperQuery.getHashKeyValues().getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(mapperQuery.getHashKeyValues().getSchemaId(), SCHEMA_ID);
         assertNull(mapperQuery.getQueryFilter());
 
         // Verify DAO output is same as mapper output. We use equals because they are different instances, but contain
         // the same objects.
-        assertEquals(mapperOutputSchemaList, daoOutputSchemaList);
+        assertEquals(daoOutputSchemaList, mapperOutputSchemaList);
     }
     
     @Test
@@ -199,14 +199,14 @@ public class DynamoUploadSchemaDaoMockTest {
         // validate query
         DynamoDBQueryExpression<DynamoUploadSchema> mapperQuery = mapperQueryCaptor.getValue();
         assertFalse(mapperQuery.isScanIndexForward());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, mapperQuery.getHashKeyValues().getStudyId());
-        assertEquals(SCHEMA_ID, mapperQuery.getHashKeyValues().getSchemaId());
-        assertEquals("{deleted={AttributeValueList: [{N: 1,}],ComparisonOperator: NE}}",
-                mapperQuery.getQueryFilter().toString());
+        assertEquals(mapperQuery.getHashKeyValues().getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(mapperQuery.getHashKeyValues().getSchemaId(), SCHEMA_ID);
+        assertEquals(mapperQuery.getQueryFilter().toString(),
+                "{deleted={AttributeValueList: [{N: 1,}],ComparisonOperator: NE}}");
 
         // Verify DAO output is same as mapper output. We use equals because they are different instances, but contain
         // the same objects.
-        assertEquals(mapperOutputSchemaList, daoOutputSchemaList);
+        assertEquals(daoOutputSchemaList, mapperOutputSchemaList);
     }
 
     @Test
@@ -219,13 +219,13 @@ public class DynamoUploadSchemaDaoMockTest {
         // set up test dao and execute
         UploadSchema daoOutputSchema = dao.getUploadSchemaByIdAndRevision(TestConstants.TEST_STUDY, SCHEMA_ID,
                 SCHEMA_REV);
-        assertSame(mapperOutputSchema, daoOutputSchema);
+        assertSame(daoOutputSchema, mapperOutputSchema);
 
         // validate intermediate args
         DynamoUploadSchema mapperInputSchema = mapperInputSchemaCaptor.getValue();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, mapperInputSchema.getStudyId());
-        assertEquals(SCHEMA_ID, mapperInputSchema.getSchemaId());
-        assertEquals(SCHEMA_REV, mapperInputSchema.getRevision());
+        assertEquals(mapperInputSchema.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(mapperInputSchema.getSchemaId(), SCHEMA_ID);
+        assertEquals(mapperInputSchema.getRevision(), SCHEMA_REV);
     }
 
     @Test
@@ -246,12 +246,12 @@ public class DynamoUploadSchemaDaoMockTest {
         // validate query
         DynamoDBQueryExpression<DynamoUploadSchema> mapperQuery = mapperQueryCaptor.getValue();
         assertFalse(mapperQuery.isScanIndexForward());
-        assertEquals(1, mapperQuery.getLimit().intValue());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, mapperQuery.getHashKeyValues().getStudyId());
-        assertEquals(SCHEMA_ID, mapperQuery.getHashKeyValues().getSchemaId());
+        assertEquals(mapperQuery.getLimit().intValue(), 1);
+        assertEquals(mapperQuery.getHashKeyValues().getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(mapperQuery.getHashKeyValues().getSchemaId(), SCHEMA_ID);
 
         // Verify DAO output
-        assertSame(mapperOutputSchema, daoOutputSchema);
+        assertSame(daoOutputSchema, mapperOutputSchema);
     }
 
     @Test

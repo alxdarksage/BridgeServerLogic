@@ -1,9 +1,8 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;
@@ -11,8 +10,9 @@ import java.util.Map;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.services.UploadArchiveService;
@@ -42,7 +42,7 @@ public class UploadArchiveServiceZipTest {
         assertTrue(zippedData.length > 0);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void zipNullInput() {
         uploadArchiveService.zip(null);
     }
@@ -52,21 +52,21 @@ public class UploadArchiveServiceZipTest {
         Map<String, byte[]> result = uploadArchiveService.unzip(zippedData);
 
         // Need to check each entry in the map, since byte[].equals() doesn't do what you expect.
-        assertEquals(UNZIPPED_FILE_MAP.size(), result.size());
+        assertEquals(result.size(), UNZIPPED_FILE_MAP.size());
         for (String oneUnzippedFileName : UNZIPPED_FILE_MAP.keySet()) {
-            assertArrayEquals(UNZIPPED_FILE_MAP.get(oneUnzippedFileName), result.get(oneUnzippedFileName));
+            assertEquals(result.get(oneUnzippedFileName), UNZIPPED_FILE_MAP.get(oneUnzippedFileName));
         }
     }
 
     // There was originally a test here for unzipping garbage data. However, it looks like Java
     // ZipInputStream.getNextEntry() will just return null if the stream contains garbage data.
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void unzipBytesNullInput() {
         uploadArchiveService.unzip(null);
     }
 
-    @Test(expected=BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void testTooManyZipEntries() throws Exception {
         // Set up a test service just for this test. Set the max num to something super small, like 2.
         UploadArchiveService testSvc = new UploadArchiveService();
@@ -77,7 +77,7 @@ public class UploadArchiveServiceZipTest {
         testSvc.unzip(zippedData);
     }
 
-    @Test(expected=BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void testZipEntryTooBig() throws Exception {
         // Set up a test service just for this test. Set the max size to something super small, like 6.
         UploadArchiveService testSvc = new UploadArchiveService();
@@ -88,7 +88,7 @@ public class UploadArchiveServiceZipTest {
         testSvc.unzip(zippedData);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void unzipStreamNullStream() {
         uploadArchiveService.unzip(null,
                 // Use NullOutputStream, since the test won't ever actually create any streams.
@@ -97,7 +97,7 @@ public class UploadArchiveServiceZipTest {
                 (entryName, outputStream) -> {});
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void unzipStreamNullOutputStreamFunction() throws Exception {
         try (ByteArrayInputStream zippedDataInputStream = new ByteArrayInputStream(zippedData)) {
             uploadArchiveService.unzip(zippedDataInputStream,
@@ -107,7 +107,7 @@ public class UploadArchiveServiceZipTest {
         }
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void unzipStreamNullOutputStreamFinalizer() throws Exception {
         try (ByteArrayInputStream zippedDataInputStream = new ByteArrayInputStream(zippedData)) {
             uploadArchiveService.unzip(zippedDataInputStream,

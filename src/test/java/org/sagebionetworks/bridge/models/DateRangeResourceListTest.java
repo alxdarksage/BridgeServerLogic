@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.ResourceList.START_DATE;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.ResourceList.END_DATE;
 
 import org.joda.time.LocalDate;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -26,29 +26,29 @@ public class DateRangeResourceListTest {
                 .withRequestParam(END_DATE, LocalDate.parse("2016-02-23"));
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(list);
-        assertEquals("2016-02-03", node.get("startDate").asText());
-        assertEquals("2016-02-23", node.get("endDate").asText());
-        assertEquals("2016-02-03", node.get("requestParams").get("startDate").asText());
-        assertEquals("2016-02-23", node.get("requestParams").get("endDate").asText());
-        assertEquals(ResourceList.REQUEST_PARAMS, node.get("requestParams").get(ResourceList.TYPE).asText());
-        assertEquals("DateRangeResourceList", node.get("type").asText());
-        assertEquals(3, node.get("items").size());
-        assertEquals("1", node.get("items").get(0).asText());
-        assertEquals("2", node.get("items").get(1).asText());
-        assertEquals("3", node.get("items").get(2).asText());
-        assertEquals(6, node.size());
+        assertEquals(node.get("startDate").asText(), "2016-02-03");
+        assertEquals(node.get("endDate").asText(), "2016-02-23");
+        assertEquals(node.get("requestParams").get("startDate").asText(), "2016-02-03");
+        assertEquals(node.get("requestParams").get("endDate").asText(), "2016-02-23");
+        assertEquals(node.get("requestParams").get(ResourceList.TYPE).asText(), ResourceList.REQUEST_PARAMS);
+        assertEquals(node.get("type").asText(), "DateRangeResourceList");
+        assertEquals(node.get("items").size(), 3);
+        assertEquals(node.get("items").get(0).asText(), "1");
+        assertEquals(node.get("items").get(1).asText(), "2");
+        assertEquals(node.get("items").get(2).asText(), "3");
+        assertEquals(node.size(), 6);
         
         list = BridgeObjectMapper.get().readValue(node.toString(), 
                 new TypeReference<DateRangeResourceList<String>>() {});
-        assertEquals(LocalDate.parse("2016-02-03"), list.getStartDate());
-        assertEquals(LocalDate.parse("2016-02-23"), list.getEndDate());
-        assertEquals(3, list.getItems().size());
-        assertEquals("1", list.getItems().get(0));
-        assertEquals("2", list.getItems().get(1));
-        assertEquals("3", list.getItems().get(2));
-        assertEquals("2016-02-03", list.getRequestParams().get("startDate"));
-        assertEquals("2016-02-23", list.getRequestParams().get("endDate"));
-        assertEquals(ResourceList.REQUEST_PARAMS, list.getRequestParams().get(ResourceList.TYPE));
+        assertEquals(list.getStartDate(), LocalDate.parse("2016-02-03"));
+        assertEquals(list.getEndDate(), LocalDate.parse("2016-02-23"));
+        assertEquals(list.getItems().size(), 3);
+        assertEquals(list.getItems().get(0), "1");
+        assertEquals(list.getItems().get(1), "2");
+        assertEquals(list.getItems().get(2), "3");
+        assertEquals(list.getRequestParams().get("startDate"), "2016-02-03");
+        assertEquals(list.getRequestParams().get("endDate"), "2016-02-23");
+        assertEquals(list.getRequestParams().get(ResourceList.TYPE), ResourceList.REQUEST_PARAMS);
     }
     
     @SuppressWarnings("deprecation")
@@ -57,14 +57,14 @@ public class DateRangeResourceListTest {
         DateRangeResourceList<String> list = new DateRangeResourceList<>(
                 Lists.newArrayList("1", "2", "3"));
         
-        assertEquals((Integer)3, list.getTotal());
+        assertEquals(list.getTotal(), (Integer)3);
         assertNull(list.getRequestParams().get("total")); // not a request parameter
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(list);
-        assertEquals(3, node.get("total").intValue());
+        assertEquals(node.get("total").intValue(), 3);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void nullList() {
         new DateRangeResourceList<>(null);
     }
@@ -78,6 +78,6 @@ public class DateRangeResourceListTest {
         // We are carrying over an exceptional behavior into this deprecated method where this 
         // list returns 0 instead of null, to keep integration tests and any potential clients
         // working. This value is going away as it is entirely redundent with the list size.
-        assertEquals((Integer)0, list.getTotal());
+        assertEquals(list.getTotal(), (Integer)0);
     }
 }

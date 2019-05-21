@@ -1,8 +1,5 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -14,6 +11,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.ENROLLMENT;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +24,10 @@ import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.BridgeUtils;
@@ -57,7 +55,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DynamoScheduledActivityDaoMockTest {
 
     private static final DateTime NOW = DateTime.parse("2015-04-12T14:20:56.123-07:00");
@@ -81,7 +78,7 @@ public class DynamoScheduledActivityDaoMockTest {
     
     private DynamoScheduledActivity testSchActivity;
     
-    @Before
+    @BeforeMethod
     public void before() {
         DateTimeUtils.setCurrentMillisFixed(NOW.getMillis());
 
@@ -94,7 +91,7 @@ public class DynamoScheduledActivityDaoMockTest {
         activityDao.setDdbMapper(mapper);
     }
 
-    @After
+    @AfterMethod
     public void after() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -141,8 +138,8 @@ public class DynamoScheduledActivityDaoMockTest {
     @Test
     public void getScheduledActivity() throws Exception {
         ScheduledActivity activity = activityDao.getActivity(PACIFIC_TIME_ZONE, "AAA", "BBB", true);
-        assertEquals(testSchActivity, activity);
-        assertEquals(PACIFIC_TIME_ZONE, activity.getTimeZone());
+        assertEquals(activity, testSchActivity);
+        assertEquals(activity.getTimeZone(), PACIFIC_TIME_ZONE);
     }
     
     @Test
@@ -152,7 +149,7 @@ public class DynamoScheduledActivityDaoMockTest {
         assertNull(activity);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getActivityThrowsException() throws Exception {
         when(mapper.load(any(DynamoScheduledActivity.class))).thenReturn(null);
         
@@ -216,7 +213,7 @@ public class DynamoScheduledActivityDaoMockTest {
         List<ScheduledActivity> activities2 = activityDao.getActivities(context.getInitialTimeZone(), activities);
 
         // Regardless of the requested activities, only the ones in the db are returned (in this case, there's 1).
-        assertEquals(1, activities2.size());
+        assertEquals(activities2.size(), 1);
         assertScheduledActivity(activities2.get(0), ACTIVITY_2_REF, "2015-04-12T13:00:00-07:00");
 
         verify(mapper).batchLoad((List<Object>)any());
@@ -234,7 +231,7 @@ public class DynamoScheduledActivityDaoMockTest {
         verify(mapper).queryPage(eq(DynamoScheduledActivity.class), any(DynamoDBQueryExpression.class));
         verify(mapper).batchDelete(argument.capture());
         
-        assertEquals(2, argument.getValue().size());
+        assertEquals(argument.getValue().size(), 2);
     }
 
     @SuppressWarnings({"unchecked","rawtypes"})
@@ -263,7 +260,7 @@ public class DynamoScheduledActivityDaoMockTest {
         verify(mapper).batchSave(argument.capture());
         verifyNoMoreInteractions(mapper);
         
-        assertEquals(activities, argument.getValue());
+        assertEquals(argument.getValue(), activities);
     }
     
     @Test
@@ -279,9 +276,9 @@ public class DynamoScheduledActivityDaoMockTest {
         DateTime date = DateTime.parse(dateString);
         assertTrue(date.isEqual(schActivity.getScheduledOn()));
         if (schActivity.getActivity().getActivityType() == ActivityType.TASK) {
-            assertEquals(ref, schActivity.getActivity().getTask().getIdentifier());            
+            assertEquals(schActivity.getActivity().getTask().getIdentifier(), ref);            
         } else {
-            assertEquals(ref, schActivity.getActivity().getSurvey().getHref());
+            assertEquals(schActivity.getActivity().getSurvey().getHref(), ref);
         }
     }
 
@@ -309,32 +306,32 @@ public class DynamoScheduledActivityDaoMockTest {
         verify(mapper).queryPage(eq(DynamoScheduledActivity.class), queryCaptor.capture());
 
         DynamoDBQueryExpression<DynamoScheduledActivity> query = queryCaptor.getValue();
-        assertEquals(HEALTH_CODE, query.getHashKeyValues().getHealthCode());
-        assertEquals(PAGE_SIZE, (int) query.getLimit());
-        assertEquals(ACTIVITY_GUID+":"+OFFSET_KEY, query.getExclusiveStartKey().get("guid").getS() );
-        assertEquals(HEALTH_CODE, query.getExclusiveStartKey().get("healthCode").getS() );
+        assertEquals(query.getHashKeyValues().getHealthCode(), HEALTH_CODE);
+        assertEquals((int) query.getLimit(), PAGE_SIZE);
+        assertEquals(query.getExclusiveStartKey().get("guid").getS(), ACTIVITY_GUID+":"+OFFSET_KEY);
+        assertEquals(query.getExclusiveStartKey().get("healthCode").getS(), HEALTH_CODE);
         Condition condition = query.getRangeKeyConditions().get("guid");
 
-        assertEquals(ACTIVITY_GUID + ":" + SCHEDULED_ON_START.toLocalDateTime().toString(),
-                condition.getAttributeValueList().get(0).getS());
-        assertEquals(ACTIVITY_GUID + ":" + SCHEDULED_ON_END.toLocalDateTime().toString(),
-                condition.getAttributeValueList().get(1).getS());
+        assertEquals(condition.getAttributeValueList().get(0).getS(),
+                ACTIVITY_GUID + ":" + SCHEDULED_ON_START.toLocalDateTime().toString());
+        assertEquals(condition.getAttributeValueList().get(1).getS(),
+                ACTIVITY_GUID + ":" + SCHEDULED_ON_END.toLocalDateTime().toString());
 
-        assertEquals(1, results.getItems().size());
-        assertEquals("baz", results.getNextPageOffsetKey());
-        assertEquals(OFFSET_KEY, (String)results.getRequestParams().get("offsetKey"));
-        assertEquals(PAGE_SIZE, (int)results.getRequestParams().get("pageSize"));
-        assertEquals(SCHEDULED_ON_START.toString(), results.getRequestParams().get("scheduledOnStart"));
-        assertEquals(SCHEDULED_ON_END.toString(), results.getRequestParams().get("scheduledOnEnd"));
+        assertEquals(results.getItems().size(), 1);
+        assertEquals(results.getNextPageOffsetKey(), "baz");
+        assertEquals((String)results.getRequestParams().get("offsetKey"), OFFSET_KEY);
+        assertEquals((int)results.getRequestParams().get("pageSize"), PAGE_SIZE);
+        assertEquals(results.getRequestParams().get("scheduledOnStart"), SCHEDULED_ON_START.toString());
+        assertEquals(results.getRequestParams().get("scheduledOnEnd"), SCHEDULED_ON_END.toString());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getActivityHistoryV2PageBelowMinSize() {
         activityDao.getActivityHistoryV2(HEALTH_CODE, ACTIVITY_GUID, SCHEDULED_ON_START, SCHEDULED_ON_END, OFFSET_KEY,
                 BridgeConstants.API_MINIMUM_PAGE_SIZE-2);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getActivityHistoryV2PageAboveMaxSize() {
         activityDao.getActivityHistoryV2(HEALTH_CODE, ACTIVITY_GUID, SCHEDULED_ON_START, SCHEDULED_ON_END, OFFSET_KEY,
                 BridgeConstants.API_MAXIMUM_PAGE_SIZE+2);
@@ -380,12 +377,12 @@ public class DynamoScheduledActivityDaoMockTest {
                 ActivityType.TASK, activity.getGuid(), SCHEDULED_ON_START, SCHEDULED_ON_END,
                 null, PAGE_SIZE);
 
-        assertEquals(10, results.getItems().size());
+        assertEquals(results.getItems().size(), 10);
         assertNull(results.getNextPageOffsetKey());
         assertNull(results.getRequestParams().get("offsetKey"));
-        assertEquals(PAGE_SIZE, (int)results.getRequestParams().get("pageSize"));
-        assertEquals(SCHEDULED_ON_START.toString(), results.getRequestParams().get("scheduledOnStart"));
-        assertEquals(SCHEDULED_ON_END.toString(), results.getRequestParams().get("scheduledOnEnd"));
+        assertEquals((int)results.getRequestParams().get("pageSize"), PAGE_SIZE);
+        assertEquals(results.getRequestParams().get("scheduledOnStart"), SCHEDULED_ON_START.toString());
+        assertEquals(results.getRequestParams().get("scheduledOnEnd"), SCHEDULED_ON_END.toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -424,15 +421,15 @@ public class DynamoScheduledActivityDaoMockTest {
                 ActivityType.TASK, activity.getGuid(), SCHEDULED_ON_START, SCHEDULED_ON_END,
                 guid, PAGE_SIZE);
 
-        assertEquals(30, results.getItems().size());
-        assertEquals("activity1guid:2015-04-11T14:20:56.1239", results.getNextPageOffsetKey());
-        assertEquals("activity1guid:2015-04-11T14:20:56.123", results.getRequestParams().get("offsetKey"));
-        assertEquals(PAGE_SIZE, (int)results.getRequestParams().get("pageSize"));
-        assertEquals(SCHEDULED_ON_START.toString(), results.getRequestParams().get("scheduledOnStart"));
-        assertEquals(SCHEDULED_ON_END.toString(), results.getRequestParams().get("scheduledOnEnd"));
+        assertEquals(results.getItems().size(), 30);
+        assertEquals(results.getNextPageOffsetKey(), "activity1guid:2015-04-11T14:20:56.1239");
+        assertEquals(results.getRequestParams().get("offsetKey"), "activity1guid:2015-04-11T14:20:56.123");
+        assertEquals((int)results.getRequestParams().get("pageSize"), PAGE_SIZE);
+        assertEquals(results.getRequestParams().get("scheduledOnStart"), SCHEDULED_ON_START.toString());
+        assertEquals(results.getRequestParams().get("scheduledOnEnd"), SCHEDULED_ON_END.toString());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getActivityHistoryV3OffsetKeyIsNotInResults() {
         DynamoIndexHelper indexHelper = mock(DynamoIndexHelper.class);
         QueryOutcome outcome = mock(QueryOutcome.class);
@@ -480,8 +477,8 @@ public class DynamoScheduledActivityDaoMockTest {
         // Presence of a last evaluated key will cause delete to loop once.
         verify(mapper, times(2)).queryPage(eq(DynamoScheduledActivity.class), any(DynamoDBQueryExpression.class));
         verify(mapper, times(2)).batchDelete(argument.capture());
-        assertEquals(2, argument.getAllValues().get(0).size());
-        assertEquals(1, argument.getAllValues().get(1).size());
+        assertEquals(argument.getAllValues().get(0).size(), 2);
+        assertEquals(argument.getAllValues().get(1).size(), 1);
     }
 
     @SuppressWarnings("unchecked")
@@ -525,7 +522,7 @@ public class DynamoScheduledActivityDaoMockTest {
         verify(mapper).batchSave(argument.capture());
         verifyNoMoreInteractions(mapper);
         
-        assertEquals(activities, argument.getValue());
+        assertEquals(argument.getValue(), activities);
     }
     
     @SuppressWarnings("unchecked")
@@ -596,8 +593,8 @@ public class DynamoScheduledActivityDaoMockTest {
         
         List<DynamoScheduledActivity> capturedActivities = (List<DynamoScheduledActivity>)iterableCaptor.getValue();
         
-        assertEquals(5, capturedActivities.size());
-        assertEquals("CCC:foo", capturedActivities.get(0).getGuid());
-        assertEquals("GGG:foo", capturedActivities.get(4).getGuid());
+        assertEquals(capturedActivities.size(), 5);
+        assertEquals(capturedActivities.get(0).getGuid(), "CCC:foo");
+        assertEquals(capturedActivities.get(4).getGuid(), "GGG:foo");
     }
 }

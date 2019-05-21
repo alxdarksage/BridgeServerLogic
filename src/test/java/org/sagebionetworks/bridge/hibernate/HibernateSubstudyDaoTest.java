@@ -1,24 +1,24 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.VersionHolder;
 import org.sagebionetworks.bridge.models.substudies.Substudy;
@@ -26,7 +26,6 @@ import org.sagebionetworks.bridge.models.substudies.SubstudyId;
 
 import com.google.common.collect.ImmutableList;
 
-@RunWith(MockitoJUnitRunner.class)
 public class HibernateSubstudyDaoTest {
     private static final List<HibernateSubstudy> SUBSTUDIES = ImmutableList.of(new HibernateSubstudy(),
             new HibernateSubstudy());
@@ -48,8 +47,9 @@ public class HibernateSubstudyDaoTest {
     @Captor
     ArgumentCaptor<HibernateSubstudy> substudyCaptor;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         dao = new HibernateSubstudyDao();
         dao.setHibernateHelper(hibernateHelper);
     }
@@ -60,15 +60,14 @@ public class HibernateSubstudyDaoTest {
                 .thenReturn(SUBSTUDIES);
         
         List<Substudy> list = dao.getSubstudies(TestConstants.TEST_STUDY, true);
-        assertEquals(2, list.size());
+        assertEquals(list.size(), 2);
         
         verify(hibernateHelper).queryGet(queryCaptor.capture(), paramsCaptor.capture(), 
                 eq(null), eq(null), eq(HibernateSubstudy.class));
         
-        assertEquals("from HibernateSubstudy as substudy where studyId=:studyId", 
-                queryCaptor.getValue());
+        assertEquals(queryCaptor.getValue(), "from HibernateSubstudy as substudy where studyId=:studyId");
         Map<String,Object> parameters = paramsCaptor.getValue();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, parameters.get("studyId"));
+        assertEquals(parameters.get("studyId"), TestConstants.TEST_STUDY_IDENTIFIER);
     }
 
     @Test
@@ -77,15 +76,15 @@ public class HibernateSubstudyDaoTest {
             .thenReturn(SUBSTUDIES);
 
         List<Substudy> list = dao.getSubstudies(TestConstants.TEST_STUDY, false);
-        assertEquals(2, list.size());
+        assertEquals(list.size(), 2);
         
         verify(hibernateHelper).queryGet(queryCaptor.capture(), paramsCaptor.capture(), 
                 eq(null), eq(null), eq(HibernateSubstudy.class));
         
-        assertEquals("from HibernateSubstudy as substudy where studyId=:studyId and deleted != 1", 
-                queryCaptor.getValue());
+        assertEquals(queryCaptor.getValue(),
+                "from HibernateSubstudy as substudy where studyId=:studyId and deleted != 1");
         Map<String,Object> parameters = paramsCaptor.getValue();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, parameters.get("studyId"));
+        assertEquals(parameters.get("studyId"), TestConstants.TEST_STUDY_IDENTIFIER);
     }
     
     @Test
@@ -94,13 +93,13 @@ public class HibernateSubstudyDaoTest {
         when(hibernateHelper.getById(eq(HibernateSubstudy.class), any())).thenReturn(substudy);
         
         Substudy returnedValue = dao.getSubstudy(TestConstants.TEST_STUDY, "id");
-        assertEquals(substudy, returnedValue);
+        assertEquals(returnedValue, substudy);
         
         verify(hibernateHelper).getById(eq(HibernateSubstudy.class), substudyIdCaptor.capture());
         
         SubstudyId substudyId = substudyIdCaptor.getValue();
-        assertEquals("id", substudyId.getId());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, substudyId.getStudyId());
+        assertEquals(substudyId.getId(), "id");
+        assertEquals(substudyId.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
     }
     
     @Test
@@ -109,12 +108,12 @@ public class HibernateSubstudyDaoTest {
         substudy.setVersion(2L);
         
         VersionHolder holder = dao.createSubstudy(substudy);
-        assertEquals(new Long(2), holder.getVersion());
+        assertEquals(holder.getVersion(), new Long(2));
         
         verify(hibernateHelper).create(substudyCaptor.capture(), eq(null));
         
         Substudy persisted = substudyCaptor.getValue();
-        assertEquals(new Long(2), persisted.getVersion());
+        assertEquals(persisted.getVersion(), new Long(2));
     }
 
     @Test
@@ -123,12 +122,12 @@ public class HibernateSubstudyDaoTest {
         substudy.setVersion(2L);
         
         VersionHolder holder = dao.updateSubstudy(substudy);
-        assertEquals(new Long(2), holder.getVersion());
+        assertEquals(holder.getVersion(), new Long(2));
         
         verify(hibernateHelper).update(substudyCaptor.capture(), eq(null));
         
         Substudy persisted = substudyCaptor.getValue();
-        assertEquals(new Long(2), persisted.getVersion());
+        assertEquals(persisted.getVersion(), new Long(2));
     }
 
     @Test
@@ -137,11 +136,11 @@ public class HibernateSubstudyDaoTest {
         
         verify(hibernateHelper).deleteById(eq(HibernateSubstudy.class), substudyIdCaptor.capture());
         SubstudyId substudyId = substudyIdCaptor.getValue();
-        assertEquals("oneId", substudyId.getId());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, substudyId.getStudyId());
+        assertEquals(substudyId.getId(), "oneId");
+        assertEquals(substudyId.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
     }    
 
-    @Test(expected = PersistenceException.class)
+    @Test(expectedExceptions = PersistenceException.class)
     public void deleteSubstudyPermanentlyNotFound() {
         doThrow(new PersistenceException()).when(hibernateHelper).deleteById(eq(HibernateSubstudy.class), any());
             

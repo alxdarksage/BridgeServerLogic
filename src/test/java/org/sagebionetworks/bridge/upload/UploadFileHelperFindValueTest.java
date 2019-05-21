@@ -1,7 +1,5 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -10,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.io.File;
 import java.util.HashMap;
@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.file.InMemoryFileHelper;
@@ -41,7 +41,7 @@ public class UploadFileHelperFindValueTest {
     private UploadFileHelper uploadFileHelper;
     private ArgumentCaptor<ObjectMetadata> metadataCaptor;
 
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
         // Spy file helper, so we can check to see how many times we read the disk later. Also make a dummy temp dir,
         // as an in-memory place we can put files into.
@@ -77,16 +77,16 @@ public class UploadFileHelperFindValueTest {
         // Execute
         String expectedAttachmentFilename = UPLOAD_ID + '-' + FIELD_NAME_FILE;
         JsonNode result = uploadFileHelper.findValueForField(UPLOAD_ID, fileMap, fieldDef, new HashMap<>());
-        assertEquals(expectedAttachmentFilename, result.textValue());
+        assertEquals(result.textValue(), expectedAttachmentFilename);
 
         // Verify uploaded file
         verify(mockS3Helper).writeFileToS3(eq(UploadFileHelper.ATTACHMENT_BUCKET), eq(expectedAttachmentFilename),
                 eq(recordJsonFile), metadataCaptor.capture());
 
         ObjectMetadata metadata = metadataCaptor.getValue();
-        assertEquals(TestConstants.MOCK_MD5_BASE64_ENCODED, metadata.getUserMetaDataOf(
-                UploadFileHelper.KEY_CUSTOM_CONTENT_MD5));
-        assertEquals(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION, metadata.getSSEAlgorithm());
+        assertEquals(metadata.getUserMetaDataOf(UploadFileHelper.KEY_CUSTOM_CONTENT_MD5),
+                TestConstants.MOCK_MD5_BASE64_ENCODED);
+        assertEquals(metadata.getSSEAlgorithm(), ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class UploadFileHelperFindValueTest {
 
         // Execute
         JsonNode result = uploadFileHelper.findValueForField(UPLOAD_ID, fileMap, fieldDef, new HashMap<>());
-        assertEquals("dummy content", result.textValue());
+        assertEquals(result.textValue(), "dummy content");
 
         // Verify no uploaded files
         verifyZeroInteractions(mockS3Helper);
@@ -182,7 +182,7 @@ public class UploadFileHelperFindValueTest {
         // Execute
         String expectedAttachmentFilename = UPLOAD_ID + '-' + FIELD_NAME_JSON_KEY;
         JsonNode result = uploadFileHelper.findValueForField(UPLOAD_ID, fileMap, fieldDef, new HashMap<>());
-        assertEquals(expectedAttachmentFilename, result.textValue());
+        assertEquals(result.textValue(), expectedAttachmentFilename);
 
         // Verify uploaded file
         verify(mockS3Helper).writeBytesToS3(eq(UploadFileHelper.ATTACHMENT_BUCKET), eq(expectedAttachmentFilename),
@@ -208,7 +208,7 @@ public class UploadFileHelperFindValueTest {
 
         // Execute
         JsonNode result = uploadFileHelper.findValueForField(UPLOAD_ID, fileMap, fieldDef, new HashMap<>());
-        assertEquals("record-value", result.textValue());
+        assertEquals(result.textValue(), "record-value");
 
         // Verify no uploaded files
         verifyZeroInteractions(mockS3Helper);
@@ -231,7 +231,7 @@ public class UploadFileHelperFindValueTest {
 
         // Execute - The file is too large. Skip.
         JsonNode result = uploadFileHelper.findValueForField(UPLOAD_ID, fileMap, fieldDef, new HashMap<>());
-        assertEquals("Long but not too long", result.textValue());
+        assertEquals(result.textValue(), "Long but not too long");
 
         // Verify no uploaded files
         verifyZeroInteractions(mockS3Helper);
@@ -280,10 +280,10 @@ public class UploadFileHelperFindValueTest {
         Map<String, Map<String, JsonNode>> cache = new HashMap<>();
 
         JsonNode fooResult = uploadFileHelper.findValueForField(UPLOAD_ID, fileMap, fooFieldDef, cache);
-        assertEquals("foo-value", fooResult.textValue());
+        assertEquals(fooResult.textValue(), "foo-value");
 
         JsonNode barResult = uploadFileHelper.findValueForField(UPLOAD_ID, fileMap, barFieldDef, cache);
-        assertEquals("bar-value", barResult.textValue());
+        assertEquals(barResult.textValue(), "bar-value");
 
         // Verify no uploaded files
         verifyZeroInteractions(mockS3Helper);

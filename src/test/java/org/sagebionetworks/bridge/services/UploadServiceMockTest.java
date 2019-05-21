@@ -1,9 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -14,17 +10,20 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.BridgeConstants.API_DEFAULT_PAGE_SIZE;
 import static org.sagebionetworks.bridge.BridgeConstants.API_MAXIMUM_PAGE_SIZE;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.UploadDao;
@@ -39,7 +38,6 @@ import org.sagebionetworks.bridge.models.upload.UploadValidationStatus;
 import org.sagebionetworks.bridge.models.upload.UploadView;
 
 @SuppressWarnings("ConstantConditions")
-@RunWith(MockitoJUnitRunner.class)
 public class UploadServiceMockTest {
     
     private static final DateTime START_TIME = DateTime.parse("2016-04-02T10:00:00.000Z");
@@ -66,19 +64,21 @@ public class UploadServiceMockTest {
 
     private UploadService svc;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         svc = new UploadService();
         svc.setUploadDao(mockDao);
         svc.setHealthDataService(mockHealthDataService);
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getNullUploadId() {
         svc.getUpload(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getEmptyUploadId() {
         svc.getUpload("");
     }
@@ -94,15 +94,15 @@ public class UploadServiceMockTest {
 
         // execute and validate
         Upload retVal = svc.getUpload("test-upload-id");
-        assertSame(mockUpload, retVal);
+        assertSame(retVal, mockUpload);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getStatusNullUploadId() {
         svc.getUploadValidationStatus(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getStatusEmptyUploadId() {
         svc.getUploadValidationStatus("");
     }
@@ -120,12 +120,12 @@ public class UploadServiceMockTest {
 
         // execute and validate
         UploadValidationStatus status = svc.getUploadValidationStatus("no-record-id");
-        assertEquals("no-record-id", status.getId());
-        assertEquals(UploadStatus.VALIDATION_FAILED, status.getStatus());
+        assertEquals(status.getId(), "no-record-id");
+        assertEquals(status.getStatus(), UploadStatus.VALIDATION_FAILED);
         assertNull(status.getRecord());
 
-        assertEquals(1, status.getMessageList().size());
-        assertEquals("getStatus - message", status.getMessageList().get(0));
+        assertEquals(status.getMessageList().size(), 1);
+        assertEquals(status.getMessageList().get(0), "getStatus - message");
     }
 
     @Test
@@ -146,12 +146,12 @@ public class UploadServiceMockTest {
 
         // execute and validate
         UploadValidationStatus status = svc.getUploadValidationStatus("with-record-id");
-        assertEquals("with-record-id", status.getId());
-        assertEquals(UploadStatus.SUCCEEDED, status.getStatus());
-        assertSame(dummyRecord, status.getRecord());
+        assertEquals(status.getId(), "with-record-id");
+        assertEquals(status.getStatus(), UploadStatus.SUCCEEDED);
+        assertSame(status.getRecord(), dummyRecord);
 
-        assertEquals(1, status.getMessageList().size());
-        assertEquals("getStatusWithRecord - message", status.getMessageList().get(0));
+        assertEquals(status.getMessageList().size(), 1);
+        assertEquals(status.getMessageList().get(0), "getStatusWithRecord - message");
     }
 
     // branch coverage
@@ -172,12 +172,12 @@ public class UploadServiceMockTest {
 
         // execute and validate
         UploadValidationStatus status = svc.getUploadValidationStatus("with-record-id");
-        assertEquals("with-record-id", status.getId());
-        assertEquals(UploadStatus.SUCCEEDED, status.getStatus());
+        assertEquals(status.getId(), "with-record-id");
+        assertEquals(status.getStatus(), UploadStatus.SUCCEEDED);
         assertNull(status.getRecord());
 
-        assertEquals(1, status.getMessageList().size());
-        assertEquals("getStatusRecordIdWithNoRecord - message", status.getMessageList().get(0));
+        assertEquals(status.getMessageList().size(), 1);
+        assertEquals(status.getMessageList().get(0), "getStatusRecordIdWithNoRecord - message");
     }
     
     @Test
@@ -194,9 +194,9 @@ public class UploadServiceMockTest {
 
         // execute and validate
         UploadView uploadView = svc.getUploadView("with-record-id");
-        assertEquals("test-record-id", uploadView.getUpload().getRecordId());
-        assertEquals("with-record-id", uploadView.getUpload().getUploadId());
-        assertEquals("schema-id", uploadView.getHealthData().getSchemaId());
+        assertEquals(uploadView.getUpload().getRecordId(), "test-record-id");
+        assertEquals(uploadView.getUpload().getUploadId(), "with-record-id");
+        assertEquals(uploadView.getHealthData().getSchemaId(), "schema-id");
     }
     
     private void setupUploadMocks() {
@@ -271,30 +271,30 @@ public class UploadServiceMockTest {
         verifyNoMoreInteractions(mockHealthDataService);
 
         List<? extends UploadView> uploadList = returned.getItems();
-        assertEquals(3, uploadList.size());
+        assertEquals(uploadList.size(), 3);
 
-        assertEquals(API_MAXIMUM_PAGE_SIZE, returned.getRequestParams().get("pageSize"));
-        assertEquals(expectedOffsetKey, returned.getNextPageOffsetKey());
+        assertEquals(returned.getRequestParams().get("pageSize"), API_MAXIMUM_PAGE_SIZE);
+        assertEquals(returned.getNextPageOffsetKey(), expectedOffsetKey);
 
         // The two sources of information are combined in the view.
         UploadView view = uploadList.get(0);
-        assertEquals(UploadStatus.SUCCEEDED, view.getUpload().getStatus());
-        assertEquals("record-id", view.getUpload().getRecordId());
-        assertEquals("schema-id", view.getSchemaId());
-        assertEquals(new Integer(10), view.getSchemaRevision());
-        assertEquals(HealthDataRecord.ExporterStatus.SUCCEEDED, view.getHealthRecordExporterStatus());
+        assertEquals(view.getUpload().getStatus(), UploadStatus.SUCCEEDED);
+        assertEquals(view.getUpload().getRecordId(), "record-id");
+        assertEquals(view.getSchemaId(), "schema-id");
+        assertEquals(view.getSchemaRevision(), new Integer(10));
+        assertEquals(view.getHealthRecordExporterStatus(), HealthDataRecord.ExporterStatus.SUCCEEDED);
         assertNull(view.getHealthData());
 
         UploadView failedView = uploadList.get(1);
-        assertEquals(UploadStatus.REQUESTED, failedView.getUpload().getStatus());
+        assertEquals(failedView.getUpload().getStatus(), UploadStatus.REQUESTED);
         assertNull(failedView.getUpload().getRecordId());
         assertNull(failedView.getSchemaId());
         assertNull(failedView.getSchemaRevision());
         assertNull(failedView.getHealthRecordExporterStatus());
 
         UploadView viewWithNoRecord = uploadList.get(2);
-        assertEquals(UploadStatus.SUCCEEDED, viewWithNoRecord.getUpload().getStatus());
-        assertEquals("missing-record-id", viewWithNoRecord.getUpload().getRecordId());
+        assertEquals(viewWithNoRecord.getUpload().getStatus(), UploadStatus.SUCCEEDED);
+        assertEquals(viewWithNoRecord.getUpload().getRecordId(), "missing-record-id");
         assertNull(viewWithNoRecord.getSchemaId());
         assertNull(viewWithNoRecord.getSchemaRevision());
         assertNull(viewWithNoRecord.getHealthRecordExporterStatus());
@@ -329,10 +329,10 @@ public class UploadServiceMockTest {
         
         DateTime actualStart = start.getValue();
         DateTime actualEnd = end.getValue();
-        assertEquals(actualStart.plusDays(1), actualEnd);
+        assertEquals(actualEnd, actualStart.plusDays(1));
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void verifiesEndTimeNotBeforeStartTime() {
         svc.getUploads("ABC", END_TIME, START_TIME, 0, null);
     }

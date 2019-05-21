@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.Roles;
 import org.sagebionetworks.bridge.TestUtils;
@@ -62,12 +62,12 @@ public class UserSessionTest {
 
         assertTrue(newSession.isAuthenticated());
         assertNull(newSession.getReauthToken());
-        assertEquals(session.getSessionToken(), newSession.getSessionToken());
-        assertEquals(session.getInternalSessionToken(), newSession.getInternalSessionToken());
-        assertEquals(session.getEnvironment(), newSession.getEnvironment());
-        assertEquals(session.getIpAddress(), newSession.getIpAddress());
-        assertEquals(session.getStudyIdentifier(), newSession.getStudyIdentifier());
-        assertEquals(session.getParticipant(), newSession.getParticipant());
+        assertEquals(newSession.getSessionToken(), session.getSessionToken());
+        assertEquals(newSession.getInternalSessionToken(), session.getInternalSessionToken());
+        assertEquals(newSession.getEnvironment(), session.getEnvironment());
+        assertEquals(newSession.getIpAddress(), session.getIpAddress());
+        assertEquals(newSession.getStudyIdentifier(), session.getStudyIdentifier());
+        assertEquals(newSession.getParticipant(), session.getParticipant());
     }
     
     @Test
@@ -86,12 +86,12 @@ public class UserSessionTest {
                 .withHealthCode("123abc").build());
         String sessionSer = StudyParticipant.CACHE_WRITER.writeValueAsString(session);
         assertNotNull(sessionSer);
-        assertFalse("Health code should have been encrypted in the serialized string.",
-                sessionSer.toLowerCase().contains("123abc"));
+        assertFalse(sessionSer.toLowerCase().contains("123abc"),
+                "Health code should have been encrypted in the serialized string.");
         
         UserSession sessionDe = BridgeObjectMapper.get().readValue(sessionSer, UserSession.class);
         assertNotNull(sessionDe);
-        assertEquals("123abc", sessionDe.getHealthCode());
+        assertEquals(sessionDe.getHealthCode(), "123abc");
     }
     
     @Test
@@ -205,7 +205,7 @@ public class UserSessionTest {
             "'consentStatuses':{}}");
         
         UserSession session = BridgeObjectMapper.get().readValue(json, UserSession.class);
-        assertEquals(AccountStatus.ENABLED, session.getParticipant().getStatus());
-        assertEquals(Boolean.TRUE, session.getParticipant().getEmailVerified());
+        assertEquals(session.getParticipant().getStatus(), AccountStatus.ENABLED);
+        assertEquals(session.getParticipant().getEmailVerified(), Boolean.TRUE);
     }
 }

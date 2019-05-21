@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,14 +13,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
@@ -36,7 +36,6 @@ import org.sagebionetworks.bridge.services.OAuthProviderService.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
 public class OAuthProviderServiceTest {
 
     private static final DateTime NOW = DateTime.now(DateTimeZone.UTC);
@@ -68,8 +67,10 @@ public class OAuthProviderServiceTest {
     @Captor
     private ArgumentCaptor<HttpPost> refreshPostCaptor;
     
-    @Before
+    @BeforeMethod
     public void before() throws IOException {
+        MockitoAnnotations.initMocks(this)
+        ;
         doReturn(NOW).when(service).getDateTime();
     }
     
@@ -108,43 +109,43 @@ public class OAuthProviderServiceTest {
         
         OAuthAccessGrant grant = service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
         
-        assertEquals(ACCESS_TOKEN, grant.getAccessToken());
-        assertEquals(VENDOR_ID, grant.getVendorId());
-        assertEquals(REFRESH_TOKEN2, grant.getRefreshToken());
-        assertEquals(NOW.getMillis(), grant.getCreatedOn());
-        assertEquals(USER_ID, grant.getProviderUserId());
-        assertEquals(EXPIRES.getMillis(), grant.getExpiresOn());
+        assertEquals(grant.getAccessToken(), ACCESS_TOKEN);
+        assertEquals(grant.getVendorId(), VENDOR_ID);
+        assertEquals(grant.getRefreshToken(), REFRESH_TOKEN2);
+        assertEquals(grant.getCreatedOn(), NOW.getMillis());
+        assertEquals(grant.getProviderUserId(), USER_ID);
+        assertEquals(grant.getExpiresOn(), EXPIRES.getMillis());
         
         String authHeader = "Basic " + Base64.encodeBase64String( (CLIENT_ID + ":" + SECRET).getBytes() );
         
         HttpPost thePost = grantPostCaptor.getValue();
         // Test the headers here... they don't need to be tested in every test, they're always the same.
-        assertEquals(authHeader, thePost.getFirstHeader("Authorization").getValue());
-        assertEquals("application/x-www-form-urlencoded", thePost.getFirstHeader("Content-Type").getValue());
+        assertEquals(thePost.getFirstHeader("Authorization").getValue(), authHeader);
+        assertEquals(thePost.getFirstHeader("Content-Type").getValue(), "application/x-www-form-urlencoded");
         String bodyString = EntityUtils.toString(thePost.getEntity());
-        assertEquals(GRANT_FORM_DATA, bodyString);
+        assertEquals(bodyString, GRANT_FORM_DATA);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void makeAccessGrantCallWithoutAuthTokenRefreshes() throws Exception {
         OAuthAuthorizationToken emptyPayload = new OAuthAuthorizationToken(VENDOR_ID, null);
         
         service.requestAccessGrant(PROVIDER, emptyPayload);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void makeAccessGrantCallAuthAndRefreshTokenMissing() throws Exception {
         OAuthAuthorizationToken emptyPayload = new OAuthAuthorizationToken(VENDOR_ID, null);
         service.requestAccessGrant(PROVIDER, emptyPayload);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void makeAccessGrantCallAuthAndRefreshTokenInvalid() throws Exception {
         mockAccessGrantCall(400, errorJson("invalid_grant", "Authorization code expired: [code]."));
         service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void makeAccessGrantCallAuthAndRefreshTokenExpired() throws Exception {
         mockAccessGrantCall(400, errorJson("invalid_grant", "Authorization code expired: [code]."));
         service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
@@ -162,7 +163,7 @@ public class OAuthProviderServiceTest {
             service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
             fail("Should have thrown exception");
         } catch(BadRequestException e) {
-            assertEquals("Missing parameters: refresh_token. Second error, which seems rare.", e.getMessage());
+            assertEquals(e.getMessage(), "Missing parameters: refresh_token. Second error, which seems rare.");
         }
     }
     
@@ -170,26 +171,26 @@ public class OAuthProviderServiceTest {
      * 401 specifically signals that an authorization token has expired, and the refresh token should be 
      * used to issue a new access grant.
      */
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void makeAccessGrantCallReturns401() throws Exception {
         mockAccessGrantCall(400, errorJson("expired_token", "Access token expired"));
         
         service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void makeAccessGrantCallReturns500() throws Exception {
         mockAccessGrantCall(500, errorJson());
         service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void makeAccessGrantCallAuthTokenInvalid() throws Exception {
         mockAccessGrantCall(400, errorJson("invalid_grant", "Authorization code expired: [code]."));
         service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
     }
   
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void makeRefreshCallAuthorizationError() throws Exception {
         mockAccessGrantCall(403, errorJson("insufficient_scope",
                 "This application does not have permission to [access-type] [resource-type] data."));
@@ -197,14 +198,14 @@ public class OAuthProviderServiceTest {
         service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void makeAccessGrantCallIsBadAsProgrammed() throws Exception {
         mockAccessGrantCall(401, errorJson("invalid_client", "Authorization header required."));
 
         service.requestAccessGrant(PROVIDER, AUTH_TOKEN);
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void makeRefreshGrantCallIsBadAsProgrammed() throws Exception {
         mockRefreshCall(401, errorJson("invalid_client", "Authorization header required."));
 
@@ -221,26 +222,26 @@ public class OAuthProviderServiceTest {
         
         HttpPost thePost = refreshPostCaptor.getValue();
         // Test the headers here... they don't need to be tested in every test, they're always the same.
-        assertEquals(authHeader, thePost.getFirstHeader("Authorization").getValue());
-        assertEquals("application/x-www-form-urlencoded", thePost.getFirstHeader("Content-Type").getValue());
+        assertEquals(thePost.getFirstHeader("Authorization").getValue(), authHeader);
+        assertEquals(thePost.getFirstHeader("Content-Type").getValue(), "application/x-www-form-urlencoded");
         String bodyString = EntityUtils.toString(thePost.getEntity());
-        assertEquals(REFRESH_FORM_DATA, bodyString);
+        assertEquals(bodyString, REFRESH_FORM_DATA);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void refreshAccessCallGrant400Error() throws Exception {
         mockRefreshCall(400, errorJson("invalid_token", "Authorization code expired: [code]."));
         service.refreshAccessGrant(PROVIDER, VENDOR_ID, REFRESH_TOKEN);
     }
     
-    @Test(expected = UnauthorizedException.class)
+    @Test(expectedExceptions = UnauthorizedException.class)
     public void refreshAccessCallGrant403Error() throws Exception {
         mockRefreshCall(403, errorJson("insufficient_scope",
                 "This application does not have permission to [access-type] [resource-type] data."));
         service.refreshAccessGrant(PROVIDER, VENDOR_ID, REFRESH_TOKEN);
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void refreshAccessCallGrant500Error() throws Exception {
         mockRefreshCall(500, errorJson("insufficient_scope",
                 "This application does not have permission to [access-type] [resource-type] data."));

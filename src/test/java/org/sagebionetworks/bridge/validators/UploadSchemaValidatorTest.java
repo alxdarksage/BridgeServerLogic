@@ -1,15 +1,14 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -20,6 +19,7 @@ import org.sagebionetworks.bridge.models.upload.UploadFieldType;
 import org.sagebionetworks.bridge.models.upload.UploadSchema;
 import org.sagebionetworks.bridge.models.upload.UploadSchemaType;
 import org.springframework.validation.MapBindingResult;
+import org.testng.annotations.Test;
 
 public class UploadSchemaValidatorTest {
     // branch coverage
@@ -123,84 +123,84 @@ public class UploadSchemaValidatorTest {
                 "can't be greater than maxAppVersion");
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateNullName() {
         UploadSchema schema = makeValidSchema();
         schema.setName(null);
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateEmptyName() {
         UploadSchema schema = makeValidSchema();
         schema.setName("");
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateBlankName() {
         UploadSchema schema = makeValidSchema();
         schema.setName("   ");
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateNegativeRev() {
         UploadSchema schema = makeValidSchema();
         schema.setRevision(-1);
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateZeroRev() {
         UploadSchema schema = makeValidSchema();
         schema.setRevision(0);
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateNullSchemaId() {
         UploadSchema schema = makeValidSchema();
         schema.setSchemaId(null);
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateEmptySchemaId() {
         UploadSchema schema = makeValidSchema();
         schema.setSchemaId("");
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateBlankSchemaId() {
         UploadSchema schema = makeValidSchema();
         schema.setSchemaId("   ");
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateNullSchemaType() {
         UploadSchema schema = makeValidSchema();
         schema.setSchemaType(null);
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateNullStudyId() {
         UploadSchema schema = makeValidSchema();
         schema.setStudyId(null);
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateEmptyStudyId() {
         UploadSchema schema = makeValidSchema();
         schema.setStudyId("");
         Validate.entityThrowingException(UploadSchemaValidator.INSTANCE, schema);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateBlankStudyId() {
         UploadSchema schema = makeValidSchema();
         schema.setStudyId("   ");

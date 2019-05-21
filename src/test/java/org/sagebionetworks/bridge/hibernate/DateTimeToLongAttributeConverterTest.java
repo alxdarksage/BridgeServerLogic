@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class DateTimeToLongAttributeConverterTest {
 
@@ -14,19 +14,19 @@ public class DateTimeToLongAttributeConverterTest {
     
     private DateTimeToLongAttributeConverter converter;
     
-    @Before
+    @BeforeMethod
     public void before() {
         converter = new DateTimeToLongAttributeConverter();
     }
     
     @Test
     public void convertToDatabaseColumn() {
-        assertEquals(MILLIS, converter.convertToDatabaseColumn(DATETIME));
+        assertEquals(converter.convertToDatabaseColumn(DATETIME), MILLIS);
     }
 
     @Test
     public void convertToEntityAttribute() {
-        assertEquals(DATETIME, converter.convertToEntityAttribute(MILLIS));
+        assertEquals(converter.convertToEntityAttribute(MILLIS), DATETIME);
     }
     
     @Test

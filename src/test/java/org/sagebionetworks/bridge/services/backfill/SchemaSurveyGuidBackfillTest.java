@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.services.backfill;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -10,11 +9,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dynamodb.DynamoStudy;
@@ -56,7 +56,7 @@ public class SchemaSurveyGuidBackfillTest {
     private SurveyService surveyService;
     private UploadSchemaService uploadSchemaService;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         // Mock dependencies. Behavior will be set up in individual tests.
         studyService = mock(StudyService.class);
@@ -127,29 +127,29 @@ public class SchemaSurveyGuidBackfillTest {
         verify(uploadSchemaService).updateSchemaRevisionV4(eq(study1Id), eq("survey-1a"), eq(11),
                 schema1aCaptor.capture());
         UploadSchema schema1a = schema1aCaptor.getValue();
-        assertEquals("guid-1a", schema1a.getSurveyGuid());
-        assertEquals(0x1a, schema1a.getSurveyCreatedOn().longValue());
+        assertEquals(schema1a.getSurveyGuid(), "guid-1a");
+        assertEquals(schema1a.getSurveyCreatedOn().longValue(), 0x1a);
 
         ArgumentCaptor<UploadSchema> schema1bCaptor = ArgumentCaptor.forClass(UploadSchema.class);
         verify(uploadSchemaService).updateSchemaRevisionV4(eq(study1Id), eq("survey-1b"), eq(12),
                 schema1bCaptor.capture());
         UploadSchema schema1b = schema1bCaptor.getValue();
-        assertEquals("guid-1b", schema1b.getSurveyGuid());
-        assertEquals(0x1b, schema1b.getSurveyCreatedOn().longValue());
+        assertEquals(schema1b.getSurveyGuid(), "guid-1b");
+        assertEquals(schema1b.getSurveyCreatedOn().longValue(), 0x1b);
 
         ArgumentCaptor<UploadSchema> schema2aCaptor = ArgumentCaptor.forClass(UploadSchema.class);
         verify(uploadSchemaService).updateSchemaRevisionV4(eq(study2Id), eq("survey-2a"), eq(21),
                 schema2aCaptor.capture());
         UploadSchema schema2a = schema2aCaptor.getValue();
-        assertEquals("guid-2a", schema2a.getSurveyGuid());
-        assertEquals(0x2a, schema2a.getSurveyCreatedOn().longValue());
+        assertEquals(schema2a.getSurveyGuid(), "guid-2a");
+        assertEquals(schema2a.getSurveyCreatedOn().longValue(), 0x2a);
 
         ArgumentCaptor<UploadSchema> schema2bCaptor = ArgumentCaptor.forClass(UploadSchema.class);
         verify(uploadSchemaService).updateSchemaRevisionV4(eq(study2Id), eq("survey-2b"), eq(22),
                 schema2bCaptor.capture());
         UploadSchema schema2b = schema2bCaptor.getValue();
-        assertEquals("guid-2b", schema2b.getSurveyGuid());
-        assertEquals(0x2b, schema2b.getSurveyCreatedOn().longValue());
+        assertEquals(schema2b.getSurveyGuid(), "guid-2b");
+        assertEquals(schema2b.getSurveyCreatedOn().longValue(), 0x2b);
     }
 
     @Test

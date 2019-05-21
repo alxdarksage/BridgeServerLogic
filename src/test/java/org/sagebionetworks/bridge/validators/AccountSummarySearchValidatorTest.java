@@ -5,24 +5,25 @@ import static org.sagebionetworks.bridge.BridgeConstants.API_MINIMUM_PAGE_SIZE;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.models.AccountSummarySearch;
 
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AccountSummarySearchValidatorTest {
 
     private AccountSummarySearchValidator validator;
     
     private AccountSummarySearch.Builder builder;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         validator = new AccountSummarySearchValidator(Sets.newHashSet("group1", "group2"));
         builder = new AccountSummarySearch.Builder();
     }

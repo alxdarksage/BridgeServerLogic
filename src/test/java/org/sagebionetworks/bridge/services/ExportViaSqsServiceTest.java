@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.SendMessageResult;
@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.config.BridgeConfig;
@@ -28,12 +28,12 @@ public class ExportViaSqsServiceTest {
     private static final String SQS_MESSAGE_ID = "dummy-message-id";
     private static final String SQS_URL = "dummy-sqs-url";
 
-    @Before
+    @BeforeMethod
     public void mockNow() {
         DateTimeUtils.setCurrentMillisFixed(MOCK_NOW);
     }
 
-    @After
+    @AfterMethod
     public void cleanup() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -60,15 +60,15 @@ public class ExportViaSqsServiceTest {
 
         String sqsMessageText = sqsMessageCaptor.getValue();
         JsonNode sqsMessageNode = JSON_OBJECT_MAPPER.readTree(sqsMessageText);
-        assertEquals(4, sqsMessageNode.size());
-        assertEquals(EXPECTED_END_DATE_TIME_STRING, sqsMessageNode.get(ExportViaSqsService.REQUEST_KEY_END_DATE_TIME)
-                .textValue());
-        assertEquals("On-Demand Export studyId=" + TestConstants.TEST_STUDY_IDENTIFIER + " endDateTime=" +
-                EXPECTED_END_DATE_TIME_STRING, sqsMessageNode.get(ExportViaSqsService.REQUEST_KEY_TAG).textValue());
+        assertEquals(sqsMessageNode.size(), 4);
+        assertEquals(sqsMessageNode.get(ExportViaSqsService.REQUEST_KEY_END_DATE_TIME).textValue(),
+                EXPECTED_END_DATE_TIME_STRING);
+        assertEquals(sqsMessageNode.get(ExportViaSqsService.REQUEST_KEY_TAG).textValue(), "On-Demand Export studyId="
+                + TestConstants.TEST_STUDY_IDENTIFIER + " endDateTime=" + EXPECTED_END_DATE_TIME_STRING);
         assertTrue(sqsMessageNode.get(ExportViaSqsService.REQUEST_KEY_USE_LAST_EXPORT_TIME).booleanValue());
 
         JsonNode studyWhitelistNode = sqsMessageNode.get(ExportViaSqsService.REQUEST_KEY_STUDY_WHITELIST);
-        assertEquals(1, studyWhitelistNode.size());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, studyWhitelistNode.get(0).textValue());
+        assertEquals(studyWhitelistNode.size(), 1);
+        assertEquals(studyWhitelistNode.get(0).textValue(), TestConstants.TEST_STUDY_IDENTIFIER);
     }
 }

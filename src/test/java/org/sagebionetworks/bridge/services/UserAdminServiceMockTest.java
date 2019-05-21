@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
@@ -9,18 +8,19 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.RequestContext;
 import org.sagebionetworks.bridge.Roles;
@@ -45,7 +45,6 @@ import org.sagebionetworks.bridge.models.substudies.AccountSubstudy;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
-@RunWith(MockitoJUnitRunner.class)
 public class UserAdminServiceMockTest {
     
     @Mock
@@ -97,8 +96,10 @@ public class UserAdminServiceMockTest {
     
     private Map<SubpopulationGuid,ConsentStatus> statuses;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service = new UserAdminService();
         service.setAuthenticationService(authenticationService);
         service.setConsentService(consentService);
@@ -130,7 +131,7 @@ public class UserAdminServiceMockTest {
                 anyString(), anyBoolean());
     }
     
-    @After
+    @AfterMethod
     public void after() {
         BridgeUtils.setRequestContext(RequestContext.NULL_INSTANCE);
     }
@@ -161,7 +162,7 @@ public class UserAdminServiceMockTest {
         verify(authenticationService).signIn(eq(study), contextCaptor.capture(), signInCaptor.capture());
         
         CriteriaContext context = contextCaptor.getValue();
-        assertEquals(study.getStudyIdentifier(), context.getStudyIdentifier());
+        assertEquals(context.getStudyIdentifier(), study.getStudyIdentifier());
         
         verify(consentService).consentToResearch(eq(study), eq(SubpopulationGuid.create("foo1")), any(StudyParticipant.class), any(),
                 eq(SharingScope.NO_SHARING), eq(false));
@@ -169,8 +170,8 @@ public class UserAdminServiceMockTest {
                 eq(SharingScope.NO_SHARING), eq(false));
 
         SignIn signIn = signInCaptor.getValue();
-        assertEquals(participant.getEmail(), signIn.getEmail());
-        assertEquals(participant.getPassword(), signIn.getPassword());
+        assertEquals(signIn.getEmail(), participant.getEmail());
+        assertEquals(signIn.getPassword(), participant.getPassword());
         
         verify(consentService).getConsentStatuses(context);
     }
@@ -190,16 +191,16 @@ public class UserAdminServiceMockTest {
         verify(authenticationService).signIn(eq(study), contextCaptor.capture(), signInCaptor.capture());
         
         CriteriaContext context = contextCaptor.getValue();
-        assertEquals(study.getStudyIdentifier(), context.getStudyIdentifier());
+        assertEquals(context.getStudyIdentifier(), study.getStudyIdentifier());
         
         SignIn signIn = signInCaptor.getValue();
-        assertEquals(participant.getPhone(), signIn.getPhone());
-        assertEquals(participant.getPassword(), signIn.getPassword());
+        assertEquals(signIn.getPhone(), participant.getPhone());
+        assertEquals(signIn.getPassword(), participant.getPassword());
         
         verify(consentService).getConsentStatuses(context);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void creatingUserWithoutEmailOrPhoneProhibited() {
         Study study = TestUtils.getValidStudy(UserAdminServiceMockTest.class);
         StudyParticipant participant = new StudyParticipant.Builder().withPassword("password").build();
@@ -263,7 +264,7 @@ public class UserAdminServiceMockTest {
         verify(externalIdService).unassignExternalId(accountCaptor.capture(), eq("subBextId"));
         verify(accountDao).deleteAccount(accountId);
         
-        assertEquals("healthCode", accountCaptor.getValue().getHealthCode());
+        assertEquals(accountCaptor.getValue().getHealthCode(), "healthCode");
     }
     
 }

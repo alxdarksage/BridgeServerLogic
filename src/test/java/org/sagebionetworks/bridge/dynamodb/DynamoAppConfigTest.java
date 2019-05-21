@@ -1,17 +1,18 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.OperatingSystem.ANDROID;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -100,68 +101,68 @@ public class DynamoAppConfigTest {
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(appConfig);
         
-        assertEquals(12, node.size());
+        assertEquals(node.size(), 12);
         JsonNode critNode = node.get("criteria");
-        assertEquals("fr", critNode.get("language").textValue());
-        assertEquals(2, critNode.get("allOfGroups").size());
-        assertEquals("a", critNode.get("allOfGroups").get(0).textValue());
-        assertEquals("b", critNode.get("allOfGroups").get(1).textValue());
-        assertEquals(2, critNode.get("noneOfGroups").size());
-        assertEquals("d", critNode.get("noneOfGroups").get(0).textValue());
-        assertEquals("c", critNode.get("noneOfGroups").get(1).textValue());
-        assertEquals(2, critNode.get("minAppVersions").get("iPhone OS").intValue());
-        assertEquals(10, critNode.get("minAppVersions").get("Android").intValue());
-        assertEquals(8, critNode.get("maxAppVersions").get("iPhone OS").intValue());
-        assertEquals(15, critNode.get("maxAppVersions").get("Android").intValue());
-        assertEquals("Criteria", critNode.get("type").textValue());
+        assertEquals(critNode.get("language").textValue(), "fr");
+        assertEquals(critNode.get("allOfGroups").size(), 2);
+        assertEquals(critNode.get("allOfGroups").get(0).textValue(), "a");
+        assertEquals(critNode.get("allOfGroups").get(1).textValue(), "b");
+        assertEquals(critNode.get("noneOfGroups").size(), 2);
+        assertEquals(critNode.get("noneOfGroups").get(0).textValue(), "d");
+        assertEquals(critNode.get("noneOfGroups").get(1).textValue(), "c");
+        assertEquals(critNode.get("minAppVersions").get("iPhone OS").intValue(), 2);
+        assertEquals(critNode.get("minAppVersions").get("Android").intValue(), 10);
+        assertEquals(critNode.get("maxAppVersions").get("iPhone OS").intValue(), 8);
+        assertEquals(critNode.get("maxAppVersions").get("Android").intValue(), 15);
+        assertEquals(critNode.get("type").textValue(), "Criteria");
         
         assertTrue(node.get("deleted").booleanValue());
-        assertEquals(TIMESTAMP.toString(), node.get("createdOn").textValue());
-        assertEquals(TIMESTAMP.toString(), node.get("modifiedOn").textValue());
-        assertEquals("AppConfig", node.get("type").textValue());
-        assertEquals(LABEL, node.get("label").textValue());
-        assertEquals(3L, node.get("version").longValue());
-        assertEquals(clientData, node.get("clientData"));
-        assertEquals(clientData, node.get("configElements").get("config1"));
-        assertEquals(1, node.get("configElements").size());
+        assertEquals(node.get("createdOn").textValue(), TIMESTAMP.toString());
+        assertEquals(node.get("modifiedOn").textValue(), TIMESTAMP.toString());
+        assertEquals(node.get("type").textValue(), "AppConfig");
+        assertEquals(node.get("label").textValue(), LABEL);
+        assertEquals(node.get("version").longValue(), 3L);
+        assertEquals(node.get("clientData"), clientData);
+        assertEquals(node.get("configElements").get("config1"), clientData);
+        assertEquals(node.get("configElements").size(), 1);
         
-        assertEquals(2, node.get("configReferences").size());
-        assertEquals("config1", node.get("configReferences").get(0).get("id").textValue());
-        assertEquals(1L, node.get("configReferences").get(0).get("revision").longValue());
-        assertEquals("config2", node.get("configReferences").get(1).get("id").textValue());
-        assertEquals(2L, node.get("configReferences").get(1).get("revision").longValue());
+        assertEquals(node.get("configReferences").size(), 2);
+        assertEquals(node.get("configReferences").get(0).get("id").textValue(), "config1");
+        assertEquals(node.get("configReferences").get(0).get("revision").longValue(), 1L);
+        assertEquals(node.get("configReferences").get(1).get("id").textValue(), "config2");
+        assertEquals(node.get("configReferences").get(1).get("revision").longValue(), 2L);
         
-        assertEquals(2, node.get("schemaReferences").size());
-        assertEquals("schemaA", node.get("schemaReferences").get(0).get("id").textValue());
-        assertEquals(1L, node.get("schemaReferences").get(0).get("revision").longValue());
-        assertEquals("schemaB", node.get("schemaReferences").get(1).get("id").textValue());
-        assertEquals(2L, node.get("schemaReferences").get(1).get("revision").longValue());
+        assertEquals(node.get("schemaReferences").size(), 2);
+        assertEquals(node.get("schemaReferences").get(0).get("id").textValue(), "schemaA");
+        assertEquals(node.get("schemaReferences").get(0).get("revision").longValue(), 1L);
+        assertEquals(node.get("schemaReferences").get(1).get("id").textValue(), "schemaB");
+        assertEquals(node.get("schemaReferences").get(1).get("revision").longValue(), 2L);
         
-        assertEquals(2, node.get("surveyReferences").size());
-        assertEquals("surveyA", node.get("surveyReferences").get(0).get("identifier").textValue());
-        assertEquals(appConfig.getSurveyReferences().get(0).getGuid(),
-                node.get("surveyReferences").get(0).get("guid").textValue());
-        assertEquals(SURVEY_PUB_DATE.toString(), node.get("surveyReferences").get(0).get("createdOn").textValue());
-        assertEquals("surveyB", node.get("surveyReferences").get(1).get("identifier").textValue());
-        assertEquals(appConfig.getSurveyReferences().get(1).getGuid(),
-                node.get("surveyReferences").get(1).get("guid").textValue());
-        assertEquals(SURVEY_PUB_DATE.toString(), node.get("surveyReferences").get(1).get("createdOn").textValue());
+        assertEquals(node.get("surveyReferences").size(), 2);
+        assertEquals(node.get("surveyReferences").get(0).get("identifier").textValue(), "surveyA");
+        assertEquals(node.get("surveyReferences").get(0).get("guid").textValue(),
+                appConfig.getSurveyReferences().get(0).getGuid());
+        assertEquals(node.get("surveyReferences").get(0).get("createdOn").textValue(), SURVEY_PUB_DATE.toString());
+        assertEquals(node.get("surveyReferences").get(1).get("identifier").textValue(), "surveyB");
+        assertEquals(node.get("surveyReferences").get(1).get("guid").textValue(),
+                appConfig.getSurveyReferences().get(1).getGuid());
+        assertEquals(node.get("surveyReferences").get(1).get("createdOn").textValue(), SURVEY_PUB_DATE.toString());
         
         AppConfig deser = BridgeObjectMapper.get().treeToValue(node, AppConfig.class);
         assertNull(deser.getStudyId());
         
-        assertEquals(clientData, deser.getClientData());
-        assertEquals(clientData, deser.getConfigElements().get("config1"));
-        assertEquals(appConfig.getCriteria(), deser.getCriteria());
-        assertEquals(appConfig.getLabel(), deser.getLabel());
-        assertEquals(appConfig.getSurveyReferences(), deser.getSurveyReferences());
-        assertEquals(appConfig.getSchemaReferences(), deser.getSchemaReferences());
-        assertEquals(appConfig.getConfigReferences(), deser.getConfigReferences());
-        assertEquals(appConfig.getConfigElements(), deser.getConfigElements());
-        assertEquals(appConfig.getCreatedOn(), deser.getCreatedOn());
-        assertEquals(appConfig.getModifiedOn(), deser.getModifiedOn());
-        assertEquals(appConfig.getGuid(), deser.getGuid());
-        assertEquals(appConfig.getVersion(), deser.getVersion());
-        assertEquals(appConfig.isDeleted(), deser.isDeleted());
+        assertEquals(deser.getClientData(), clientData);
+        assertEquals(deser.getConfigElements().get("config1"), clientData);
+        assertEquals(deser.getCriteria(), appConfig.getCriteria());
+        assertEquals(deser.getLabel(), appConfig.getLabel());
+        assertEquals(deser.getSurveyReferences(), appConfig.getSurveyReferences());
+        assertEquals(deser.getSchemaReferences(), appConfig.getSchemaReferences());
+        assertEquals(deser.getConfigReferences(), appConfig.getConfigReferences());
+        assertEquals(deser.getConfigElements(), appConfig.getConfigElements());
+        assertEquals(deser.getCreatedOn(), appConfig.getCreatedOn());
+        assertEquals(deser.getModifiedOn(), appConfig.getModifiedOn());
+        assertEquals(deser.getGuid(), appConfig.getGuid());
+        assertEquals(deser.getVersion(), appConfig.getVersion());
+        assertEquals(deser.isDeleted(), appConfig.isDeleted());
     }
 }

@@ -1,7 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -11,13 +9,16 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.models.upload.UploadCompletionClient.APP;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.fail;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.config.BridgeConfig;
@@ -40,7 +41,7 @@ public class UploadServiceUploadCompleteMockTest {
     private UploadValidationService mockUploadValidationService;
     private UploadService svc;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         // mock config
         BridgeConfig mockConfig = mock(BridgeConfig.class);

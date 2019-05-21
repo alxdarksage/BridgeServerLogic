@@ -6,8 +6,9 @@ import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dao.StudyConsentDao;
 import org.sagebionetworks.bridge.models.subpopulations.StudyConsent;
@@ -20,7 +21,7 @@ public class StudyConsentServiceMockTest {
     private StudyConsentDao mockDao;
     private AmazonS3Client mockS3Client;
 
-    @Before
+    @BeforeMethod
     public void before() {
         mockDao = mock(StudyConsentDao.class);
         mockS3Client = mock(AmazonS3Client.class);

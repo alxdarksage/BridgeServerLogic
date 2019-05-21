@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleTestUtils.asLong;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleTestUtils.asDT;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleTestUtils.assertDates;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleType.ONCE;
 import static org.sagebionetworks.bridge.models.schedules.ScheduleType.RECURRING;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 
 import java.util.List;
@@ -17,9 +17,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoSchedulePlan;
 
@@ -35,7 +36,7 @@ public class IntervalActivitySchedulerTest {
     private List<ScheduledActivity> scheduledActivities;
     private SchedulePlan plan = new DynamoSchedulePlan();
     
-    @Before
+    @BeforeMethod
     public void before() {
         plan.setGuid("BBB");
 
@@ -46,7 +47,7 @@ public class IntervalActivitySchedulerTest {
         events.put("enrollment", ENROLLMENT);
     }
     
-    @After
+    @AfterMethod
     public void after() {
         DateTimeUtils.setCurrentMillisSystem();
     }
@@ -154,7 +155,7 @@ public class IntervalActivitySchedulerTest {
         schedule.setExpires("PT24H");
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
         
         schedule.setExpires("P1M");
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
@@ -194,7 +195,7 @@ public class IntervalActivitySchedulerTest {
         schedule.setStartsOn("2015-04-10T09:00:00Z");
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusDays(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceEndsOnScheduleWorks() {
@@ -203,7 +204,7 @@ public class IntervalActivitySchedulerTest {
         
         // In this case the endsOn date is before the enrollment. No activities
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
         
         schedule.setEndsOn("2015-04-23T13:40:00Z");
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
@@ -235,7 +236,7 @@ public class IntervalActivitySchedulerTest {
         
         // Again, it happens before the start date, so it doesn't happen.
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusDays(3)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceDelayEndsOnScheduleWorks() {
@@ -249,7 +250,7 @@ public class IntervalActivitySchedulerTest {
         // With a delay *after* the end date, nothing happens
         schedule.setDelay("P2M");
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(3)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceDelayStartEndsOnScheduleWorks() {
@@ -265,7 +266,7 @@ public class IntervalActivitySchedulerTest {
         schedule.setDelay("P6M");
         schedule.setStartsOn(asDT("2015-05-01 00:00"));
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(9)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceDelayExpiresScheduleWorks() {
@@ -274,8 +275,8 @@ public class IntervalActivitySchedulerTest {
         schedule.setDelay("P1M");
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(3)));
-        assertEquals(asLong("2015-04-23 09:40"), scheduledActivities.get(0).getScheduledOn().getMillis());
-        assertEquals(asLong("2015-04-30 09:40"), scheduledActivities.get(0).getExpiresOn().getMillis());
+        assertEquals(scheduledActivities.get(0).getScheduledOn().getMillis(), asLong("2015-04-23 09:40"));
+        assertEquals(scheduledActivities.get(0).getExpiresOn().getMillis(), asLong("2015-04-30 09:40"));
     }
     @Test
     public void onceExpiresScheduleWorks() {
@@ -284,7 +285,7 @@ public class IntervalActivitySchedulerTest {
 
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(3)));
         // No activities. Created on 3/23, it expired by 3/30, today is 4/6
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceEventScheduleWorks() {
@@ -308,7 +309,7 @@ public class IntervalActivitySchedulerTest {
 
         // Goes to the event window day and takes the afternoon slot, after 10am
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceEventEndsOnScheduleWorks() {
@@ -319,7 +320,7 @@ public class IntervalActivitySchedulerTest {
         
         // No activity, the event happened after the end of the window
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceEventStartEndsOnScheduleWorks() {
@@ -330,7 +331,7 @@ public class IntervalActivitySchedulerTest {
 
         // No event... select the startsOn window
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
         
         events.put("survey:AAA:completedOn", asDT("2015-04-10 00:00"));
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
@@ -370,7 +371,7 @@ public class IntervalActivitySchedulerTest {
         // This should not return a activity.
         schedule.setStartsOn(asDT("2015-04-15 00:00"));
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void onceEventDelayEndsOnScheduleWorks() {
@@ -427,13 +428,13 @@ public class IntervalActivitySchedulerTest {
         // Given even, it would be on 4/2 at 12:22, expiring 4/5, today is 4/6
         // It's in the window but still doesn't appear
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(6)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
         
         events.put("survey:AAA:completedOn", asDT("2015-04-06 09:22"));
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(6)));
         
-        assertEquals(asLong("2015-04-06 12:22"), scheduledActivities.get(0).getScheduledOn().getMillis());
-        assertEquals(asLong("2015-04-09 12:22"), scheduledActivities.get(0).getExpiresOn().getMillis());
+        assertEquals(scheduledActivities.get(0).getScheduledOn().getMillis(), asLong("2015-04-06 12:22"));
+        assertEquals(scheduledActivities.get(0).getExpiresOn().getMillis(), asLong("2015-04-09 12:22"));
     }
     @Test
     public void recurringScheduleWorks() {
@@ -506,7 +507,7 @@ public class IntervalActivitySchedulerTest {
         // With a delay *after* the end date, nothing happens
         schedule.setDelay("P2M");
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(3)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void recurringDelayStartEndsOnScheduleWorks() {
@@ -524,7 +525,7 @@ public class IntervalActivitySchedulerTest {
         schedule.setDelay("P1M");
         schedule.setStartsOn(asDT("2015-03-30 09:00"));
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(3)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void recurringEventScheduleWorks() {
@@ -554,7 +555,7 @@ public class IntervalActivitySchedulerTest {
         
         // No activity, the event happened after the end of the window
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, getContext(ENROLLMENT.plusMonths(1)));
-        assertEquals(0, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 0);
     }
     @Test
     public void recurringEventStartEndsOnScheduleWorks() {
@@ -684,7 +685,7 @@ public class IntervalActivitySchedulerTest {
                 .withMinimumPerSchedule(2).build();
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, context);
-        assertEquals(2, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 2);
         
         // But this will lock out tasks. Scheduling window takes precedence.
         schedule.setEndsOn(ENROLLMENT.plusDays(3)); 
@@ -719,7 +720,7 @@ public class IntervalActivitySchedulerTest {
 
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, context);
         
-        assertEquals(5, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 5);
     }
     
     @Test
@@ -744,7 +745,7 @@ public class IntervalActivitySchedulerTest {
                 .withInitialTimeZone(DateTimeZone.forOffsetHours(-7)).build();
         
         scheduledActivities = schedule.getScheduler().getScheduledActivities(plan, context);
-        assertEquals(4, scheduledActivities.size());
+        assertEquals(scheduledActivities.size(), 4);
     }
 
     private ScheduleContext getContext(DateTime endsOn) {

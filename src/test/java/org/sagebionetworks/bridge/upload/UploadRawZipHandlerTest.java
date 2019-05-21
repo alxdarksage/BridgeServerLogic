@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.testng.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.healthdata.HealthDataRecord;
 import org.sagebionetworks.bridge.models.upload.Upload;
@@ -25,7 +25,7 @@ public class UploadRawZipHandlerTest {
     private UploadFileHelper mockUploadFileHelper;
     private HealthDataRecord record;
 
-    @Before
+    @BeforeMethod
     public void before() {
         // Set up mocks and handler.
         mockUploadFileHelper = mock(UploadFileHelper.class);
@@ -51,10 +51,10 @@ public class UploadRawZipHandlerTest {
         // Execute and validate.
         handler.handle(context);
         verify(mockUploadFileHelper).uploadFileAsAttachment(EXPECTED_RAW_DATA_ATTACHMENT_ID, mockDecryptedFile);
-        assertEquals(EXPECTED_RAW_DATA_ATTACHMENT_ID, record.getRawDataAttachmentId());
+        assertEquals(record.getRawDataAttachmentId(), EXPECTED_RAW_DATA_ATTACHMENT_ID);
     }
 
-    @Test(expected = UploadValidationException.class)
+    @Test(expectedExceptions = UploadValidationException.class)
     public void errorCase() throws Exception {
         // Mock uploadFileHelper to throw.
         doThrow(IOException.class).when(mockUploadFileHelper).uploadFileAsAttachment(EXPECTED_RAW_DATA_ATTACHMENT_ID,

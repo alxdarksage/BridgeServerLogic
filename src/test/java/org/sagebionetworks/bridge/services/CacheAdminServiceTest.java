@@ -1,18 +1,20 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.cache.CacheKey;
 import org.sagebionetworks.bridge.exceptions.BridgeServiceException;
 import org.sagebionetworks.bridge.models.surveys.Survey;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import redis.clients.jedis.Jedis;
@@ -22,12 +24,9 @@ public class CacheAdminServiceTest {
 
     private static final String REQUEST_INFO_KEY = CacheKey.requestInfo("10E9SFUz9BYrqCrTzfiaNW").toString();
     
-    private final static Set<String> KEYS = Sets.newHashSet(CacheKey.study("foo").toString(),
-            CacheKey.viewKey(Survey.class, "baz").toString());
-    
     private CacheAdminService adminService;
     
-    @Before
+    @BeforeMethod
     public void before() {
         adminService = new CacheAdminService();
         
@@ -40,7 +39,7 @@ public class CacheAdminServiceTest {
     @Test
     public void listsItemsWithoutSessions() {
         Set<String> set = adminService.listItems();
-        assertEquals(2, set.size());
+        assertEquals(set.size(), 2);
         assertTrue(set.contains("foo:study"));
         assertTrue(set.contains("baz:Survey:view"));
     }
@@ -50,44 +49,46 @@ public class CacheAdminServiceTest {
     public void canRemoveItem() {
         adminService.removeItem("foo:study");
         Set<String> set = adminService.listItems();
-        assertEquals(1, set.size());
+        assertEquals(set.size(), 1);
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void doesNotRemoveSessions() {
         adminService.removeItem("bar:session");
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void doesNotRemoveUserSessions() {
         adminService.removeItem("xh7YDmjGQuTKnfdv9iJb0:session:user");
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void throwsExceptionWhenThereIsNoKey() {
         adminService.removeItem("not:a:key");
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void throwsExceptionWhenKeyIsEmpty() {
         adminService.removeItem(" ");
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void throwsExceptionWhenKeyIsNull() {
         adminService.removeItem(null);
     }
     
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void cannotRemoveRequestInfo() {
         adminService.removeItem(REQUEST_INFO_KEY);
     }
     
     private Jedis createStubJedis() {
+        Set<String> KEYS = Sets.newHashSet(CacheKey.study("foo").toString(),
+                CacheKey.viewKey(Survey.class, "baz").toString());
         return new Jedis("") {
             @Override
             public Set<String> keys(String pattern) {
-                return KEYS;
+                return ImmutableSet.copyOf(KEYS);
             }
             @Override
             public Long del(String key) {

@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
 import org.sagebionetworks.bridge.models.healthdata.HealthDataRecord;
@@ -22,7 +22,7 @@ public class UploadArtifactsHandlerTest {
     private HealthDataService mockHealthDataService;
     private UploadArtifactsHandler handler;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         // Mock health data service.
         mockHealthDataService = mock(HealthDataService.class);
@@ -56,7 +56,7 @@ public class UploadArtifactsHandlerTest {
         verify(mockHealthDataService).createOrUpdateRecord(createdRecordCaptor.capture());
 
         HealthDataRecord createdRecord = createdRecordCaptor.getValue();
-        assertEquals(42L, createdRecord.getVersion().longValue());
+        assertEquals(createdRecord.getVersion().longValue(), 42L);
     }
 
     private void test() {
@@ -81,11 +81,11 @@ public class UploadArtifactsHandlerTest {
         verify(mockHealthDataService).createOrUpdateRecord(createdRecordCaptor.capture());
 
         HealthDataRecord createdRecord = createdRecordCaptor.getValue();
-        assertEquals(TEST_UPLOAD_ID, createdRecord.getId());
-        assertSame(record, createdRecord);
+        assertEquals(createdRecord.getId(), TEST_UPLOAD_ID);
+        assertSame(createdRecord, record);
 
         // validate record ID in the context
-        assertEquals(TEST_UPLOAD_ID, context.getRecordId());
+        assertEquals(context.getRecordId(), TEST_UPLOAD_ID);
 
         // validate no messages on the context
         assertTrue(context.getMessageList().isEmpty());

@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.models;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -42,50 +42,50 @@ public class PagedResourceListTest {
                 .withRequestParam("emailFilter", "filterString");
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(page);
-        assertEquals(123, node.get("offsetBy").intValue());
-        assertEquals(2, node.get("total").intValue());
-        assertEquals(100, node.get("pageSize").intValue());
-        assertEquals("filterString", node.get("emailFilter").asText());
-        assertEquals(startTime.toString(), node.get("startTime").asText());
-        assertEquals(endTime.toString(), node.get("endTime").asText());
-        assertEquals("PagedResourceList", node.get("type").asText());
+        assertEquals(node.get("offsetBy").intValue(), 123);
+        assertEquals(node.get("total").intValue(), 2);
+        assertEquals(node.get("pageSize").intValue(), 100);
+        assertEquals(node.get("emailFilter").asText(), "filterString");
+        assertEquals(node.get("startTime").asText(), startTime.toString());
+        assertEquals(node.get("endTime").asText(), endTime.toString());
+        assertEquals(node.get("type").asText(), "PagedResourceList");
         
         JsonNode rp = node.get("requestParams");
-        assertEquals(123, rp.get("offsetBy").intValue());
-        assertEquals(100, rp.get("pageSize").intValue());
-        assertEquals(startTime.toString(), rp.get("startTime").asText());
-        assertEquals(endTime.toString(), rp.get("endTime").asText());
-        assertEquals("filterString", rp.get("emailFilter").asText());
-        assertEquals(ResourceList.REQUEST_PARAMS, rp.get(ResourceList.TYPE).textValue());
+        assertEquals(rp.get("offsetBy").intValue(), 123);
+        assertEquals(rp.get("pageSize").intValue(), 100);
+        assertEquals(rp.get("startTime").asText(), startTime.toString());
+        assertEquals(rp.get("endTime").asText(), endTime.toString());
+        assertEquals(rp.get("emailFilter").asText(), "filterString");
+        assertEquals(rp.get(ResourceList.TYPE).textValue(), ResourceList.REQUEST_PARAMS);
                 
         ArrayNode items = (ArrayNode)node.get("items");
-        assertEquals(2, items.size());
+        assertEquals(items.size(), 2);
         
         JsonNode child1 = items.get(0);
-        assertEquals("firstName1", child1.get("firstName").asText());
-        assertEquals("lastName1", child1.get("lastName").asText());
-        assertEquals("email1@email.com", child1.get("email").asText());
-        assertEquals("id", child1.get("id").asText());
-        assertEquals("disabled", child1.get("status").asText());
+        assertEquals(child1.get("firstName").asText(), "firstName1");
+        assertEquals(child1.get("lastName").asText(), "lastName1");
+        assertEquals(child1.get("email").asText(), "email1@email.com");
+        assertEquals(child1.get("id").asText(), "id");
+        assertEquals(child1.get("status").asText(), "disabled");
         
         PagedResourceList<AccountSummary> serPage = BridgeObjectMapper.get().readValue(node.toString(), 
                 new TypeReference<PagedResourceList<AccountSummary>>() {});
 
-        assertEquals(page.getTotal(), serPage.getTotal());
-        assertEquals(100, serPage.getPageSize());
-        assertEquals((Integer)123, serPage.getOffsetBy());
-        assertEquals(startTime, serPage.getStartTime());
-        assertEquals(endTime, serPage.getEndTime());
-        assertEquals("filterString", serPage.getEmailFilter());
+        assertEquals(serPage.getTotal(), page.getTotal());
+        assertEquals(serPage.getPageSize(), 100);
+        assertEquals(serPage.getOffsetBy(), (Integer)123);
+        assertEquals(serPage.getStartTime(), startTime);
+        assertEquals(serPage.getEndTime(), endTime);
+        assertEquals(serPage.getEmailFilter(), "filterString");
         
         Map<String,Object> params = page.getRequestParams();
         Map<String,Object> serParams = serPage.getRequestParams();
-        assertEquals(params, serParams);
+        assertEquals(serParams, params);
         
-        assertEquals(page.getItems(), serPage.getItems());
+        assertEquals(serPage.getItems(), page.getItems());
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void totalCannotBeNull() throws Exception {
         List<AccountSummary> accounts = Lists.newArrayListWithCapacity(2);
         new PagedResourceList<AccountSummary>(accounts, null);

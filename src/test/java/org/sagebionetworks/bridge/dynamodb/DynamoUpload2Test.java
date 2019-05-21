@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -52,25 +52,25 @@ public class DynamoUpload2Test {
         upload.setVersion(2L);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(upload);
-        assertEquals("s3_worker", node.get("completedBy").textValue());
-        assertEquals(requestedOn.toString(), node.get("requestedOn").textValue());
-        assertEquals(completedOn.toString(), node.get("completedOn").textValue());
-        assertEquals(10000L, node.get("contentLength").longValue());
-        assertEquals("original-upload-id", node.get("duplicateUploadId").textValue());
-        assertEquals("succeeded", node.get("status").textValue());
-        assertEquals("2016-10-10", node.get("uploadDate").textValue());
-        assertEquals("ABC", node.get("recordId").textValue());
-        assertEquals("DEF", node.get("uploadId").textValue());
-        assertEquals("abc", node.get("contentMd5").textValue());
-        assertEquals("application/json", node.get("contentType").textValue());
-        assertEquals("filename.zip", node.get("filename").textValue());
-        assertEquals("api", node.get("studyId").textValue());
-        assertEquals(2L, node.get("version").longValue());
-        assertEquals("healthCode", node.get("healthCode").textValue());
+        assertEquals(node.get("completedBy").textValue(), "s3_worker");
+        assertEquals(node.get("requestedOn").textValue(), requestedOn.toString());
+        assertEquals(node.get("completedOn").textValue(), completedOn.toString());
+        assertEquals(node.get("contentLength").longValue(), 10000L);
+        assertEquals(node.get("duplicateUploadId").textValue(), "original-upload-id");
+        assertEquals(node.get("status").textValue(), "succeeded");
+        assertEquals(node.get("uploadDate").textValue(), "2016-10-10");
+        assertEquals(node.get("recordId").textValue(), "ABC");
+        assertEquals(node.get("uploadId").textValue(), "DEF");
+        assertEquals(node.get("contentMd5").textValue(), "abc");
+        assertEquals(node.get("contentType").textValue(), "application/json");
+        assertEquals(node.get("filename").textValue(), "filename.zip");
+        assertEquals(node.get("studyId").textValue(), "api");
+        assertEquals(node.get("version").longValue(), 2L);
+        assertEquals(node.get("healthCode").textValue(), "healthCode");
         
         ArrayNode messages = (ArrayNode)node.get("validationMessageList");
-        assertEquals("message 1", messages.get(0).textValue());
-        assertEquals("message 2", messages.get(1).textValue());
+        assertEquals(messages.get(0).textValue(), "message 1");
+        assertEquals(messages.get(1).textValue(), "message 2");
     }
     
     @Test
@@ -86,19 +86,19 @@ public class DynamoUpload2Test {
         List<String> list2 = upload2.getValidationMessageList();
         assertTrue(initialList.isEmpty());
 
-        assertEquals(1, list2.size());
-        assertEquals("first message", list2.get(0));
+        assertEquals(list2.size(), 1);
+        assertEquals(list2.get(0), "first message");
 
         // set should overwrite
         upload2.setValidationMessageList(ImmutableList.of("second message"));
         List<String> list3 = upload2.getValidationMessageList();
         assertTrue(initialList.isEmpty());
 
-        assertEquals(1, list2.size());
-        assertEquals("first message", list2.get(0));
+        assertEquals(list2.size(), 1);
+        assertEquals(list2.get(0), "first message");
 
-        assertEquals(1, list3.size());
-        assertEquals("second message", list3.get(0));
+        assertEquals(list3.size(), 1);
+        assertEquals(list3.get(0), "second message");
     }
 
     @Test
@@ -114,20 +114,20 @@ public class DynamoUpload2Test {
         List<String> list2 = upload2.getValidationMessageList();
         assertTrue(initialList.isEmpty());
 
-        assertEquals(1, list2.size());
-        assertEquals("first message", list2.get(0));
+        assertEquals(list2.size(), 1);
+        assertEquals(list2.get(0), "first message");
 
         // append again
         upload2.appendValidationMessages(ImmutableList.of("second message"));
         List<String> list3 = upload2.getValidationMessageList();
         assertTrue(initialList.isEmpty());
 
-        assertEquals(1, list2.size());
-        assertEquals("first message", list2.get(0));
+        assertEquals(list2.size(), 1);
+        assertEquals(list2.get(0), "first message");
 
-        assertEquals(2, list3.size());
-        assertEquals("first message", list3.get(0));
-        assertEquals("second message", list3.get(1));
+        assertEquals(list3.size(), 2);
+        assertEquals(list3.get(0), "first message");
+        assertEquals(list3.get(1), "second message");
     }
 
     @Test
@@ -143,35 +143,35 @@ public class DynamoUpload2Test {
         List<String> list2 = upload2.getValidationMessageList();
         assertTrue(initialList.isEmpty());
 
-        assertEquals(1, list2.size());
-        assertEquals("first message", list2.get(0));
+        assertEquals(list2.size(), 1);
+        assertEquals(list2.get(0), "first message");
 
         // append on a set
         upload2.appendValidationMessages(ImmutableList.of("second message"));
         List<String> list3 = upload2.getValidationMessageList();
         assertTrue(initialList.isEmpty());
 
-        assertEquals(1, list2.size());
-        assertEquals("first message", list2.get(0));
+        assertEquals(list2.size(), 1);
+        assertEquals(list2.get(0), "first message");
 
-        assertEquals(2, list3.size());
-        assertEquals("first message", list3.get(0));
-        assertEquals("second message", list3.get(1));
+        assertEquals(list3.size(), 2);
+        assertEquals(list3.get(0), "first message");
+        assertEquals(list3.get(1), "second message");
 
         // set should overwrite the append
         upload2.setValidationMessageList(ImmutableList.of("third message"));
         List<String> list4 = upload2.getValidationMessageList();
         assertTrue(initialList.isEmpty());
 
-        assertEquals(1, list2.size());
-        assertEquals("first message", list2.get(0));
+        assertEquals(list2.size(), 1);
+        assertEquals(list2.get(0), "first message");
 
-        assertEquals(2, list3.size());
-        assertEquals("first message", list3.get(0));
-        assertEquals("second message", list3.get(1));
+        assertEquals(list3.size(), 2);
+        assertEquals(list3.get(0), "first message");
+        assertEquals(list3.get(1), "second message");
 
-        assertEquals(1, list4.size());
-        assertEquals("third message", list4.get(0));
+        assertEquals(list4.size(), 1);
+        assertEquals(list4.get(0), "third message");
     }
     
     @Test

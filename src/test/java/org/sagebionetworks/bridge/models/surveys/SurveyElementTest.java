@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.models.surveys;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dynamodb.DynamoSurveyInfoScreen;
@@ -44,43 +44,43 @@ public class SurveyElementTest {
         assertNull(question.getConstraints());
         assertNotNull(question.getData());
         assertFalse(question.getFireEvent());
-        assertEquals("test-guid", question.getGuid());
-        assertEquals("test-survey-question", question.getIdentifier());
-        assertEquals(0, question.getOrder());
-        assertEquals("Is this a survey question?", question.getPrompt());
-        assertEquals("Details about question", question.getPromptDetail());
+        assertEquals(question.getGuid(), "test-guid");
+        assertEquals(question.getIdentifier(), "test-survey-question");
+        assertEquals(question.getOrder(), 0);
+        assertEquals(question.getPrompt(), "Is this a survey question?");
+        assertEquals(question.getPromptDetail(), "Details about question");
         assertNull(question.getSurveyCompoundKey());
-        assertEquals("SurveyQuestion", question.getType());
-        assertEquals(UIHint.TEXTFIELD, question.getUiHint());
+        assertEquals(question.getType(), "SurveyQuestion");
+        assertEquals(question.getUiHint(), UIHint.TEXTFIELD);
         
-        assertEquals(BEFORE_RULE, question.getBeforeRules().get(0));
-        assertEquals(AFTER_RULE, question.getAfterRules().get(0));
+        assertEquals(question.getBeforeRules().get(0), BEFORE_RULE);
+        assertEquals(question.getAfterRules().get(0), AFTER_RULE);
 
         // convert back to JSON
         String convertedJson = BridgeObjectMapper.get().writeValueAsString(question);
 
         // then convert to a map so we can validate the raw JSON
         Map<String, Object> jsonMap = BridgeObjectMapper.get().readValue(convertedJson, JsonUtils.TYPE_REF_RAW_MAP);
-        assertEquals(9, jsonMap.size());
+        assertEquals(jsonMap.size(), 9);
         assertFalse((boolean) jsonMap.get("fireEvent"));
-        assertEquals("test-guid", jsonMap.get("guid"));
-        assertEquals("test-survey-question", jsonMap.get("identifier"));
-        assertEquals("Is this a survey question?", jsonMap.get("prompt"));
-        assertEquals("Details about question", jsonMap.get("promptDetail"));
-        assertEquals("SurveyQuestion", jsonMap.get("type"));
-        assertEquals("textfield", jsonMap.get("uiHint"));
+        assertEquals(jsonMap.get("guid"), "test-guid");
+        assertEquals(jsonMap.get("identifier"), "test-survey-question");
+        assertEquals(jsonMap.get("prompt"), "Is this a survey question?");
+        assertEquals(jsonMap.get("promptDetail"), "Details about question");
+        assertEquals(jsonMap.get("type"), "SurveyQuestion");
+        assertEquals(jsonMap.get("uiHint"), "textfield");
         
         SurveyQuestion deserQuestion = BridgeObjectMapper.get().readValue(convertedJson, SurveyQuestion.class);
         
         assertFalse(deserQuestion.getFireEvent());
-        assertEquals("test-guid", deserQuestion.getGuid());
-        assertEquals("test-survey-question", deserQuestion.getIdentifier());
-        assertEquals("Is this a survey question?", deserQuestion.getPrompt());
-        assertEquals("Details about question", deserQuestion.getPromptDetail());
-        assertEquals("SurveyQuestion", deserQuestion.getType());
-        assertEquals(UIHint.TEXTFIELD, deserQuestion.getUiHint());
-        assertEquals(BEFORE_RULE, deserQuestion.getBeforeRules().get(0));
-        assertEquals(AFTER_RULE, deserQuestion.getAfterRules().get(0));
+        assertEquals(deserQuestion.getGuid(), "test-guid");
+        assertEquals(deserQuestion.getIdentifier(), "test-survey-question");
+        assertEquals(deserQuestion.getPrompt(), "Is this a survey question?");
+        assertEquals(deserQuestion.getPromptDetail(), "Details about question");
+        assertEquals(deserQuestion.getType(), "SurveyQuestion");
+        assertEquals(deserQuestion.getUiHint(), UIHint.TEXTFIELD);
+        assertEquals(deserQuestion.getBeforeRules().get(0), BEFORE_RULE);
+        assertEquals(deserQuestion.getAfterRules().get(0), AFTER_RULE);
     }
 
     @Test
@@ -104,43 +104,43 @@ public class SurveyElementTest {
         DynamoSurveyInfoScreen infoScreen = (DynamoSurveyInfoScreen) BridgeObjectMapper.get().readValue(jsonText,
                 SurveyElement.class);
         assertNotNull(infoScreen.getData());
-        assertEquals("test-guid", infoScreen.getGuid());
-        assertEquals("test-survey-info-screen", infoScreen.getIdentifier());
-        assertEquals(0, infoScreen.getOrder());
-        assertEquals("This is the survey info", infoScreen.getPrompt());
-        assertEquals("More info", infoScreen.getPromptDetail());
+        assertEquals(infoScreen.getGuid(), "test-guid");
+        assertEquals(infoScreen.getIdentifier(), "test-survey-info-screen");
+        assertEquals(infoScreen.getOrder(), 0);
+        assertEquals(infoScreen.getPrompt(), "This is the survey info");
+        assertEquals(infoScreen.getPromptDetail(), "More info");
         assertNull(infoScreen.getSurveyCompoundKey());
-        assertEquals("Survey Info", infoScreen.getTitle());
-        assertEquals("SurveyInfoScreen", infoScreen.getType());
-        assertEquals(BEFORE_RULE, infoScreen.getBeforeRules().get(0));
-        assertEquals(AFTER_RULE, infoScreen.getAfterRules().get(0));
+        assertEquals(infoScreen.getTitle(), "Survey Info");
+        assertEquals(infoScreen.getType(), "SurveyInfoScreen");
+        assertEquals(infoScreen.getBeforeRules().get(0), BEFORE_RULE);
+        assertEquals(infoScreen.getAfterRules().get(0), AFTER_RULE);
 
-        assertEquals("http://www.example.com/test.png", infoScreen.getImage().getSource());
-        assertEquals(200, infoScreen.getImage().getWidth());
-        assertEquals(150, infoScreen.getImage().getHeight());
+        assertEquals(infoScreen.getImage().getSource(), "http://www.example.com/test.png");
+        assertEquals(infoScreen.getImage().getWidth(), 200);
+        assertEquals(infoScreen.getImage().getHeight(), 150);
 
         // convert back to JSON
         String convertedJson = BridgeObjectMapper.get().writeValueAsString(infoScreen);
 
         // then convert to a map so we can validate the raw JSON
         Map<String, Object> jsonMap = BridgeObjectMapper.get().readValue(convertedJson, JsonUtils.TYPE_REF_RAW_MAP);
-        assertEquals(9, jsonMap.size());
-        assertEquals("test-guid", jsonMap.get("guid"));
-        assertEquals("test-survey-info-screen", jsonMap.get("identifier"));
-        assertEquals("This is the survey info", jsonMap.get("prompt"));
-        assertEquals("More info", jsonMap.get("promptDetail"));
-        assertEquals("Survey Info", jsonMap.get("title"));
-        assertEquals("SurveyInfoScreen", jsonMap.get("type"));
+        assertEquals(jsonMap.size(), 9);
+        assertEquals(jsonMap.get("guid"), "test-guid");
+        assertEquals(jsonMap.get("identifier"), "test-survey-info-screen");
+        assertEquals(jsonMap.get("prompt"), "This is the survey info");
+        assertEquals(jsonMap.get("promptDetail"), "More info");
+        assertEquals(jsonMap.get("title"), "Survey Info");
+        assertEquals(jsonMap.get("type"), "SurveyInfoScreen");
 
         Map<String, Object> imageMap = (Map<String, Object>) jsonMap.get("image");
-        assertEquals(4, imageMap.size());
-        assertEquals("http://www.example.com/test.png", imageMap.get("source"));
-        assertEquals(200, imageMap.get("width"));
-        assertEquals(150, imageMap.get("height"));
-        assertEquals("Image", imageMap.get("type"));
+        assertEquals(imageMap.size(), 4);
+        assertEquals(imageMap.get("source"), "http://www.example.com/test.png");
+        assertEquals(imageMap.get("width"), 200);
+        assertEquals(imageMap.get("height"), 150);
+        assertEquals(imageMap.get("type"), "Image");
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void serializeInvalidSurveyElementType() throws Exception {
         // start with JSON
         String jsonText = TestUtils.createJson("{'guid': 'bad-guid'," +

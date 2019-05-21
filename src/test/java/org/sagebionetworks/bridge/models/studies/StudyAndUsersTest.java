@@ -1,13 +1,14 @@
 package org.sagebionetworks.bridge.models.studies;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.Roles;
 import org.sagebionetworks.bridge.dynamodb.DynamoStudy;
@@ -90,8 +91,8 @@ public class StudyAndUsersTest {
         List<StudyParticipant> userList = retStudyAndUsers.getUsers();
 
         // verify
-        assertEquals(adminIds, retAdminIds);
-        assertEquals(study, retStudy);
-        assertEquals(mockUsers, userList);
+        assertEquals(retAdminIds, adminIds);
+        assertEquals(retStudy, study);
+        assertEquals(userList, mockUsers);
     }
 }

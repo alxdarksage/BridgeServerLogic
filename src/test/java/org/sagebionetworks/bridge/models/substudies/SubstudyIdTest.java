@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.models.substudies;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
@@ -19,7 +19,7 @@ public class SubstudyIdTest {
     public void test() {
         SubstudyId studyId = new SubstudyId("studyId", "id");
         
-        assertEquals("studyId", studyId.getStudyId());
-        assertEquals("id", studyId.getId());
+        assertEquals(studyId.getStudyId(), "studyId");
+        assertEquals(studyId.getId(), "id");
     }    
 }

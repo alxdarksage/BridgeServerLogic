@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.util.Map;
@@ -17,10 +17,10 @@ import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
@@ -50,7 +50,7 @@ public class InitRecordHandlerTest {
         DateTimeUtils.setCurrentMillisSystem();
     }
 
-    @Before
+    @BeforeMethod
     public void before() {
         // Init fileHelper and tmpDir
         inMemoryFileHelper = new InMemoryFileHelper();
@@ -107,7 +107,7 @@ public class InitRecordHandlerTest {
             handler.handle(context);
             fail("expected exception");
         } catch (UploadValidationException ex) {
-            assertEquals("upload ID " + UPLOAD_ID + " does not contain info.json file", ex.getMessage());
+            assertEquals(ex.getMessage(), "upload ID " + UPLOAD_ID + " does not contain info.json file");
         }
     }
 
@@ -128,7 +128,7 @@ public class InitRecordHandlerTest {
         validateCommonContextAttributes(context);
 
         // user metadata should match.
-        assertEquals(metadataJsonNode, context.getHealthDataRecord().getUserMetadata());
+        assertEquals(context.getHealthDataRecord().getUserMetadata(), metadataJsonNode);
 
         // No messages.
         assertTrue(context.getMessageList().isEmpty());
@@ -137,17 +137,17 @@ public class InitRecordHandlerTest {
     private static void validateCommonContextAttributes(UploadValidationContext context) {
         // Validate health data record props.
         HealthDataRecord record = context.getHealthDataRecord();
-        assertEquals(APP_VERSION, record.getAppVersion());
-        assertEquals(HEALTH_CODE, record.getHealthCode());
-        assertEquals(PHONE_INFO, record.getPhoneInfo());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, record.getStudyId());
-        assertEquals(MOCK_NOW_DATE, record.getUploadDate());
-        assertEquals(UPLOAD_ID, record.getUploadId());
-        assertEquals(MOCK_NOW_MILLIS, record.getUploadedOn().longValue());
+        assertEquals(record.getAppVersion(), APP_VERSION);
+        assertEquals(record.getHealthCode(), HEALTH_CODE);
+        assertEquals(record.getPhoneInfo(), PHONE_INFO);
+        assertEquals(record.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(record.getUploadDate(), MOCK_NOW_DATE);
+        assertEquals(record.getUploadId(), UPLOAD_ID);
+        assertEquals(record.getUploadedOn().longValue(), MOCK_NOW_MILLIS);
 
         // Record contains an empty object node.
         assertTrue(record.getData().isObject());
-        assertEquals(0, record.getData().size());
+        assertEquals(record.getData().size(), 0);
 
         // Don't validate inside metadata. If it exists, that's all that matters.
         assertNotNull(record.getMetadata());
@@ -203,8 +203,8 @@ public class InitRecordHandlerTest {
     public void parseJsonSuccess() {
         Map<String, File> fileMap = makeInfoJsonFileMapWithContent("{\"my-key\":\"my-value\"}");
         JsonNode result = handler.parseFileAsJson(fileMap, UploadUtil.FILENAME_INFO_JSON);
-        assertEquals(1, result.size());
-        assertEquals("my-value", result.get("my-key").textValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get("my-key").textValue(), "my-value");
     }
 
     private Map<String, File> makeInfoJsonFileMapWithContent(String content) {

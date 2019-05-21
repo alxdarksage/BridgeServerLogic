@@ -1,11 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
@@ -17,17 +11,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeUtils;
 import org.sagebionetworks.bridge.TestUtils;
@@ -55,7 +54,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SubpopulationServiceTest {
     
     private static final String SUBPOP_1 = "Subpop 1";
@@ -99,8 +97,10 @@ public class SubpopulationServiceTest {
     
     Subpopulation subpop;
     
-    @Before
+    @BeforeMethod
     public void before() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        
         service = new SubpopulationService();
         service.setSubpopulationDao(subpopDao);
         service.setStudyConsentService(studyConsentService);
@@ -127,14 +127,14 @@ public class SubpopulationServiceTest {
     }
     
     // The contents of this exception are tested in the validator tests.
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void creationIsValidated() {
         Subpopulation subpop = Subpopulation.create();
         service.createSubpopulation(study, subpop);
     }
     
     // The contents of this exception are tested in the validator tests.
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void updateIsValidated() {
         Subpopulation subpop = Subpopulation.create();
         service.createSubpopulation(study, subpop);
@@ -152,11 +152,11 @@ public class SubpopulationServiceTest {
         when(subpopDao.createSubpopulation(any())).thenReturn(subpop);
         
         Subpopulation result = service.createSubpopulation(study, subpop);
-        assertEquals("Name", result.getName());
+        assertEquals(result.getName(), "Name");
         assertNotNull(result.getGuidString());
-        assertNotEquals("cannot-set-guid", result.getGuidString());
+        assertNotEquals(result.getGuidString(), "cannot-set-guid");
         assertFalse(result.isDeleted());
-        assertEquals(TEST_STUDY_IDENTIFIER, result.getStudyIdentifier());
+        assertEquals(result.getStudyIdentifier(), TEST_STUDY_IDENTIFIER);
         
         verify(subpopDao).createSubpopulation(subpop);
         verify(studyConsentService).addConsent(eq(result.getGuid()), any());
@@ -184,10 +184,10 @@ public class SubpopulationServiceTest {
         Subpopulation returnValue = service.createDefaultSubpopulation(study);
         verify(studyConsentService).addConsent(any(), captor.capture());
         verify(studyConsentService).publishConsent(eq(study), eq(subpop), any(Long.class));
-        assertEquals(subpop, returnValue);
+        assertEquals(returnValue, subpop);
         
         // This used the default document.
-        assertEquals(form, captor.getValue());
+        assertEquals(captor.getValue(), form);
     }
     
     @Test
@@ -201,7 +201,7 @@ public class SubpopulationServiceTest {
         when(subpopDao.createDefaultSubpopulation(study.getStudyIdentifier())).thenReturn(subpop);
         
         Subpopulation returnValue = service.createDefaultSubpopulation(study);
-        assertEquals(subpop, returnValue);
+        assertEquals(returnValue, subpop);
         
         // Consents exist... don't add any
         verify(studyConsentService, never()).addConsent(any(), any());
@@ -221,9 +221,9 @@ public class SubpopulationServiceTest {
         when(subpopDao.getSubpopulation(any(), any())).thenReturn(subpop);
         
         Subpopulation result = service.updateSubpopulation(study, subpop);
-        assertEquals("Name", result.getName());
-        assertEquals("guid", result.getGuidString());
-        assertEquals(TEST_STUDY_IDENTIFIER, result.getStudyIdentifier());
+        assertEquals(result.getName(), "Name");
+        assertEquals(result.getGuidString(), "guid");
+        assertEquals(result.getStudyIdentifier(), TEST_STUDY_IDENTIFIER);
         
         verify(subpopDao).updateSubpopulation(subpop);
         verify(substudyService).getSubstudyIds(TEST_STUDY);
@@ -242,7 +242,7 @@ public class SubpopulationServiceTest {
             service.updateSubpopulation(study, subpop);
             fail("Should have thrown exception");
         } catch(EntityNotFoundException e) {
-            assertEquals("StudyConsent not found.", e.getMessage());
+            assertEquals(e.getMessage(), "StudyConsent not found.");
         }
     }
     
@@ -260,7 +260,7 @@ public class SubpopulationServiceTest {
         when(subpopDao.getSubpopulation(any(), any())).thenReturn(existing);
         
         Subpopulation updated = service.updateSubpopulation(study, subpop);
-        assertEquals(1000L, updated.getPublishedConsentCreatedOn());
+        assertEquals(updated.getPublishedConsentCreatedOn(), 1000L);
     }
     
     @Test
@@ -273,9 +273,9 @@ public class SubpopulationServiceTest {
         when(subpopDao.getSubpopulations(TEST_STUDY, true, false)).thenReturn(ImmutableList.of(subpop1, subpop2));
         
         List<Subpopulation> results = service.getSubpopulations(TEST_STUDY, false);
-        assertEquals(2, results.size());
-        assertEquals(subpop1, results.get(0));
-        assertEquals(subpop2, results.get(1));
+        assertEquals(results.size(), 2);
+        assertEquals(results.get(0), subpop1);
+        assertEquals(results.get(1), subpop2);
         verify(subpopDao).getSubpopulations(TEST_STUDY, true, false);
     }
     
@@ -287,7 +287,7 @@ public class SubpopulationServiceTest {
         when(subpopDao.getSubpopulation(TEST_STUDY, SUBPOP_GUID)).thenReturn(subpop);
 
         Subpopulation result = service.getSubpopulation(TEST_STUDY, SUBPOP_GUID);
-        assertEquals(subpop, result);
+        assertEquals(result, subpop);
         verify(subpopDao).getSubpopulation(TEST_STUDY, SUBPOP_GUID);
     }
 
@@ -322,7 +322,7 @@ public class SubpopulationServiceTest {
         List<Subpopulation> subpops = service.getSubpopulationsForUser(context);
         Subpopulation retrieved = subpops.get(0);
         Criteria criteria = retrieved.getCriteria();
-        assertEquals(CRITERIA, criteria);
+        assertEquals(criteria, CRITERIA);
         
         verify(subpopDao).getSubpopulations(TEST_STUDY, true, false);
     }
@@ -351,19 +351,19 @@ public class SubpopulationServiceTest {
         
         // version 12, no tags == Subpop 4
         List<Subpopulation> results = service.getSubpopulationsForUser(criteriaContext(12, null));
-        assertEquals(ImmutableSet.of(subpop4), Sets.newHashSet(results));
+        assertEquals(Sets.newHashSet(results), ImmutableSet.of(subpop4));
         
         // version 12, tag group1 == Subpops 3, 4
         results = service.getSubpopulationsForUser(criteriaContext(12, "group1"));
-        assertEquals(ImmutableSet.of(subpop3, subpop4), Sets.newHashSet(results));
+        assertEquals(Sets.newHashSet(results), ImmutableSet.of(subpop3, subpop4));
         
         // version 4, no tag == Subpops 2, 4
         results = service.getSubpopulationsForUser(criteriaContext(4, null));
-        assertEquals(ImmutableSet.of(subpop2, subpop4), Sets.newHashSet(results));
+        assertEquals(Sets.newHashSet(results), ImmutableSet.of(subpop2, subpop4));
         
         // version 4, tag group1 == Subpops 1,2,3,4, returns 1 in this case (most specific)
         results = service.getSubpopulationsForUser(criteriaContext(4, "group1"));
-        assertEquals(ImmutableSet.of(subpop1, subpop2, subpop3, subpop4), Sets.newHashSet(results));
+        assertEquals(Sets.newHashSet(results), ImmutableSet.of(subpop1, subpop2, subpop3, subpop4));
     }
     
     @Test
@@ -378,8 +378,8 @@ public class SubpopulationServiceTest {
                 .build();
         List<Subpopulation> results = service.getSubpopulationsForUser(context);
 
-        assertEquals(1, results.size());
-        assertEquals("Subpop 1", results.get(0).getName());
+        assertEquals(results.size(), 1);
+        assertEquals(results.get(0).getName(), "Subpop 1");
     }
 
     /**

@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.s3;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -12,7 +12,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.google.common.base.Charsets;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 public class S3HelperTest {
     // Test strategy is that given a mock input stream from a mock S3 object, the S3Helper can still turn that
@@ -26,7 +27,7 @@ public class S3HelperTest {
 
         S3Helper testS3Helper = setupWithMockS3(bucket, key, content);
         byte[] retValBytes = testS3Helper.readS3FileAsBytes(bucket, key);
-        assertEquals(content, new String(retValBytes, Charsets.UTF_8));
+        assertEquals(new String(retValBytes, Charsets.UTF_8), content);
     }
 
     @Test
@@ -37,7 +38,7 @@ public class S3HelperTest {
 
         S3Helper testS3Helper = setupWithMockS3(bucket, key, content);
         String retVal = testS3Helper.readS3FileAsString(bucket, key);
-        assertEquals(content, retVal);
+        assertEquals(retVal, content);
     }
 
     @Test
@@ -48,10 +49,10 @@ public class S3HelperTest {
 
         S3Helper testS3Helper = setupWithMockS3(bucket, key, content);
         List<String> lineList = testS3Helper.readS3FileAsLines(bucket, key);
-        assertEquals(3, lineList.size());
-        assertEquals("foo", lineList.get(0));
-        assertEquals("bar", lineList.get(1));
-        assertEquals("baz", lineList.get(2));
+        assertEquals(lineList.size(), 3);
+        assertEquals(lineList.get(0), "foo");
+        assertEquals(lineList.get(1), "bar");
+        assertEquals(lineList.get(2), "baz");
     }
 
     private static S3Helper setupWithMockS3(String bucket, String key, String content) {

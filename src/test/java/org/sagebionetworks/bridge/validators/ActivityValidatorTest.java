@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.Test;
 import org.springframework.validation.Validator;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.schedules.Activity;
 import org.sagebionetworks.bridge.models.schedules.CompoundActivity;

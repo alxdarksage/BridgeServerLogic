@@ -1,13 +1,13 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.junit.Test;
-
 import com.google.common.collect.Sets;
+
+import org.testng.annotations.Test;
 
 public class StringSetMarshallerTest {
     private static final StringSetMarshaller MARSHALLER = new StringSetMarshaller();
@@ -20,11 +20,11 @@ public class StringSetMarshallerTest {
         orderedSet.add("London");
         
         String ser = MARSHALLER.convert(orderedSet);
-        assertEquals("[\"Brussels\",\"London\",\"Paris\"]", ser);
+        assertEquals(ser, "[\"Brussels\",\"London\",\"Paris\"]");
         
         Set<String> deser = MARSHALLER.unconvert(ser);
         
-        assertEquals(orderedSet, deser);
+        assertEquals(deser, orderedSet);
     }
     
     @Test
@@ -33,7 +33,7 @@ public class StringSetMarshallerTest {
         assertEquals("[]", ser);
         
         Set<String> deser = MARSHALLER.unconvert(ser);
-        assertEquals(Sets.newHashSet(), deser);
+        assertEquals(deser, Sets.newHashSet());
     }
 
 }

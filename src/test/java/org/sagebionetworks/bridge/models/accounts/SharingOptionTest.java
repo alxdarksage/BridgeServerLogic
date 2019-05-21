@@ -1,12 +1,13 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
 import org.sagebionetworks.bridge.models.accounts.SharingOption;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,10 +23,10 @@ public class SharingOptionTest {
         node.put("scope", "sponsors_and_partners");
 
         SharingOption option = SharingOption.fromJson(node, 1);
-        assertEquals(SharingScope.NO_SHARING, option.getSharingScope());
+        assertEquals(option.getSharingScope(), SharingScope.NO_SHARING);
 
         option = SharingOption.fromJson(node, 2);
-        assertEquals(SharingScope.SPONSORS_AND_PARTNERS, option.getSharingScope());
+        assertEquals(option.getSharingScope(), SharingScope.SPONSORS_AND_PARTNERS);
 
         try {
             node = JsonNodeFactory.instance.objectNode();
@@ -40,13 +41,13 @@ public class SharingOptionTest {
         // A test failure wound indicate broken APIs
         node.put("scope", "all_qualified_researchers");
         option = SharingOption.fromJson(node, 2);
-        assertEquals(SharingScope.ALL_QUALIFIED_RESEARCHERS, option.getSharingScope());
+        assertEquals(option.getSharingScope(), SharingScope.ALL_QUALIFIED_RESEARCHERS);
     }
 
     @Test
     public void sharingOptionFailsGracefully() {
         SharingOption option = SharingOption.fromJson(null, 1);
-        assertEquals(SharingScope.NO_SHARING, option.getSharingScope());
+        assertEquals(option.getSharingScope(), SharingScope.NO_SHARING);
         
         try {
             option = SharingOption.fromJson(null, 11);

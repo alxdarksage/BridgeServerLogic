@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.models.surveys;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+
+import org.testng.annotations.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
 
 public class SurveyQuestionOptionTest {
     private static final Image DUMMY_IMAGE = new Image("dummy-source", 42, 42);
@@ -13,10 +14,10 @@ public class SurveyQuestionOptionTest {
     @Test
     public void allValues() {
         SurveyQuestionOption option = new SurveyQuestionOption("test-label", "test-detail", "test-value", DUMMY_IMAGE);
-        assertEquals("test-label", option.getLabel());
-        assertEquals("test-detail", option.getDetail());
-        assertEquals("test-value", option.getValue());
-        assertEquals(DUMMY_IMAGE, option.getImage());
+        assertEquals(option.getLabel(), "test-label");
+        assertEquals(option.getDetail(), "test-detail");
+        assertEquals(option.getValue(), "test-value");
+        assertEquals(option.getImage(), DUMMY_IMAGE);
 
         String optionString = option.toString();
         assertTrue(optionString.contains(option.getLabel()));
@@ -30,7 +31,7 @@ public class SurveyQuestionOptionTest {
         String[] testCaseArr = { null, "", "   " };
         for (String oneTestCase : testCaseArr) {
             SurveyQuestionOption option = new SurveyQuestionOption("test-label", null, oneTestCase, null);
-            assertEquals("test-label", option.getValue());
+            assertEquals(option.getValue(), "test-label");
         }
     }
 

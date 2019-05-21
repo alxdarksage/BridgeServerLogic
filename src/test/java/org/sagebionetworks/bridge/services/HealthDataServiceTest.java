@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertSame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.HealthDataDao;
@@ -41,12 +41,12 @@ public class HealthDataServiceTest {
     private static final String TEST_UPLOAD_DATE_STR = "2017-08-11";
     private static final LocalDate TEST_UPLOAD_DATE = LocalDate.parse(TEST_UPLOAD_DATE_STR);
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void createOrUpdateRecordNullRecord() {
         new HealthDataService().createOrUpdateRecord(null);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void createOrUpdateRecordInvalidRecord() {
         new HealthDataService().createOrUpdateRecord(HealthDataRecord.create());
     }
@@ -63,15 +63,15 @@ public class HealthDataServiceTest {
 
         // execute and validate
         String retVal = svc.createOrUpdateRecord(record);
-        assertEquals(TEST_RECORD_ID, retVal);
+        assertEquals(retVal, TEST_RECORD_ID);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteRecordsForHealthCodeNullHealthCode() {
         new HealthDataService().deleteRecordsForHealthCode(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void deleteRecordsForHealthCodeEmptyHealthCode() {
         new HealthDataService().deleteRecordsForHealthCode("");
     }
@@ -86,25 +86,25 @@ public class HealthDataServiceTest {
 
         // execute and verify
         int numDeleted = svc.deleteRecordsForHealthCode(TEST_HEALTH_CODE);
-        assertEquals(37, numDeleted);
+        assertEquals(numDeleted, 37);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsForUploadDateNullUploadDate() {
         new HealthDataService().getRecordsForUploadDate(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsForUploadDateEmptyUploadDate() {
         new HealthDataService().getRecordsForUploadDate("");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsForUploadDateMalformedUploadDate() {
         new HealthDataService().getRecordsForUploadDate("This is not a calendar date.");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsForUploadDateInvalidUploadDate() {
         new HealthDataService().getRecordsForUploadDate("2014-02-31");
     }
@@ -133,20 +133,20 @@ public class HealthDataServiceTest {
 
         // execute and validate
         List<HealthDataRecord> recordList = svc.getRecordsForUploadDate(TEST_UPLOAD_DATE_STR);
-        assertEquals(3, recordList.size());
-        assertEquals("foo healthcode", recordList.get(0).getHealthCode());
-        assertEquals("bar healthcode", recordList.get(1).getHealthCode());
-        assertEquals("baz healthcode", recordList.get(2).getHealthCode());
+        assertEquals(recordList.size(), 3);
+        assertEquals(recordList.get(0).getHealthCode(), "foo healthcode");
+        assertEquals(recordList.get(1).getHealthCode(), "bar healthcode");
+        assertEquals(recordList.get(2).getHealthCode(), "baz healthcode");
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void updateRecordsWithExporterStatusNullRecordIds() {
         RecordExportStatusRequest request = new RecordExportStatusRequest();
         request.setSynapseExporterStatus(HealthDataRecord.ExporterStatus.SUCCEEDED);
         new HealthDataService().updateRecordsWithExporterStatus(request);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void updateRecordsWithExporterStatusEmptyRecordIds() {
         RecordExportStatusRequest request = new RecordExportStatusRequest();
         request.setRecordIds(ImmutableList.of());
@@ -154,14 +154,14 @@ public class HealthDataServiceTest {
         new HealthDataService().updateRecordsWithExporterStatus(request);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void updateRecordsWithExporterStatusNullStatus() {
         RecordExportStatusRequest request = new RecordExportStatusRequest();
         request.setRecordIds(ImmutableList.of(TEST_RECORD_ID));
         new HealthDataService().updateRecordsWithExporterStatus(request);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void updateRecordsWithExporterStatusExceedRecordIdListLimit() {
         RecordExportStatusRequest request = new RecordExportStatusRequest();
         List<String> recordIds = new ArrayList<>();
@@ -193,7 +193,7 @@ public class HealthDataServiceTest {
 
         // execute and validate
         String retVal = svc.createOrUpdateRecord(record);
-        assertEquals(TEST_RECORD_ID, retVal);
+        assertEquals(retVal, TEST_RECORD_ID);
 
         // then create a mock json request
         RecordExportStatusRequest recordExportStatusRequest = createMockRecordExportStatusRequest();
@@ -205,11 +205,11 @@ public class HealthDataServiceTest {
         verify(mockDao).getRecordById(TEST_RECORD_ID);
         HealthDataRecord recordAfter = svc.getRecordById(TEST_RECORD_ID);
         assertNotNull(recordAfter.getSynapseExporterStatus());
-        assertEquals(HealthDataRecord.ExporterStatus.SUCCEEDED, recordAfter.getSynapseExporterStatus());
+        assertEquals(recordAfter.getSynapseExporterStatus(), HealthDataRecord.ExporterStatus.SUCCEEDED);
         verify(mockDao).getRecordById(TEST_RECORD_ID_2);
         HealthDataRecord record2After = svc.getRecordById(TEST_RECORD_ID_2);
         assertNotNull(record2After.getSynapseExporterStatus());
-        assertEquals(HealthDataRecord.ExporterStatus.SUCCEEDED, record2After.getSynapseExporterStatus());
+        assertEquals(record2After.getSynapseExporterStatus(), HealthDataRecord.ExporterStatus.SUCCEEDED);
 
     }
 
@@ -221,43 +221,43 @@ public class HealthDataServiceTest {
         return request;
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void getRecordsByHealthCodeCreatedOn_NullHealthCode() {
         new HealthDataService().getRecordsByHealthCodeCreatedOn(null, TEST_CREATED_ON_DATE_TIME,
                 TEST_CREATED_ON_END_DATE_TIME);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void getRecordsByHealthCodeCreatedOn_EmptyHealthCode() {
         new HealthDataService().getRecordsByHealthCodeCreatedOn("", TEST_CREATED_ON_DATE_TIME,
                 TEST_CREATED_ON_END_DATE_TIME);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void getRecordsByHealthCodeCreatedOn_BlankHealthCode() {
         new HealthDataService().getRecordsByHealthCodeCreatedOn("   ", TEST_CREATED_ON_DATE_TIME,
                 TEST_CREATED_ON_END_DATE_TIME);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByHealthCodeCreatedOn_NullCreatedOnStart() {
         new HealthDataService().getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE, null,
                 TEST_CREATED_ON_END_DATE_TIME);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByHealthCodeCreatedOn_NullCreatedOnEnd() {
         new HealthDataService().getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE, TEST_CREATED_ON_DATE_TIME,
                 null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByHealthCodeCreatedOn_StartOnAfterEndOn() {
         new HealthDataService().getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE, TEST_CREATED_ON_END_DATE_TIME,
                 TEST_CREATED_ON_DATE_TIME);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByHealthCodeCreatedOn_DateRangeTooLarge() {
         new HealthDataService().getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE, TEST_CREATED_ON_DATE_TIME,
                 TEST_CREATED_ON_DATE_TIME.plusDays(16));
@@ -277,7 +277,7 @@ public class HealthDataServiceTest {
         // Execute and verify.
         List<HealthDataRecord> retList = svc.getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE,
                 TEST_CREATED_ON_DATE_TIME, TEST_CREATED_ON_END_DATE_TIME);
-        assertEquals(mockResult, retList);
+        assertEquals(retList, mockResult);
     }
 
     @Test
@@ -294,25 +294,25 @@ public class HealthDataServiceTest {
         // Execute and verify.
         List<HealthDataRecord> retList = svc.getRecordsByHealthCodeCreatedOn(TEST_HEALTH_CODE,
                 TEST_CREATED_ON_DATE_TIME, TEST_CREATED_ON_DATE_TIME);
-        assertEquals(mockResult, retList);
+        assertEquals(retList, mockResult);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByEmptyHealthcodeCreatedOnSchemaId() {
         new HealthDataService().getRecordsByHealthcodeCreatedOnSchemaId("", TEST_CREATED_ON, TEST_SCHEMA_ID);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByNullHealthcodeCreatedOnSchemaId() {
         new HealthDataService().getRecordsByHealthcodeCreatedOnSchemaId(null, TEST_CREATED_ON, TEST_SCHEMA_ID);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByHealthcodeCreatedOnEmptySchemaId() {
         new HealthDataService().getRecordsByHealthcodeCreatedOnSchemaId(TEST_HEALTH_CODE, TEST_CREATED_ON, "");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getRecordsByHealthcodeCreatedOnNullSchemaId() {
         new HealthDataService().getRecordsByHealthcodeCreatedOnSchemaId(TEST_HEALTH_CODE, TEST_CREATED_ON, null);
     }
@@ -340,8 +340,8 @@ public class HealthDataServiceTest {
         // execute and verify
         List<HealthDataRecord> retList = svc.getRecordsByHealthcodeCreatedOnSchemaId(TEST_HEALTH_CODE, TEST_CREATED_ON,
                 TEST_SCHEMA_ID);
-        assertEquals(1, retList.size());
-        assertSame(record, retList.get(0));
+        assertEquals(retList.size(), 1);
+        assertSame(retList.get(0), record);
     }
 
     private static HealthDataRecord makeValidRecord() {

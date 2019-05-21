@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.time.DateUtils;
@@ -44,12 +44,12 @@ public class GenericUploadFormatHandlerCreatedOnTest {
         GenericUploadFormatHandler.parseCreatedOnToRecord(context, infoJsonNode, record);
 
         // createdOn is MOCK_NOW_MILLIS with no timezone
-        assertEquals(MOCK_NOW_MILLIS, record.getCreatedOn().longValue());
+        assertEquals(record.getCreatedOn().longValue(), MOCK_NOW_MILLIS);
         assertNull(record.getCreatedOnTimeZone());
 
         // one message
-        assertEquals(1, context.getMessageList().size());
-        assertEquals("Upload has no createdOn; using current time.", context.getMessageList().get(0));
+        assertEquals(context.getMessageList().size(), 1);
+        assertEquals(context.getMessageList().get(0), "Upload has no createdOn; using current time.");
     }
 
     @Test
@@ -66,13 +66,13 @@ public class GenericUploadFormatHandlerCreatedOnTest {
         GenericUploadFormatHandler.parseCreatedOnToRecord(context, infoJsonNode, record);
 
         // createdOn is MOCK_NOW_MILLIS with no timezone
-        assertEquals(MOCK_NOW_MILLIS, record.getCreatedOn().longValue());
+        assertEquals(record.getCreatedOn().longValue(), MOCK_NOW_MILLIS);
         assertNull(record.getCreatedOnTimeZone());
 
         // two messages
-        assertEquals(2, context.getMessageList().size());
-        assertEquals("Invalid date-time: Tuesday morning", context.getMessageList().get(0));
-        assertEquals("Upload has no createdOn; using current time.", context.getMessageList().get(1));
+        assertEquals(context.getMessageList().size(), 2);
+        assertEquals(context.getMessageList().get(0), "Invalid date-time: Tuesday morning");
+        assertEquals(context.getMessageList().get(1), "Upload has no createdOn; using current time.");
     }
 
     @Test
@@ -89,8 +89,8 @@ public class GenericUploadFormatHandlerCreatedOnTest {
         GenericUploadFormatHandler.parseCreatedOnToRecord(context, infoJsonNode, record);
 
         // validate createdOn and timeZone
-        assertEquals(CREATED_ON_MILLIS, record.getCreatedOn().longValue());
-        assertEquals(CREATED_ON_TIMEZONE, record.getCreatedOnTimeZone());
+        assertEquals(record.getCreatedOn().longValue(), CREATED_ON_MILLIS);
+        assertEquals(record.getCreatedOnTimeZone(), CREATED_ON_TIMEZONE);
 
         // no messages
         assertTrue(context.getMessageList().isEmpty());

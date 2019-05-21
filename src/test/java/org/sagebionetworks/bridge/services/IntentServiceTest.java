@@ -1,7 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
@@ -10,18 +8,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.util.Map;
 
 import javax.mail.internet.MimeBodyPart;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.cache.CacheProvider;
@@ -51,7 +51,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-@RunWith(MockitoJUnitRunner.class)
 public class IntentServiceTest {
 
     private static final long TIMESTAMP = 1000L; 
@@ -97,8 +96,10 @@ public class IntentServiceTest {
     @Captor
     ArgumentCaptor<MimeTypeEmailProvider> mimeTypeEmailProviderCaptor;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service = new IntentService();
         service.setSmsService(mockSmsService);
         service.setSendMailService(mockSendMailService);
@@ -128,18 +129,18 @@ public class IntentServiceTest {
         service.submitIntentToParticipate(intent);
         
         verify(mockSubpopService).getSubpopulation(eq(mockStudy), subpopGuidCaptor.capture());
-        assertEquals(intent.getSubpopGuid(), subpopGuidCaptor.getValue().getGuid());
+        assertEquals(subpopGuidCaptor.getValue().getGuid(), intent.getSubpopGuid());
         
         verify(mockCacheProvider).setObject(keyCaptor.capture(), eq(intent), eq(4 * 60 * 60));
-        assertEquals(cacheKey, keyCaptor.getValue());
+        assertEquals(keyCaptor.getValue(), cacheKey);
 
         verify(mockSmsService).sendSmsMessage(isNull(), smsMessageProviderCaptor.capture());
 
         SmsMessageProvider provider = smsMessageProviderCaptor.getValue();
-        assertEquals(mockStudy, provider.getStudy());
-        assertEquals(intent.getPhone(), provider.getPhone());
-        assertEquals("this-is-a-link", provider.getSmsRequest().getMessage());
-        assertEquals("Transactional", provider.getSmsType());
+        assertEquals(provider.getStudy(), mockStudy);
+        assertEquals(provider.getPhone(), intent.getPhone());
+        assertEquals(provider.getSmsRequest().getMessage(), "this-is-a-link");
+        assertEquals(provider.getSmsType(), "Transactional");
     }
     
     // In this case when there isn't an install link for the OS or that is marked
@@ -162,18 +163,18 @@ public class IntentServiceTest {
         service.submitIntentToParticipate(intent);
         
         verify(mockSubpopService).getSubpopulation(eq(mockStudy), subpopGuidCaptor.capture());
-        assertEquals(intent.getSubpopGuid(), subpopGuidCaptor.getValue().getGuid());
+        assertEquals(subpopGuidCaptor.getValue().getGuid(), intent.getSubpopGuid());
         
         verify(mockCacheProvider).setObject(keyCaptor.capture(), eq(intent), eq(4 * 60 * 60));
-        assertEquals(cacheKey, keyCaptor.getValue());
+        assertEquals(keyCaptor.getValue(), cacheKey);
 
         verify(mockSmsService).sendSmsMessage(isNull(), smsMessageProviderCaptor.capture());
 
         SmsMessageProvider provider = smsMessageProviderCaptor.getValue();
-        assertEquals(mockStudy, provider.getStudy());
-        assertEquals(intent.getPhone(), provider.getPhone());
-        assertEquals("this-is-a-link", provider.getSmsRequest().getMessage());
-        assertEquals("Transactional", provider.getSmsType());        
+        assertEquals(provider.getStudy(), mockStudy);
+        assertEquals(provider.getPhone(), intent.getPhone());
+        assertEquals(provider.getSmsRequest().getMessage(), "this-is-a-link");
+        assertEquals(provider.getSmsType(), "Transactional");        
     }
     
     @Test
@@ -196,29 +197,29 @@ public class IntentServiceTest {
         service.submitIntentToParticipate(intent);
         
         verify(mockSubpopService).getSubpopulation(eq(mockStudy), subpopGuidCaptor.capture());
-        assertEquals(intent.getSubpopGuid(), subpopGuidCaptor.getValue().getGuid());
+        assertEquals(subpopGuidCaptor.getValue().getGuid(), intent.getSubpopGuid());
         
         verify(mockCacheProvider).setObject(keyCaptor.capture(), eq(intent), eq(4 * 60 * 60));
-        assertEquals(cacheKey, keyCaptor.getValue());
+        assertEquals(keyCaptor.getValue(), cacheKey);
 
         verify(mockSendMailService).sendEmail(mimeTypeEmailProviderCaptor.capture());
 
         BasicEmailProvider provider = (BasicEmailProvider)mimeTypeEmailProviderCaptor.getValue();
-        assertEquals(mockStudy, provider.getStudy());
-        assertEquals("email@email.com", Iterables.getFirst(provider.getRecipientEmails(), null));
-        assertEquals(EmailType.APP_INSTALL, provider.getType());
+        assertEquals(provider.getStudy(), mockStudy);
+        assertEquals(Iterables.getFirst(provider.getRecipientEmails(), null), "email@email.com");
+        assertEquals(provider.getType(), EmailType.APP_INSTALL);
         
         MimeTypeEmail email = provider.getMimeTypeEmail();
-        assertEquals("\"null\" <null>", email.getSenderAddress());
-        assertEquals("subject", email.getSubject());
+        assertEquals(email.getSenderAddress(), "\"null\" <null>");
+        assertEquals(email.getSubject(), "subject");
         MimeBodyPart body = email.getMessageParts().get(0);
-        assertEquals("body this-is-a-link", body.getContent());
-        assertEquals("email@email.com", email.getRecipientAddresses().get(0));
-        assertEquals(1, email.getRecipientAddresses().size());
-        assertEquals(EmailType.APP_INSTALL, email.getType());
+        assertEquals(body.getContent(), "body this-is-a-link");
+        assertEquals(email.getRecipientAddresses().get(0), "email@email.com");
+        assertEquals(email.getRecipientAddresses().size(), 1);
+        assertEquals(email.getType(), EmailType.APP_INSTALL);
     }    
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void submitIntentToParticipateInvalid() {
         IntentToParticipate intent = TestUtils.getIntentToParticipate(TIMESTAMP).build();
         IntentToParticipate invalid = new IntentToParticipate.Builder().copyOf(intent).withPhone(null).build();
@@ -244,7 +245,7 @@ public class IntentServiceTest {
         service.submitIntentToParticipate(intent);
         
         verify(mockSubpopService).getSubpopulation(eq(mockStudy), subpopGuidCaptor.capture());
-        assertEquals(intent.getSubpopGuid(), subpopGuidCaptor.getValue().getGuid());
+        assertEquals(subpopGuidCaptor.getValue().getGuid(), intent.getSubpopGuid());
 
         // These are not called.
         verify(mockCacheProvider, never()).setObject(cacheKey, intent, (4 * 60 * 60));
@@ -450,11 +451,11 @@ public class IntentServiceTest {
         service.submitIntentToParticipate(intent);
         
         verify(mockSubpopService).getSubpopulation(eq(mockStudy), subpopGuidCaptor.capture());
-        assertEquals(intent.getSubpopGuid(), subpopGuidCaptor.getValue().getGuid());
+        assertEquals(subpopGuidCaptor.getValue().getGuid(), intent.getSubpopGuid());
         
         // We do store the intent
         verify(mockCacheProvider).setObject(keyCaptor.capture(), eq(intent), eq(4 * 60 * 60));
-        assertEquals(cacheKey, keyCaptor.getValue());
+        assertEquals(keyCaptor.getValue(), cacheKey);
 
         // But we don't send a message because installLinks map is empty
         verify(mockSmsService, never()).sendSmsMessage(any(), any());
@@ -466,11 +467,11 @@ public class IntentServiceTest {
         installLinks.put("iPhone OS", "iphone-os-link");
         
         // Lacking android or universal, find the only link that's there.
-        assertEquals("iphone-os-link", service.getInstallLink("Android", installLinks));
+        assertEquals(service.getInstallLink("Android", installLinks), "iphone-os-link");
         
         installLinks.put("Universal", "universal-link");
-        assertEquals("iphone-os-link", service.getInstallLink("iPhone OS", installLinks));
-        assertEquals("universal-link", service.getInstallLink("Android", installLinks));
+        assertEquals(service.getInstallLink("iPhone OS", installLinks), "iphone-os-link");
+        assertEquals(service.getInstallLink("Android", installLinks), "universal-link");
         
         Map<String,String> emptyInstallLinks = Maps.newHashMap();
         assertNull(service.getInstallLink("iPhone OS", emptyInstallLinks));

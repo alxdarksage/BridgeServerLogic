@@ -1,26 +1,26 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dao.SubstudyDao;
 import org.sagebionetworks.bridge.exceptions.EntityAlreadyExistsException;
@@ -31,7 +31,6 @@ import org.sagebionetworks.bridge.models.substudies.Substudy;
 
 import com.google.common.collect.ImmutableList;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SubstudyServiceTest {
     private static final List<Substudy> SUBSTUDIES = ImmutableList.of(Substudy.create(), Substudy.create());
     private static final VersionHolder VERSION_HOLDER = new VersionHolder(1L);
@@ -44,8 +43,10 @@ public class SubstudyServiceTest {
     
     private SubstudyService service;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service = new SubstudyService();
         service.setSubstudyDao(substudyDao);
     }
@@ -56,7 +57,7 @@ public class SubstudyServiceTest {
         when(substudyDao.getSubstudy(TestConstants.TEST_STUDY, "id")).thenReturn(substudy);
         
         Substudy returnedValue = service.getSubstudy(TestConstants.TEST_STUDY, "id", true);
-        assertEquals(substudy, returnedValue);
+        assertEquals(returnedValue, substudy);
         
         verify(substudyDao).getSubstudy(TestConstants.TEST_STUDY, "id");
     }
@@ -73,10 +74,10 @@ public class SubstudyServiceTest {
         when(substudyDao.getSubstudies(TestConstants.TEST_STUDY, false)).thenReturn(substudies);
         
         Set<String> substudyIds = service.getSubstudyIds(TestConstants.TEST_STUDY);
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, substudyIds);
+        assertEquals(substudyIds, TestConstants.USER_SUBSTUDY_IDS);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSubstudyNotFoundThrowingException() {
         service.getSubstudy(TestConstants.TEST_STUDY, "id", true);
     }
@@ -92,7 +93,7 @@ public class SubstudyServiceTest {
         when(substudyDao.getSubstudies(TestConstants.TEST_STUDY, true)).thenReturn(SUBSTUDIES);
         
         List<Substudy> returnedValue = service.getSubstudies(TestConstants.TEST_STUDY, true);
-        assertEquals(SUBSTUDIES, returnedValue);
+        assertEquals(returnedValue, SUBSTUDIES);
         
         verify(substudyDao).getSubstudies(TestConstants.TEST_STUDY, true);
     }
@@ -102,7 +103,7 @@ public class SubstudyServiceTest {
         when(substudyDao.getSubstudies(TestConstants.TEST_STUDY, false)).thenReturn(SUBSTUDIES);
         
         List<Substudy> returnedValue = service.getSubstudies(TestConstants.TEST_STUDY, false);
-        assertEquals(SUBSTUDIES, returnedValue);
+        assertEquals(returnedValue, SUBSTUDIES);
         
         verify(substudyDao).getSubstudies(TestConstants.TEST_STUDY, false);
     }
@@ -122,26 +123,26 @@ public class SubstudyServiceTest {
         when(substudyDao.createSubstudy(any())).thenReturn(VERSION_HOLDER);
         
         VersionHolder returnedValue = service.createSubstudy(TestConstants.TEST_STUDY, substudy);
-        assertEquals(VERSION_HOLDER, returnedValue);
+        assertEquals(returnedValue, VERSION_HOLDER);
         
         verify(substudyDao).createSubstudy(substudyCaptor.capture());
         
         Substudy persisted = substudyCaptor.getValue();
-        assertEquals("oneId", persisted.getId());
-        assertEquals("oneName", persisted.getName());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, persisted.getStudyId());
+        assertEquals(persisted.getId(), "oneId");
+        assertEquals(persisted.getName(), "oneName");
+        assertEquals(persisted.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
         assertNull(persisted.getVersion());
         assertFalse(persisted.isDeleted());
-        assertNotEquals(timestamp, persisted.getCreatedOn());
-        assertNotEquals(timestamp, persisted.getModifiedOn());
+        assertNotEquals(persisted.getCreatedOn(), timestamp);
+        assertNotEquals(persisted.getModifiedOn(), timestamp);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void createSubstudyInvalidSubstudy() {
         service.createSubstudy(TestConstants.TEST_STUDY, Substudy.create());
     }
     
-    @Test(expected = EntityAlreadyExistsException.class)
+    @Test(expectedExceptions = EntityAlreadyExistsException.class)
     public void createSubstudyAlreadyExists() {
         Substudy substudy = Substudy.create();
         substudy.setId("oneId");
@@ -167,24 +168,24 @@ public class SubstudyServiceTest {
         substudy.setName("newName");
         
         VersionHolder versionHolder = service.updateSubstudy(TestConstants.TEST_STUDY, substudy);
-        assertEquals(VERSION_HOLDER, versionHolder);
+        assertEquals(versionHolder, VERSION_HOLDER);
         
         verify(substudyDao).updateSubstudy(substudyCaptor.capture());
         
         Substudy returnedValue = substudyCaptor.getValue();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, returnedValue.getStudyId());
-        assertEquals("oneId", returnedValue.getId());
-        assertEquals("newName", returnedValue.getName());
+        assertEquals(returnedValue.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(returnedValue.getId(), "oneId");
+        assertEquals(returnedValue.getName(), "newName");
         assertNotNull(returnedValue.getCreatedOn());
         assertNotNull(returnedValue.getModifiedOn());
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void updateSubstudyInvalidSubstudy() {
         service.updateSubstudy(TestConstants.TEST_STUDY, Substudy.create());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateSubstudyEntityNotFound() {
         Substudy substudy = Substudy.create();
         substudy.setId("oneId");
@@ -194,7 +195,7 @@ public class SubstudyServiceTest {
         service.updateSubstudy(TestConstants.TEST_STUDY, substudy);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void updateSubstudyEntityDeleted() {
         Substudy existing = Substudy.create();
         existing.setDeleted(true);
@@ -220,7 +221,7 @@ public class SubstudyServiceTest {
         assertNotNull(persisted.getModifiedOn());
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteSubstudyNotFound() {
         service.deleteSubstudy(TestConstants.TEST_STUDY, "id");
     }
@@ -234,7 +235,7 @@ public class SubstudyServiceTest {
         verify(substudyDao).deleteSubstudyPermanently(TestConstants.TEST_STUDY, "id");
     }    
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void deleteSubstudyPermanentlyNotFound() {
         service.deleteSubstudyPermanently(TestConstants.TEST_STUDY, "id");
     }    

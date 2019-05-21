@@ -1,15 +1,15 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.HashMap;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
 import org.springframework.validation.MapBindingResult;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.dynamodb.DynamoCompoundActivityDefinition;

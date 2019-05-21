@@ -1,8 +1,8 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
@@ -18,7 +18,7 @@ public class AccountSecretIdTest {
     @Test
     public void create() { 
         AccountSecretId key = new AccountSecretId("accountId", "hash");
-        assertEquals("accountId", key.getAccountId());
-        assertEquals("hash", key.getHash());
+        assertEquals(key.getAccountId(), "accountId");
+        assertEquals(key.getHash(), "hash");
     }
 }

@@ -1,6 +1,6 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 
@@ -44,10 +44,10 @@ public class ScheduleTestUtils {
      * @param output
      */
     public static void assertDates(List<ScheduledActivity> activities, DateTimeZone zone, String... output) {
-        assertEquals(output.length, activities.size());
+        assertEquals(activities.size(), output.length);
         for (int i=0; i < activities.size(); i++) {
             DateTime datetime = asDT(output[i], zone);
-            assertEquals(datetime.toString(), activities.get(i).getScheduledOn().toString());
+            assertEquals(activities.get(i).getScheduledOn().toString(), datetime.toString());
         }
     }
     

@@ -1,23 +1,23 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.sms.SmsMessage;
 
@@ -28,7 +28,7 @@ public class DynamoSmsMessageDaoTest {
     private DynamoSmsMessageDao dao;
     private DynamoDBMapper mockMapper;
 
-    @Before
+    @BeforeMethod
     public void before() {
         mockMapper = mock(DynamoDBMapper.class);
 
@@ -48,16 +48,16 @@ public class DynamoSmsMessageDaoTest {
 
         // Execute and validate output matches.
         SmsMessage daoOutput = dao.getMostRecentMessage(PHONE_NUMBER);
-        assertSame(mapperOutput, daoOutput);
+        assertSame(daoOutput, mapperOutput);
 
         // Verify query.
         ArgumentCaptor<DynamoDBQueryExpression> queryCaptor = ArgumentCaptor.forClass(DynamoDBQueryExpression.class);
         verify(mockMapper).queryPage(eq(DynamoSmsMessage.class), queryCaptor.capture());
 
         DynamoDBQueryExpression<DynamoSmsMessage> query = queryCaptor.getValue();
-        assertEquals(PHONE_NUMBER, query.getHashKeyValues().getPhoneNumber());
+        assertEquals(query.getHashKeyValues().getPhoneNumber(), PHONE_NUMBER);
         assertFalse(query.isScanIndexForward());
-        assertEquals(1, query.getLimit().intValue());
+        assertEquals(query.getLimit().intValue(), 1);
     }
 
     @Test

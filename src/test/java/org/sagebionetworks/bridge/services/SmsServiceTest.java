@@ -1,8 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
@@ -11,6 +8,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
@@ -24,11 +24,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.BridgeConstants;
 import org.sagebionetworks.bridge.TestConstants;
@@ -79,7 +79,7 @@ public class SmsServiceTest {
         DateTimeUtils.setCurrentMillisFixed(MOCK_NOW_MILLIS);
     }
 
-    @Before
+    @BeforeMethod
     public void before() {
         // Mock schema service to return dummy schema for message log. The schema is empty for the purposes of the
         // test, since we only care that it exists, not what's in it.
@@ -134,12 +134,12 @@ public class SmsServiceTest {
         verify(mockSnsClient).publish(requestCaptor.capture());
 
         PublishRequest request = requestCaptor.getValue();
-        assertEquals(TestConstants.PHONE.getNumber(), request.getPhoneNumber());
-        assertEquals(MESSAGE_BODY, request.getMessage());
-        assertEquals("Transactional",
-                request.getMessageAttributes().get(BridgeConstants.AWS_SMS_TYPE).getStringValue());
-        assertEquals(STUDY_SHORT_NAME,
-                request.getMessageAttributes().get(BridgeConstants.AWS_SMS_SENDER_ID).getStringValue());
+        assertEquals(request.getPhoneNumber(), TestConstants.PHONE.getNumber());
+        assertEquals(request.getMessage(), MESSAGE_BODY);
+        assertEquals(request.getMessageAttributes().get(BridgeConstants.AWS_SMS_TYPE).getStringValue(),
+                "Transactional");
+        assertEquals(request.getMessageAttributes().get(BridgeConstants.AWS_SMS_SENDER_ID).getStringValue(),
+                STUDY_SHORT_NAME);
 
         // We log the SMS message to DDB and to health data.
         verifyLoggedSmsMessage(HEALTH_CODE, MESSAGE_BODY, SmsType.TRANSACTIONAL);
@@ -165,12 +165,11 @@ public class SmsServiceTest {
         verify(mockSnsClient).publish(requestCaptor.capture());
 
         PublishRequest request = requestCaptor.getValue();
-        assertEquals(TestConstants.PHONE.getNumber(), request.getPhoneNumber());
-        assertEquals(MESSAGE_BODY, request.getMessage());
-        assertEquals("Promotional",
-                request.getMessageAttributes().get(BridgeConstants.AWS_SMS_TYPE).getStringValue());
-        assertEquals(STUDY_SHORT_NAME,
-                request.getMessageAttributes().get(BridgeConstants.AWS_SMS_SENDER_ID).getStringValue());
+        assertEquals(request.getPhoneNumber(), TestConstants.PHONE.getNumber());
+        assertEquals(request.getMessage(), MESSAGE_BODY);
+        assertEquals(request.getMessageAttributes().get(BridgeConstants.AWS_SMS_TYPE).getStringValue(), "Promotional");
+        assertEquals(request.getMessageAttributes().get(BridgeConstants.AWS_SMS_SENDER_ID).getStringValue(),
+                STUDY_SHORT_NAME);
 
         // We log the SMS message to DDB and to health data.
         verifyLoggedSmsMessage(HEALTH_CODE, MESSAGE_BODY, SmsType.PROMOTIONAL);
@@ -256,27 +255,27 @@ public class SmsServiceTest {
         verify(mockSchemaService).createSchemaRevisionV4(eq(TestConstants.TEST_STUDY), schemaCaptor.capture());
 
         UploadSchema schema = schemaCaptor.getValue();
-        assertEquals(SmsService.MESSAGE_LOG_SCHEMA_ID, schema.getSchemaId());
-        assertEquals(SmsService.MESSAGE_LOG_SCHEMA_REV, schema.getRevision());
-        assertEquals(SmsService.MESSAGE_LOG_SCHEMA_NAME, schema.getName());
-        assertEquals(UploadSchemaType.IOS_DATA, schema.getSchemaType());
+        assertEquals(schema.getSchemaId(), SmsService.MESSAGE_LOG_SCHEMA_ID);
+        assertEquals(schema.getRevision(), SmsService.MESSAGE_LOG_SCHEMA_REV);
+        assertEquals(schema.getName(), SmsService.MESSAGE_LOG_SCHEMA_NAME);
+        assertEquals(schema.getSchemaType(), UploadSchemaType.IOS_DATA);
 
         List<UploadFieldDefinition> fieldDefList = schema.getFieldDefinitions();
-        assertEquals(3, fieldDefList.size());
+        assertEquals(fieldDefList.size(), 3);
 
-        assertEquals(SmsService.FIELD_NAME_SENT_ON, fieldDefList.get(0).getName());
-        assertEquals(UploadFieldType.TIMESTAMP, fieldDefList.get(0).getType());
+        assertEquals(fieldDefList.get(0).getName(), SmsService.FIELD_NAME_SENT_ON);
+        assertEquals(fieldDefList.get(0).getType(), UploadFieldType.TIMESTAMP);
 
-        assertEquals(SmsService.FIELD_NAME_SMS_TYPE, fieldDefList.get(1).getName());
-        assertEquals(UploadFieldType.STRING, fieldDefList.get(1).getType());
-        assertEquals(SmsType.VALUE_MAX_LENGTH, fieldDefList.get(1).getMaxLength().intValue());
+        assertEquals(fieldDefList.get(1).getName(), SmsService.FIELD_NAME_SMS_TYPE);
+        assertEquals(fieldDefList.get(1).getType(), UploadFieldType.STRING);
+        assertEquals(fieldDefList.get(1).getMaxLength().intValue(), SmsType.VALUE_MAX_LENGTH);
 
-        assertEquals(SmsService.FIELD_NAME_MESSAGE_BODY, fieldDefList.get(2).getName());
-        assertEquals(UploadFieldType.STRING, fieldDefList.get(2).getType());
+        assertEquals(fieldDefList.get(2).getName(), SmsService.FIELD_NAME_MESSAGE_BODY);
+        assertEquals(fieldDefList.get(2).getType(), UploadFieldType.STRING);
         assertTrue(fieldDefList.get(2).isUnboundedText());
     }
 
-    @Test(expected = BridgeServiceException.class)
+    @Test(expectedExceptions = BridgeServiceException.class)
     public void sendSMSMessageTooLongInvalid() {
         String message = "This is my SMS message.";
         for (int i=0; i < 5; i++) {
@@ -296,13 +295,13 @@ public class SmsServiceTest {
         verify(mockMessageDao).logMessage(loggedMessageCaptor.capture());
 
         SmsMessage loggedMessage = loggedMessageCaptor.getValue();
-        assertEquals(TestConstants.PHONE.getNumber(), loggedMessage.getPhoneNumber());
-        assertEquals(MOCK_NOW_MILLIS, loggedMessage.getSentOn());
-        assertEquals(expectedHealthCode, loggedMessage.getHealthCode());
-        assertEquals(expectedMessage, loggedMessage.getMessageBody());
-        assertEquals(MESSAGE_ID, loggedMessage.getMessageId());
-        assertEquals(expectedSmsType, loggedMessage.getSmsType());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, loggedMessage.getStudyId());
+        assertEquals(loggedMessage.getPhoneNumber(), TestConstants.PHONE.getNumber());
+        assertEquals(loggedMessage.getSentOn(), MOCK_NOW_MILLIS);
+        assertEquals(loggedMessage.getHealthCode(), expectedHealthCode);
+        assertEquals(loggedMessage.getMessageBody(), expectedMessage);
+        assertEquals(loggedMessage.getMessageId(), MESSAGE_ID);
+        assertEquals(loggedMessage.getSmsType(), expectedSmsType);
+        assertEquals(loggedMessage.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
     }
 
     private void verifyHealthData(StudyParticipant expectedParticipant, DateTimeZone expectedTimeZone,
@@ -313,35 +312,35 @@ public class SmsServiceTest {
         HealthDataSubmission healthData = healthDataCaptor.getValue();
 
         // Verify simple attributes.
-        assertEquals(SmsService.BRIDGE_SERVER_APP_VERSION, healthData.getAppVersion());
-        assertEquals(SmsService.BRIDGE_SERVER_PHONE_INFO, healthData.getPhoneInfo());
-        assertEquals(SmsService.MESSAGE_LOG_SCHEMA_ID, healthData.getSchemaId());
-        assertEquals(SmsService.MESSAGE_LOG_SCHEMA_REV, healthData.getSchemaRevision().intValue());
+        assertEquals(healthData.getAppVersion(), SmsService.BRIDGE_SERVER_APP_VERSION);
+        assertEquals(healthData.getPhoneInfo(), SmsService.BRIDGE_SERVER_PHONE_INFO);
+        assertEquals(healthData.getSchemaId(), SmsService.MESSAGE_LOG_SCHEMA_ID);
+        assertEquals(healthData.getSchemaRevision().intValue(), SmsService.MESSAGE_LOG_SCHEMA_REV);
 
         DateTime createdOn = healthData.getCreatedOn();
-        assertEquals(MOCK_NOW_MILLIS, createdOn.getMillis());
-        assertEquals(expectedTimeZone.getOffset(createdOn), createdOn.getZone().getOffset(createdOn));
+        assertEquals(createdOn.getMillis(), MOCK_NOW_MILLIS);
+        assertEquals(createdOn.getZone().getOffset(createdOn), expectedTimeZone.getOffset(createdOn));
 
         // Assert health data.
         JsonNode healthDataNode = healthData.getData();
-        assertEquals(expectedSmsType.getValue(), healthDataNode.get(SmsService.FIELD_NAME_SMS_TYPE).textValue());
-        assertEquals(expectedMessage, healthDataNode.get(SmsService.FIELD_NAME_MESSAGE_BODY).textValue());
+        assertEquals(healthDataNode.get(SmsService.FIELD_NAME_SMS_TYPE).textValue(), expectedSmsType.getValue());
+        assertEquals(healthDataNode.get(SmsService.FIELD_NAME_MESSAGE_BODY).textValue(), expectedMessage);
 
         // sentOn is createdOn in string form.
-        assertEquals(createdOn.toString(), healthDataNode.get(SmsService.FIELD_NAME_SENT_ON).textValue());
+        assertEquals(healthDataNode.get(SmsService.FIELD_NAME_SENT_ON).textValue(), createdOn.toString());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getMostRecentMessage_NullPhoneNumber() {
         svc.getMostRecentMessage(null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getMostRecentMessage_EmptyPhoneNumber() {
         svc.getMostRecentMessage("");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void getMostRecentMessage_BlankPhoneNumber() {
         svc.getMostRecentMessage("   ");
     }
@@ -352,7 +351,7 @@ public class SmsServiceTest {
         when(mockMessageDao.getMostRecentMessage(PHONE_NUMBER)).thenReturn(daoOutput);
 
         SmsMessage svcOutput = svc.getMostRecentMessage(PHONE_NUMBER);
-        assertSame(daoOutput, svcOutput);
+        assertSame(svcOutput, daoOutput);
     }
 
     private static SmsMessage makeValidSmsMessage() {
@@ -366,27 +365,27 @@ public class SmsServiceTest {
         return message;
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void optInPhoneNumber_NullUserId() {
         svc.optInPhoneNumber(null, TestConstants.PHONE);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void optInPhoneNumber_EmptyUserId() {
         svc.optInPhoneNumber("", TestConstants.PHONE);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void optInPhoneNumber_BlankUserId() {
         svc.optInPhoneNumber("   ", TestConstants.PHONE);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void optInPhoneNumber_NullPhone() {
         svc.optInPhoneNumber(USER_ID, null);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void optInPhoneNumber_InvalidPhone() {
         svc.optInPhoneNumber(USER_ID, new Phone("NaN", "US"));
     }
@@ -405,7 +404,7 @@ public class SmsServiceTest {
                 CheckIfPhoneNumberIsOptedOutRequest.class);
         verify(mockSnsClient).checkIfPhoneNumberIsOptedOut(checkRequestCaptor.capture());
         CheckIfPhoneNumberIsOptedOutRequest checkRequest = checkRequestCaptor.getValue();
-        assertEquals(TestConstants.PHONE.getNumber(), checkRequest.getPhoneNumber());
+        assertEquals(checkRequest.getPhoneNumber(), TestConstants.PHONE.getNumber());
 
         verify(mockSnsClient, never()).optInPhoneNumber(any());
     }
@@ -424,12 +423,12 @@ public class SmsServiceTest {
                 CheckIfPhoneNumberIsOptedOutRequest.class);
         verify(mockSnsClient).checkIfPhoneNumberIsOptedOut(checkRequestCaptor.capture());
         CheckIfPhoneNumberIsOptedOutRequest checkRequest = checkRequestCaptor.getValue();
-        assertEquals(TestConstants.PHONE.getNumber(), checkRequest.getPhoneNumber());
+        assertEquals(checkRequest.getPhoneNumber(), TestConstants.PHONE.getNumber());
 
         ArgumentCaptor<OptInPhoneNumberRequest> optInRequestCaptor = ArgumentCaptor.forClass(
                 OptInPhoneNumberRequest.class);
         verify(mockSnsClient).optInPhoneNumber(optInRequestCaptor.capture());
         OptInPhoneNumberRequest optInRequest = optInRequestCaptor.getValue();
-        assertEquals(TestConstants.PHONE.getNumber(), optInRequest.getPhoneNumber());
+        assertEquals(optInRequest.getPhoneNumber(), TestConstants.PHONE.getNumber());
     }
 }

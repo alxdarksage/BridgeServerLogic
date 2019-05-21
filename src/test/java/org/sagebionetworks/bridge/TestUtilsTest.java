@@ -1,16 +1,17 @@
 package org.sagebionetworks.bridge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.sagebionetworks.bridge.models.OperatingSystem.ANDROID;
 import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 
 import java.util.HashSet;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dynamodb.DynamoCriteria;
 import org.sagebionetworks.bridge.exceptions.ConstraintViolationException;
@@ -30,13 +31,13 @@ public class TestUtilsTest {
             throw new EntityNotFoundException(Account.class);});
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void testAssertExceptionThrowsTheExceptionWithWrongMessage() {
         TestUtils.assertException(EntityNotFoundException.class, "Account not found", () -> {
             throw new EntityNotFoundException(AppConfig.class);});
     }
     
-    @Test(expected = ConstraintViolationException.class)
+    @Test(expectedExceptions = ConstraintViolationException.class)
     public void testAssertThrowsExceptionUnrelatedException() {
         TestUtils.assertException(EntityNotFoundException.class, "Account not found", () -> {
             throw new ConstraintViolationException.Builder().build();});
@@ -48,7 +49,7 @@ public class TestUtilsTest {
             TestUtils.assertException(Exception.class, "Any message at all", () -> {});
             fail("Should have thrown exception");
         } catch(Throwable e) {
-            assertEquals("Should have thrown exception: java.lang.Exception, message: 'Any message at all'", e.getMessage());
+            assertEquals(e.getMessage(), "Should have thrown exception: java.lang.Exception, message: 'Any message at all'");
         }
     }
     
@@ -56,10 +57,10 @@ public class TestUtilsTest {
     public void createCriteriaWithArguments() {
         Criteria criteria = TestUtils.createCriteria(5, 15, ALL_OF_GROUPS, NONE_OF_GROUPS);
 
-        assertEquals(new Integer(5), criteria.getMinAppVersion(IOS));
-        assertEquals(new Integer(15), criteria.getMaxAppVersion(IOS));
-        assertEquals(ALL_OF_GROUPS, criteria.getAllOfGroups());
-        assertEquals(NONE_OF_GROUPS, criteria.getNoneOfGroups());
+        assertEquals(criteria.getMinAppVersion(IOS), new Integer(5));
+        assertEquals(criteria.getMaxAppVersion(IOS), new Integer(15));
+        assertEquals(criteria.getAllOfGroups(), ALL_OF_GROUPS);
+        assertEquals(criteria.getNoneOfGroups(), NONE_OF_GROUPS);
     }
     
     @Test
@@ -73,13 +74,13 @@ public class TestUtilsTest {
         Criteria criteria = newCriteria();
         
         Criteria newCriteria = TestUtils.copyCriteria(criteria);
-        assertEquals(new Integer(5), newCriteria.getMinAppVersion(IOS));
-        assertEquals(new Integer(15), newCriteria.getMaxAppVersion(IOS));
-        assertEquals(new Integer(12), newCriteria.getMaxAppVersion(ANDROID));
-        assertEquals(ALL_OF_GROUPS, newCriteria.getAllOfGroups());
-        assertEquals(NONE_OF_GROUPS, newCriteria.getNoneOfGroups());
-        assertEquals(Sets.newHashSet(IOS, ANDROID), newCriteria.getAppVersionOperatingSystems());
-        assertFalse( criteria == newCriteria);
+        assertEquals(newCriteria.getMinAppVersion(IOS), new Integer(5));
+        assertEquals(newCriteria.getMaxAppVersion(IOS), new Integer(15));
+        assertEquals(newCriteria.getMaxAppVersion(ANDROID), new Integer(12));
+        assertEquals(newCriteria.getAllOfGroups(), ALL_OF_GROUPS);
+        assertEquals(newCriteria.getNoneOfGroups(), NONE_OF_GROUPS);
+        assertEquals(newCriteria.getAppVersionOperatingSystems(), Sets.newHashSet(IOS, ANDROID));
+        assertFalse(criteria == newCriteria);
     }
     
     private Criteria newCriteria() {

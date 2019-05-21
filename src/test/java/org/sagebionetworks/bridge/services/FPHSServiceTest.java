@@ -1,23 +1,23 @@
 package org.sagebionetworks.bridge.services;
 
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dao.AccountDao;
 import org.sagebionetworks.bridge.dao.FPHSExternalIdentifierDao;
@@ -31,7 +31,6 @@ import org.sagebionetworks.bridge.models.accounts.FPHSExternalIdentifier;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class FPHSServiceTest {
 
     private FPHSService service;
@@ -44,15 +43,16 @@ public class FPHSServiceTest {
     
     private ExternalIdentifier externalId;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         externalId = ExternalIdentifier.create(TEST_STUDY, "gar");
         service = new FPHSService();
         service.setFPHSExternalIdentifierDao(mockDao);
         service.setAccountDao(mockAccountDao);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void validateIdThrowsException() throws Exception {
         service.verifyExternalIdentifier(ExternalIdentifier.create(TEST_STUDY, ""));
     }
@@ -63,14 +63,14 @@ public class FPHSServiceTest {
         verify(mockDao).verifyExternalId(externalId);
     }
     
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void verifyExternalIdentifierFailsOnNotFound() throws Exception {
         doThrow(new EntityNotFoundException(ExternalIdentifier.class)).when(mockDao).verifyExternalId(externalId);
         
         service.verifyExternalIdentifier(externalId);
     }
     
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void registerIdThrowsException() throws Exception {
         service.registerExternalIdentifier(TEST_STUDY, "BBB", ExternalIdentifier.create(TEST_STUDY, null));
     }
@@ -84,7 +84,7 @@ public class FPHSServiceTest {
         service.registerExternalIdentifier(TEST_STUDY, "BBB", externalId);
         verify(mockDao).registerExternalId(externalId);
         verify(mockAccount).setExternalId(externalId.getIdentifier());
-        assertEquals(Sets.newHashSet("football_player"), dataGroups);
+        assertEquals(dataGroups, Sets.newHashSet("football_player"));
     }
     
     @Test
@@ -123,7 +123,7 @@ public class FPHSServiceTest {
         
         List<FPHSExternalIdentifier> identifiers = service.getExternalIdentifiers();
         
-        assertEquals(externalIds, identifiers);
+        assertEquals(identifiers, externalIds);
         verify(mockDao).getExternalIds();
     }
     

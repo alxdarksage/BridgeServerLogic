@@ -1,19 +1,19 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.schedules.SchedulePlan;
 import org.sagebionetworks.bridge.models.schedules.ScheduleStrategy;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -45,24 +45,24 @@ public class DynamoSchedulePlanTest {
         String json = BridgeObjectMapper.get().writeValueAsString(plan);
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
-        assertEquals("SchedulePlan", node.get("type").textValue());
-        assertEquals(2, node.get("version").intValue());
-        assertEquals("guid", node.get("guid").textValue());
-        assertEquals("Label", node.get("label").textValue());
+        assertEquals(node.get("type").textValue(), "SchedulePlan");
+        assertEquals(node.get("version").intValue(), 2);
+        assertEquals(node.get("guid").textValue(), "guid");
+        assertEquals(node.get("label").textValue(), "Label");
         assertTrue(node.get("deleted").booleanValue());
         assertNull(node.get("studyKey"));
         assertNotNull(node.get("strategy"));
-        assertEquals(datetime, DateTime.parse(node.get("modifiedOn").asText()));
+        assertEquals(DateTime.parse(node.get("modifiedOn").asText()), datetime);
 
         DynamoSchedulePlan plan2 = DynamoSchedulePlan.fromJson(node);
-        assertEquals(plan.getVersion(), plan2.getVersion());
-        assertEquals(plan.getGuid(), plan2.getGuid());
-        assertEquals(plan.getLabel(), plan2.getLabel());
-        assertEquals(plan.getModifiedOn(), plan2.getModifiedOn());
-        assertEquals(plan.isDeleted(), plan2.isDeleted());
+        assertEquals(plan2.getVersion(), plan.getVersion());
+        assertEquals(plan2.getGuid(), plan.getGuid());
+        assertEquals(plan2.getLabel(), plan.getLabel());
+        assertEquals(plan2.getModifiedOn(), plan.getModifiedOn());
+        assertEquals(plan2.isDeleted(), plan.isDeleted());
         
         ScheduleStrategy retrievedStrategy = plan.getStrategy();
-        assertEquals(retrievedStrategy, strategy);
+        assertEquals(strategy, retrievedStrategy);
     }
     
     @Test
@@ -77,7 +77,7 @@ public class DynamoSchedulePlanTest {
         assertNull(plan.getStudyKey());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void fromJson_NullStrategyType() throws Exception {
         String json = "{\n" +
                 "   \"strategy\":{}\n" +
@@ -86,7 +86,7 @@ public class DynamoSchedulePlanTest {
         DynamoSchedulePlan.fromJson(node);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void fromJson_NonExistentStrategyType() throws Exception {
         String json = "{\n" +
                 "   \"strategy\":{\n" +
@@ -97,7 +97,7 @@ public class DynamoSchedulePlanTest {
         DynamoSchedulePlan.fromJson(node);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expectedExceptions = BadRequestException.class)
     public void fromJson_InvalidStrategyType() throws Exception {
         String json = "{\n" +
                 "   \"strategy\":{\n" +

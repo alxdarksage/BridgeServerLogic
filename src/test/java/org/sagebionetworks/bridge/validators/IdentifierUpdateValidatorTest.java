@@ -6,11 +6,11 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.accounts.ExternalIdentifier;
 import org.sagebionetworks.bridge.models.accounts.IdentifierUpdate;
@@ -19,7 +19,6 @@ import org.sagebionetworks.bridge.models.accounts.SignIn;
 import org.sagebionetworks.bridge.models.studies.Study;
 import org.sagebionetworks.bridge.services.ExternalIdService;
 
-@RunWith(MockitoJUnitRunner.class)
 public class IdentifierUpdateValidatorTest {
 
     private static final String UPDATED_EMAIL = "updated@email.com";
@@ -33,8 +32,10 @@ public class IdentifierUpdateValidatorTest {
     
     private IdentifierUpdateValidator validator;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         study = Study.create();
         study.setIdentifier(TestConstants.TEST_STUDY_IDENTIFIER);
         validator = new IdentifierUpdateValidator(study, externalIdService);

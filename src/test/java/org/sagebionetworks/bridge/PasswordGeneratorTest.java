@@ -1,18 +1,18 @@
 package org.sagebionetworks.bridge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.regex.Pattern;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class PasswordGeneratorTest {
 
     @Test
     public void generatesPasswordCorrectLength() {
-        assertEquals(16,PasswordGenerator.INSTANCE.nextPassword(16).length());
-        assertEquals(101,PasswordGenerator.INSTANCE.nextPassword(101).length());
+        assertEquals(PasswordGenerator.INSTANCE.nextPassword(16).length(), 16);
+        assertEquals(PasswordGenerator.INSTANCE.nextPassword(101).length(), 101);
     }
     
     @Test

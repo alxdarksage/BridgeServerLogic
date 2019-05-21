@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.activities;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -18,7 +18,7 @@ public class CustomActivityEventRequestTest {
     public void builder() {
         CustomActivityEventRequest req = new CustomActivityEventRequest.Builder().withEventKey(EVENT_KEY)
                 .withTimestamp(EVENT_TIMESTAMP).build();
-        assertEquals(EVENT_KEY, req.getEventKey());
+        assertEquals(req.getEventKey(), EVENT_KEY);
         TestUtils.assertDatesWithTimeZoneEqual(EVENT_TIMESTAMP, req.getTimestamp());
     }
 
@@ -33,13 +33,13 @@ public class CustomActivityEventRequestTest {
         // Convert to POJO
         CustomActivityEventRequest req = BridgeObjectMapper.get().readValue(jsonText,
                 CustomActivityEventRequest.class);
-        assertEquals(EVENT_KEY, req.getEventKey());
+        assertEquals(req.getEventKey(), EVENT_KEY);
         TestUtils.assertDatesWithTimeZoneEqual(EVENT_TIMESTAMP, req.getTimestamp());
 
         // Convert back to JSON
         JsonNode node = BridgeObjectMapper.get().convertValue(req, JsonNode.class);
-        assertEquals(3, node.size());
-        assertEquals(EVENT_KEY, node.get("eventKey").textValue());
+        assertEquals(node.size(), 3);
+        assertEquals(node.get("eventKey").textValue(), EVENT_KEY);
         TestUtils.assertDatesWithTimeZoneEqual(EVENT_TIMESTAMP, DateTime.parse(node.get("timestamp").textValue()));
     }
 }

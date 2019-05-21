@@ -6,10 +6,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestUtils.getNotificationTopic;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
@@ -19,13 +19,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dao.NotificationRegistrationDao;
@@ -48,7 +47,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@RunWith(MockitoJUnitRunner.class)
 public class NotificationTopicServiceTest {
     private static final String CRITERIA_GROUP_1 = "criteria-group-1";
     private static final String CRITERIA_GROUP_2 = "criteria-group-2";
@@ -144,8 +142,10 @@ public class NotificationTopicServiceTest {
 
     private NotificationTopicService service;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         service = new NotificationTopicService();
         service.setNotificationTopicDao(mockTopicDao);
         service.setSnsClient(mockSnsClient);
@@ -159,7 +159,7 @@ public class NotificationTopicServiceTest {
         doReturn(list).when(mockTopicDao).listTopics(TEST_STUDY, true);
         
         List<NotificationTopic> results = service.listTopics(TEST_STUDY, true);
-        assertEquals(2, results.size());
+        assertEquals(results.size(), 2);
         
         verify(mockTopicDao).listTopics(TEST_STUDY, true);
     }
@@ -170,7 +170,7 @@ public class NotificationTopicServiceTest {
         doReturn(topic).when(mockTopicDao).getTopic(TEST_STUDY, topic.getGuid());
         
         NotificationTopic result = service.getTopic(TEST_STUDY, topic.getGuid());
-        assertEquals(topic, result);
+        assertEquals(result, topic);
         
         verify(mockTopicDao).getTopic(TEST_STUDY, topic.getGuid());
     }
@@ -181,7 +181,7 @@ public class NotificationTopicServiceTest {
         doReturn(topic).when(mockTopicDao).createTopic(topic);
         
         NotificationTopic result = service.createTopic(topic);
-        assertEquals(topic, result);
+        assertEquals(result, topic);
         
         verify(mockTopicDao).createTopic(topic);
     }
@@ -204,7 +204,7 @@ public class NotificationTopicServiceTest {
         doReturn(topic).when(mockTopicDao).updateTopic(topic);
         
         NotificationTopic result = service.updateTopic(topic);
-        assertEquals(topic, result);
+        assertEquals(result, topic);
         
         verify(mockTopicDao).updateTopic(topic);
     }
@@ -253,9 +253,9 @@ public class NotificationTopicServiceTest {
         
         verify(mockSnsClient).publish(publishRequestCaptor.capture());
         PublishRequest request = publishRequestCaptor.getValue();
-        assertEquals("a subject", request.getSubject());
-        assertEquals("a message", request.getMessage());
-        assertEquals("topicARN", request.getTopicArn());
+        assertEquals(request.getSubject(), "a subject");
+        assertEquals(request.getMessage(), "a message");
+        assertEquals(request.getTopicArn(), "topicARN");
     }
     
     private NotificationTopic createTopic(String guid) {
@@ -440,22 +440,22 @@ public class NotificationTopicServiceTest {
         // Execute. We want to subscribe to 1 and 3.
         List<SubscriptionStatus> statusList = service.subscribe(TEST_STUDY, HEALTH_CODE, PUSH_REGISTRATION.getGuid(),
                 ImmutableSet.of(MANUAL_TOPIC_1.getGuid(), MANUAL_TOPIC_3.getGuid()));
-        assertEquals(4, statusList.size());
+        assertEquals(statusList.size(), 4);
 
-        assertEquals(MANUAL_TOPIC_1.getGuid(), statusList.get(0).getTopicGuid());
-        assertEquals(MANUAL_TOPIC_1.getName(), statusList.get(0).getTopicName());
+        assertEquals(statusList.get(0).getTopicGuid(), MANUAL_TOPIC_1.getGuid());
+        assertEquals(statusList.get(0).getTopicName(), MANUAL_TOPIC_1.getName());
         assertTrue(statusList.get(0).isSubscribed());
 
-        assertEquals(MANUAL_TOPIC_2.getGuid(), statusList.get(1).getTopicGuid());
-        assertEquals(MANUAL_TOPIC_2.getName(), statusList.get(1).getTopicName());
+        assertEquals(statusList.get(1).getTopicGuid(), MANUAL_TOPIC_2.getGuid());
+        assertEquals(statusList.get(1).getTopicName(), MANUAL_TOPIC_2.getName());
         assertFalse(statusList.get(1).isSubscribed());
 
-        assertEquals(MANUAL_TOPIC_3.getGuid(), statusList.get(2).getTopicGuid());
-        assertEquals(MANUAL_TOPIC_3.getName(), statusList.get(2).getTopicName());
+        assertEquals(statusList.get(2).getTopicGuid(), MANUAL_TOPIC_3.getGuid());
+        assertEquals(statusList.get(2).getTopicName(), MANUAL_TOPIC_3.getName());
         assertTrue(statusList.get(2).isSubscribed());
 
-        assertEquals(MANUAL_TOPIC_4.getGuid(), statusList.get(3).getTopicGuid());
-        assertEquals(MANUAL_TOPIC_4.getName(), statusList.get(3).getTopicName());
+        assertEquals(statusList.get(3).getTopicGuid(), MANUAL_TOPIC_4.getGuid());
+        assertEquals(statusList.get(3).getTopicName(), MANUAL_TOPIC_4.getName());
         assertFalse(statusList.get(3).isSubscribed());
 
         // Verify back-ends. We unsub from topic 2 and sub to topic 3.

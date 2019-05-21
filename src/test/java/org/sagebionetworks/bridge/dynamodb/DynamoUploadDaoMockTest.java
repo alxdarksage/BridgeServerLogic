@@ -1,16 +1,16 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,13 +21,13 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.dao.HealthCodeDao;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
@@ -57,7 +57,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoUploadDaoMockTest {
     
     private static String UPLOAD_ID = "uploadId";
@@ -118,8 +117,9 @@ public class DynamoUploadDaoMockTest {
     
     private DynamoUploadDao dao;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         dao = new DynamoUploadDao();
         dao.setDdbMapper(mockMapper);
         dao.setHealthCodeDao(healthCodeDao);
@@ -138,15 +138,15 @@ public class DynamoUploadDaoMockTest {
         DynamoUpload2 capturedUpload = uploadCaptor.getValue();
 
         // Validate that our DDB upload object matches our upload request, and that the upload ID matches.
-        assertEquals(upload.getUploadId(), capturedUpload.getUploadId());
+        assertEquals(capturedUpload.getUploadId(), upload.getUploadId());
         assertNull(capturedUpload.getDuplicateUploadId());
-        assertEquals(TEST_STUDY.getIdentifier(), capturedUpload.getStudyId());
+        assertEquals(capturedUpload.getStudyId(), TEST_STUDY.getIdentifier());
         assertTrue(capturedUpload.getRequestedOn() > 0);
-        assertEquals(UploadStatus.REQUESTED, capturedUpload.getStatus());
-        assertEquals(req.getContentLength(), capturedUpload.getContentLength());
-        assertEquals(req.getContentMd5(), capturedUpload.getContentMd5());
-        assertEquals(req.getContentType(), capturedUpload.getContentType());
-        assertEquals(req.getName(), capturedUpload.getFilename());
+        assertEquals(capturedUpload.getStatus(), UploadStatus.REQUESTED);
+        assertEquals(capturedUpload.getContentLength(), req.getContentLength());
+        assertEquals(capturedUpload.getContentMd5(), req.getContentMd5());
+        assertEquals(capturedUpload.getContentType(), req.getContentType());
+        assertEquals(capturedUpload.getFilename(), req.getName());
     }
 
     @Test
@@ -162,10 +162,10 @@ public class DynamoUploadDaoMockTest {
         
         // Validate key values (study ID, requestedOn) and values from the dupe code path.
         // Everything else is tested in the previous test
-        assertEquals("original-upload-id", capturedUpload.getDuplicateUploadId());
-        assertEquals(TEST_STUDY.getIdentifier(), capturedUpload.getStudyId());
+        assertEquals(capturedUpload.getDuplicateUploadId(), "original-upload-id");
+        assertEquals(capturedUpload.getStudyId(), TEST_STUDY.getIdentifier());
         assertTrue(capturedUpload.getRequestedOn() > 0);
-        assertEquals(UploadStatus.DUPLICATE, capturedUpload.getStatus());
+        assertEquals(capturedUpload.getStatus(), UploadStatus.DUPLICATE);
     }
 
     @Test
@@ -177,10 +177,10 @@ public class DynamoUploadDaoMockTest {
 
         // execute
         Upload retVal = dao.getUpload("test-get-upload");
-        assertSame(upload, retVal);
+        assertSame(retVal, upload);
 
         // validate we passed in the expected key
-        assertEquals("test-get-upload", uploadCaptor.getValue().getUploadId());
+        assertEquals(uploadCaptor.getValue().getUploadId(), "test-get-upload");
     }
     
     @Test
@@ -192,10 +192,10 @@ public class DynamoUploadDaoMockTest {
         when(healthCodeDao.getStudyIdentifier(upload.getHealthCode())).thenReturn("studyId");
         
         Upload retVal = dao.getUpload("test-get-upload");
-        assertEquals("studyId", retVal.getStudyId());
+        assertEquals(retVal.getStudyId(), "studyId");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test(expectedExceptions = EntityNotFoundException.class)
     public void getUploadWithoutStudyIdAndNoHealthCodeRecord() {
         DynamoUpload2 upload = new DynamoUpload2();
         upload.setHealthCode("healthCode");
@@ -221,7 +221,7 @@ public class DynamoUploadDaoMockTest {
         assertNotNull(thrown);
 
         // validate we passed in the expected key
-        assertEquals("test-get-404", uploadCaptor.getValue().getUploadId());
+        assertEquals(uploadCaptor.getValue().getUploadId(), "test-get-404");
     }
 
     @Test
@@ -232,12 +232,12 @@ public class DynamoUploadDaoMockTest {
         // Verify our mock. We add status=VALIDATION_IN_PROGRESS and uploadDate on save, so only check for those
         // properties.
         verify(mockMapper).save(uploadCaptor.capture());
-        assertEquals(UploadStatus.VALIDATION_IN_PROGRESS, uploadCaptor.getValue().getStatus());
-        assertEquals(UploadCompletionClient.APP, uploadCaptor.getValue().getCompletedBy());
+        assertEquals(uploadCaptor.getValue().getStatus(), UploadStatus.VALIDATION_IN_PROGRESS);
+        assertEquals(uploadCaptor.getValue().getCompletedBy(), UploadCompletionClient.APP);
         assertTrue(uploadCaptor.getValue().getCompletedOn() > 0);
 
         // There is a slim chance that this will fail if it runs just after midnight.
-        assertEquals(LocalDate.now(DateTimeZone.forID("America/Los_Angeles")), uploadCaptor.getValue().getUploadDate());
+        assertEquals(uploadCaptor.getValue().getUploadDate(), LocalDate.now(DateTimeZone.forID("America/Los_Angeles")));
     }
 
     @Test
@@ -252,12 +252,12 @@ public class DynamoUploadDaoMockTest {
 
         // Verify our mock. We set the status and append messages.
         verify(mockMapper).save(uploadCaptor.capture());
-        assertEquals(UploadStatus.SUCCEEDED, uploadCaptor.getValue().getStatus());
+        assertEquals(uploadCaptor.getValue().getStatus(), UploadStatus.SUCCEEDED);
         assertNull(uploadCaptor.getValue().getRecordId());
 
         List<String> messageList = uploadCaptor.getValue().getValidationMessageList();
-        assertEquals(1, messageList.size());
-        assertEquals("wrote new", messageList.get(0));
+        assertEquals(messageList.size(), 1);
+        assertEquals(messageList.get(0), "wrote new");
     }
 
     @Test
@@ -273,13 +273,13 @@ public class DynamoUploadDaoMockTest {
 
         // Verify our mock. We set the status and append messages.
         verify(mockMapper).save(uploadCaptor.capture());
-        assertEquals(UploadStatus.SUCCEEDED, uploadCaptor.getValue().getStatus());
-        assertEquals("test-record-id", uploadCaptor.getValue().getRecordId());
+        assertEquals(uploadCaptor.getValue().getStatus(), UploadStatus.SUCCEEDED);
+        assertEquals(uploadCaptor.getValue().getRecordId(), "test-record-id");
 
         List<String> messageList = uploadCaptor.getValue().getValidationMessageList();
-        assertEquals(2, messageList.size());
-        assertEquals("pre-existing message", messageList.get(0));
-        assertEquals("appended this message", messageList.get(1));
+        assertEquals(messageList.size(), 2);
+        assertEquals(messageList.get(0), "pre-existing message");
+        assertEquals(messageList.get(1), "appended this message");
     }
     
     @Test
@@ -311,22 +311,22 @@ public class DynamoUploadDaoMockTest {
         
         verify(mockIndexHelper).query(querySpecCaptor.capture());
         QuerySpec mockSpec = querySpecCaptor.getValue();
-        assertEquals(new Integer(51), mockSpec.getMaxPageSize());
-        assertEquals(healthCode, mockSpec.getHashKey().getValue());
+        assertEquals(mockSpec.getMaxPageSize(), new Integer(51));
+        assertEquals(mockSpec.getHashKey().getValue(), healthCode);
         
         verify(mockMapper).batchLoad(uploadListCaptor.capture());
         List<Upload> uploads = uploadListCaptor.getValue();
-        assertEquals(2, uploads.size());
+        assertEquals(uploads.size(), 2);
         
         // These have been sorted.
-        assertEquals(2, page.getItems().size());
-        assertEquals(10000, page.getItems().get(0).getRequestedOn());
-        assertEquals(30000, page.getItems().get(1).getRequestedOn());
+        assertEquals(page.getItems().size(), 2);
+        assertEquals(page.getItems().get(0).getRequestedOn(), 10000);
+        assertEquals(page.getItems().get(1).getRequestedOn(), 30000);
         
         // All parameters were returned. No paging in this test
-        assertEquals((Integer)pageSize, page.getRequestParams().get("pageSize"));
-        assertEquals(startTime.toString(), page.getRequestParams().get("startTime"));
-        assertEquals(endTime.toString(), page.getRequestParams().get("endTime"));
+        assertEquals(page.getRequestParams().get("pageSize"), (Integer)pageSize);
+        assertEquals(page.getRequestParams().get("startTime"), startTime.toString());
+        assertEquals(page.getRequestParams().get("endTime"), endTime.toString());
     }
 
     @Test
@@ -365,18 +365,18 @@ public class DynamoUploadDaoMockTest {
         when(mockMapper.batchLoad(any(List.class))).thenReturn(batchLoadMap1, batchLoadMap2);
         
         ForwardCursorPagedResourceList<Upload> page1 = dao.getUploads(healthCode, startTime, endTime, pageSize, null);
-        assertEquals("30000", page1.getNextPageOffsetKey());
+        assertEquals(page1.getNextPageOffsetKey(), "30000");
         assertNull(page1.getRequestParams().get("offsetKey"));
-        assertEquals(pageSize, page1.getRequestParams().get("pageSize"));
-        assertEquals(startTime.toString(), page1.getRequestParams().get("startTime"));
-        assertEquals(endTime.toString(), page1.getRequestParams().get("endTime"));
+        assertEquals(page1.getRequestParams().get("pageSize"), pageSize);
+        assertEquals(page1.getRequestParams().get("startTime"), startTime.toString());
+        assertEquals(page1.getRequestParams().get("endTime"), endTime.toString());
         
         ForwardCursorPagedResourceList<Upload> page2 = dao.getUploads(healthCode, startTime, endTime, pageSize, page1.getNextPageOffsetKey());
         assertNull(page2.getNextPageOffsetKey());
-        assertEquals("30000", page2.getRequestParams().get("offsetKey"));
-        assertEquals(pageSize, page2.getRequestParams().get("pageSize"));
-        assertEquals(startTime.toString(), page2.getRequestParams().get("startTime"));
-        assertEquals(endTime.toString(), page2.getRequestParams().get("endTime"));
+        assertEquals(page2.getRequestParams().get("offsetKey"), "30000");
+        assertEquals(page2.getRequestParams().get("pageSize"), pageSize);
+        assertEquals(page2.getRequestParams().get("startTime"), startTime.toString());
+        assertEquals(page2.getRequestParams().get("endTime"), endTime.toString());
     }
     
     @SuppressWarnings("unchecked")
@@ -418,18 +418,18 @@ public class DynamoUploadDaoMockTest {
         when(mockMapper.batchLoad(any(List.class))).thenReturn(batchLoadMap1, batchLoadMap2);
         
         ForwardCursorPagedResourceList<Upload> page1 = dao.getStudyUploads(studyId, startTime, endTime, pageSize, null);
-        assertEquals("uploadId3", page1.getNextPageOffsetKey());
+        assertEquals(page1.getNextPageOffsetKey(), "uploadId3");
         assertNull(page1.getRequestParams().get("offsetKey"));
-        assertEquals(pageSize, page1.getRequestParams().get("pageSize"));
-        assertEquals(startTime.toString(), page1.getRequestParams().get("startTime"));
-        assertEquals(endTime.toString(), page1.getRequestParams().get("endTime"));
+        assertEquals(page1.getRequestParams().get("pageSize"), pageSize);
+        assertEquals(page1.getRequestParams().get("startTime"), startTime.toString());
+        assertEquals(page1.getRequestParams().get("endTime"), endTime.toString());
         
         ForwardCursorPagedResourceList<Upload> page2 = dao.getStudyUploads(studyId, startTime, endTime, pageSize, page1.getNextPageOffsetKey());
         assertNull(page2.getNextPageOffsetKey());
-        assertEquals("uploadId3", page2.getRequestParams().get("offsetKey"));
-        assertEquals(pageSize, page1.getRequestParams().get("pageSize"));
-        assertEquals(startTime.toString(), page1.getRequestParams().get("startTime"));
-        assertEquals(endTime.toString(), page1.getRequestParams().get("endTime"));
+        assertEquals(page2.getRequestParams().get("offsetKey"), "uploadId3");
+        assertEquals(page1.getRequestParams().get("pageSize"), pageSize);
+        assertEquals(page1.getRequestParams().get("startTime"), startTime.toString());
+        assertEquals(page1.getRequestParams().get("endTime"), endTime.toString());
     }
     
     @Test
@@ -443,7 +443,7 @@ public class DynamoUploadDaoMockTest {
             dao.getStudyUploads(studyId, startTime, endTime, pageSize, "bad-key");
             fail("Should have thrown an exception");
         } catch(BadRequestException e) {
-            assertEquals("Invalid offsetKey: bad-key", e.getMessage());
+            assertEquals(e.getMessage(), "Invalid offsetKey: bad-key");
         }
     }
     

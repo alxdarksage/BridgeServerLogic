@@ -12,11 +12,11 @@ import org.joda.time.DateTime;
 
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
 import org.sagebionetworks.bridge.models.Criteria;
@@ -36,7 +36,6 @@ import org.sagebionetworks.bridge.services.UploadSchemaService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AppConfigValidatorTest {
     
     private static final SurveyReference INVALID_SURVEY_REF = new SurveyReference(null, "guid", null);
@@ -63,8 +62,10 @@ public class AppConfigValidatorTest {
     
     private AppConfig appConfig;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
+        
         appConfig = AppConfig.create();
         appConfig.setStudyId(TEST_STUDY_IDENTIFIER);
         

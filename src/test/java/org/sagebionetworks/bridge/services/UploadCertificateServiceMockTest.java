@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
@@ -9,11 +8,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertTrue;
 
 import com.amazonaws.services.s3.AmazonS3;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.studies.StudyIdentifier;
 import org.sagebionetworks.bridge.models.studies.StudyIdentifierImpl;
@@ -27,7 +27,7 @@ public class UploadCertificateServiceMockTest {
     private AmazonS3 mockS3client;
     private UploadCertificateService svc;
 
-    @Before
+    @BeforeMethod
     public void before() {
         // Mock S3 client. We'll fill in the details during the test.
         mockS3client = mock(AmazonS3.class);

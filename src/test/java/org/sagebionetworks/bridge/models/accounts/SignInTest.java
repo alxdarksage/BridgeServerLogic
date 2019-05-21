@@ -1,12 +1,13 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -18,8 +19,8 @@ public class SignInTest {
 
         SignIn signIn = BridgeObjectMapper.get().readValue(oldJson, SignIn.class);
 
-        assertEquals("aName", signIn.getEmail());
-        assertEquals("password", signIn.getPassword());
+        assertEquals(signIn.getEmail(), "aName");
+        assertEquals(signIn.getPassword(), "password");
     }
     
     @Test
@@ -28,10 +29,10 @@ public class SignInTest {
 
         SignIn signIn = BridgeObjectMapper.get().readValue(json, SignIn.class);
 
-        assertEquals("foo", signIn.getStudyId());
-        assertEquals("aName", signIn.getEmail());
-        assertEquals("password", signIn.getPassword());
-        assertEquals("ABC", signIn.getToken());
+        assertEquals(signIn.getStudyId(), "foo");
+        assertEquals(signIn.getEmail(), "aName");
+        assertEquals(signIn.getPassword(), "password");
+        assertEquals(signIn.getToken(), "ABC");
     }
     
     @Test
@@ -42,14 +43,14 @@ public class SignInTest {
                 .withStudy("study-key").withToken("token").build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(signIn);
-        assertEquals("email@email.com", node.get("email").textValue());
-        assertEquals("password", node.get("password").textValue());
-        assertEquals(TestConstants.PHONE.getNumber(), node.get("phone").get("number").textValue());
-        assertEquals(TestConstants.PHONE.getRegionCode(), node.get("phone").get("regionCode").textValue());
-        assertEquals("reauthToken", node.get("reauthToken").textValue());
-        assertEquals("study-key", node.get("study").textValue());
-        assertEquals("external-id", node.get("externalId").textValue());
-        assertEquals("token", node.get("token").textValue());
+        assertEquals(node.get("email").textValue(), "email@email.com");
+        assertEquals(node.get("password").textValue(), "password");
+        assertEquals(node.get("phone").get("number").textValue(), TestConstants.PHONE.getNumber());
+        assertEquals(node.get("phone").get("regionCode").textValue(), TestConstants.PHONE.getRegionCode());
+        assertEquals(node.get("reauthToken").textValue(), "reauthToken");
+        assertEquals(node.get("study").textValue(), "study-key");
+        assertEquals(node.get("externalId").textValue(), "external-id");
+        assertEquals(node.get("token").textValue(), "token");
     }
     
     @Test
@@ -58,8 +59,8 @@ public class SignInTest {
 
         SignIn signIn = BridgeObjectMapper.get().readValue(json, SignIn.class);
 
-        assertEquals("aName", signIn.getEmail());
-        assertEquals("password", signIn.getPassword());
+        assertEquals(signIn.getEmail(), "aName");
+        assertEquals(signIn.getPassword(), "password");
     }
     
     @Test
@@ -68,8 +69,8 @@ public class SignInTest {
 
         SignIn signIn = BridgeObjectMapper.get().readValue(json, SignIn.class);
 
-        assertEquals("email@email.com", signIn.getEmail());
-        assertEquals("myReauthToken", signIn.getReauthToken());
+        assertEquals(signIn.getEmail(), "email@email.com");
+        assertEquals(signIn.getReauthToken(), "myReauthToken");
     }
     
     @Test
@@ -86,14 +87,14 @@ public class SignInTest {
                 "}"));
         
         SignIn signIn = BridgeObjectMapper.get().readValue(node.toString(), SignIn.class);
-        assertEquals("emailValue", signIn.getEmail());
-        assertEquals("external-id", signIn.getExternalId());
-        assertEquals("passwordValue", signIn.getPassword());
-        assertEquals("studyValue", signIn.getStudyId());
-        assertEquals("tokenValue", signIn.getToken());
-        assertEquals(TestConstants.PHONE.getNumber(), signIn.getPhone().getNumber());
-        assertEquals(TestConstants.PHONE.getRegionCode(), signIn.getPhone().getRegionCode());
-        assertEquals("reauthTokenValue", signIn.getReauthToken());
+        assertEquals(signIn.getEmail(), "emailValue");
+        assertEquals(signIn.getExternalId(), "external-id");
+        assertEquals(signIn.getPassword(), "passwordValue");
+        assertEquals(signIn.getStudyId(), "studyValue");
+        assertEquals(signIn.getToken(), "tokenValue");
+        assertEquals(signIn.getPhone().getNumber(), TestConstants.PHONE.getNumber());
+        assertEquals(signIn.getPhone().getRegionCode(), TestConstants.PHONE.getRegionCode());
+        assertEquals(signIn.getReauthToken(), "reauthTokenValue");
     }
     
     @Test
@@ -106,11 +107,11 @@ public class SignInTest {
                 "'reauthToken':'reauthTokenValue'"+
                 "}"));
         SignIn signIn = BridgeObjectMapper.get().readValue(node.toString(), SignIn.class);
-        assertEquals("emailValue", signIn.getEmail());
-        assertEquals("passwordValue", signIn.getPassword());
-        assertEquals("studyValue", signIn.getStudyId());
-        assertEquals("tokenValue", signIn.getToken());
-        assertEquals("reauthTokenValue", signIn.getReauthToken());
+        assertEquals(signIn.getEmail(), "emailValue");
+        assertEquals(signIn.getPassword(), "passwordValue");
+        assertEquals(signIn.getStudyId(), "studyValue");
+        assertEquals(signIn.getToken(), "tokenValue");
+        assertEquals(signIn.getReauthToken(), "reauthTokenValue");
     }
     
     @Test
@@ -118,8 +119,8 @@ public class SignInTest {
         SignIn signIn = new SignIn.Builder().withStudy(TestConstants.TEST_STUDY_IDENTIFIER).withEmail("email")
                 .withPassword("password").build();
         AccountId accountId = signIn.getAccountId();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, accountId.getStudyId());
-        assertEquals("email", accountId.getEmail());
+        assertEquals(accountId.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(accountId.getEmail(), "email");
     }
     
     @Test
@@ -127,8 +128,8 @@ public class SignInTest {
         SignIn signIn = new SignIn.Builder().withStudy(TestConstants.TEST_STUDY_IDENTIFIER)
                 .withPhone(TestConstants.PHONE).withPassword("password").build();
         AccountId accountId = signIn.getAccountId();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, accountId.getStudyId());
-        assertEquals(TestConstants.PHONE.getNumber(), accountId.getPhone().getNumber());
+        assertEquals(accountId.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(accountId.getPhone().getNumber(), TestConstants.PHONE.getNumber());
     }
     
     @Test
@@ -136,8 +137,8 @@ public class SignInTest {
         SignIn signIn = new SignIn.Builder().withStudy(TestConstants.TEST_STUDY_IDENTIFIER)
                 .withExternalId("external-id").withPassword("password").build();
         AccountId accountId = signIn.getAccountId();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, accountId.getStudyId());
-        assertEquals("external-id", accountId.getExternalId());
+        assertEquals(accountId.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(accountId.getExternalId(), "external-id");
     }
     
     @Test
@@ -150,7 +151,7 @@ public class SignInTest {
             signIn.getAccountId();
             fail("Should have thrown an exception");
         } catch(IllegalArgumentException e) {
-            assertEquals("SignIn not constructed with enough information to retrieve an account", e.getMessage());
+            assertEquals(e.getMessage(), "SignIn not constructed with enough information to retrieve an account");
         }
     }
     
@@ -166,17 +167,17 @@ public class SignInTest {
                 .withReauthToken("reauthToken").build();
         
         SignIn copy = new SignIn.Builder().withSignIn(origin).build();
-        assertEquals(TestConstants.EMAIL, copy.getEmail());
-        assertEquals(TestConstants.PHONE, copy.getPhone());
-        assertEquals("externalId", copy.getExternalId());
-        assertEquals("password", copy.getPassword());
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, copy.getStudyId());
-        assertEquals("token", copy.getToken());
-        assertEquals("reauthToken", copy.getReauthToken());
+        assertEquals(copy.getEmail(), TestConstants.EMAIL);
+        assertEquals(copy.getPhone(), TestConstants.PHONE);
+        assertEquals(copy.getExternalId(), "externalId");
+        assertEquals(copy.getPassword(), "password");
+        assertEquals(copy.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(copy.getToken(), "token");
+        assertEquals(copy.getReauthToken(), "reauthToken");
         
         // Also test the straight email-to-email copy as well as the username copy
-        assertEquals("email", new SignIn.Builder().withSignIn(
+        assertEquals(new SignIn.Builder().withSignIn(
                 new SignIn.Builder().withEmail("email").build()
-            ).build().getEmail());
+            ).build().getEmail(), "email");
     }
 }

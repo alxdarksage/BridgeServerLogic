@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.models.reports;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
@@ -24,11 +24,11 @@ public class ReportDataKeyTest {
         ReportDataKey key = new ReportDataKey.Builder().withHealthCode("healthCode").withStudyIdentifier(TEST_STUDY)
                 .withReportType(ReportType.PARTICIPANT).withIdentifier("report").build();
 
-        assertEquals("healthCode:report:api", key.getKeyString());
-        assertEquals("api:PARTICIPANT", key.getIndexKeyString());
-        assertEquals("healthCode", key.getHealthCode());
-        assertEquals("report", key.getIdentifier());
-        assertEquals(ReportType.PARTICIPANT, key.getReportType());
+        assertEquals(key.getKeyString(), "healthCode:report:api");
+        assertEquals(key.getIndexKeyString(), "api:PARTICIPANT");
+        assertEquals(key.getHealthCode(), "healthCode");
+        assertEquals(key.getIdentifier(), "report");
+        assertEquals(key.getReportType(), ReportType.PARTICIPANT);
     }
     
     @Test
@@ -39,11 +39,11 @@ public class ReportDataKeyTest {
         
         // This was constructed, the date is valid. It's not part of the key, it's validated in the builder
         // so validation errors are combined with key validation errors.
-        assertEquals("report:api", key.getKeyString());
-        assertEquals("api:STUDY", key.getIndexKeyString());
+        assertEquals(key.getKeyString(), "report:api");
+        assertEquals(key.getIndexKeyString(), "api:STUDY");
         assertNull(key.getHealthCode());
-        assertEquals("report", key.getIdentifier());
-        assertEquals(ReportType.STUDY, key.getReportType());
+        assertEquals(key.getIdentifier(), "report");
+        assertEquals(key.getReportType(), ReportType.STUDY);
     }
 
     @Test
@@ -51,11 +51,11 @@ public class ReportDataKeyTest {
         ReportDataKey key = new ReportDataKey.Builder().withReportType(ReportType.PARTICIPANT)
                 .withStudyIdentifier(TEST_STUDY).withHealthCode("AAA").withIdentifier("report").build();
         
-        assertEquals("AAA:report:api", key.getKeyString());
-        assertEquals("api:PARTICIPANT", key.getIndexKeyString());
-        assertEquals("AAA", key.getHealthCode());
-        assertEquals("report", key.getIdentifier());
-        assertEquals(ReportType.PARTICIPANT, key.getReportType());
+        assertEquals(key.getKeyString(), "AAA:report:api");
+        assertEquals(key.getIndexKeyString(), "api:PARTICIPANT");
+        assertEquals(key.getHealthCode(), "AAA");
+        assertEquals(key.getIdentifier(), "report");
+        assertEquals(key.getReportType(), ReportType.PARTICIPANT);
     }
     
     @Test
@@ -66,10 +66,10 @@ public class ReportDataKeyTest {
                 .withReportType(ReportType.PARTICIPANT).withIdentifier("report").build();
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(key);
-        assertEquals("report", node.get("identifier").asText());
-        assertEquals("participant", node.get("reportType").asText());
-        assertEquals("ReportDataKey", node.get("type").asText());
-        assertEquals(3, node.size()); // no healthCode, no studyId.
+        assertEquals(node.get("identifier").asText(), "report");
+        assertEquals(node.get("reportType").asText(), "participant");
+        assertEquals(node.get("type").asText(), "ReportDataKey");
+        assertEquals(node.size(), 3); // no healthCode, no studyId.
     }
     
     // Validator test verify the key cannot be constructed in an invalid state.

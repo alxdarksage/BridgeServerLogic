@@ -1,9 +1,5 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.eq;
@@ -13,6 +9,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
@@ -26,16 +26,16 @@ import com.google.common.collect.Lists;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.GuidCreatedOnVersionHolder;
 import org.sagebionetworks.bridge.models.GuidCreatedOnVersionHolderImpl;
@@ -47,7 +47,6 @@ import org.sagebionetworks.bridge.models.surveys.SurveyQuestion;
 import org.sagebionetworks.bridge.models.upload.UploadSchema;
 import org.sagebionetworks.bridge.services.UploadSchemaService;
 
-@RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class DynamoSurveyDaoMockTest {
     private static final DateTime MOCK_NOW = DateTime.parse("2016-08-24T15:23:57.123-0700");
@@ -88,14 +87,15 @@ public class DynamoSurveyDaoMockTest {
     public static void mockNow() {
         DateTimeUtils.setCurrentMillisFixed(MOCK_NOW_MILLIS);
     }
-
+    
     @AfterClass
     public static void unmockNow() {
         DateTimeUtils.setCurrentMillisSystem();
     }
 
-    @Before
+    @BeforeMethod
     public void setup() {
+        MockitoAnnotations.initMocks(this);
         // set up survey
         survey = new DynamoSurvey(SURVEY_GUID, SURVEY_CREATED_ON);
         survey.setIdentifier(SURVEY_ID);
@@ -128,20 +128,20 @@ public class DynamoSurveyDaoMockTest {
 
         // Execute.
         String surveyGuid = surveyDao.getSurveyGuidForIdentifier(TestConstants.TEST_STUDY, SURVEY_ID);
-        assertEquals(SURVEY_GUID, surveyGuid);
+        assertEquals(surveyGuid, SURVEY_GUID);
 
         // Verify query.
         ArgumentCaptor<DynamoDBQueryExpression> queryCaptor = ArgumentCaptor.forClass(DynamoDBQueryExpression.class);
         verify(mockSurveyMapper).queryPage(eq(DynamoSurvey.class), queryCaptor.capture());
 
         DynamoDBQueryExpression<DynamoSurvey> query = queryCaptor.getValue();
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, query.getHashKeyValues().getStudyIdentifier());
+        assertEquals(query.getHashKeyValues().getStudyIdentifier(), TestConstants.TEST_STUDY_IDENTIFIER);
         assertFalse(query.isConsistentRead());
-        assertEquals(1, query.getLimit().intValue());
+        assertEquals(query.getLimit().intValue(), 1);
 
         Condition rangeKeyCondition = query.getRangeKeyConditions().get("identifier");
-        assertEquals(ComparisonOperator.EQ.toString(), rangeKeyCondition.getComparisonOperator());
-        assertEquals(SURVEY_ID, rangeKeyCondition.getAttributeValueList().get(0).getS());
+        assertEquals(rangeKeyCondition.getComparisonOperator(), ComparisonOperator.EQ.toString());
+        assertEquals(rangeKeyCondition.getAttributeValueList().get(0).getS(), SURVEY_ID);
     }
 
     @Test
@@ -170,7 +170,7 @@ public class DynamoSurveyDaoMockTest {
         survey.setName("New title");
         Survey updatedSurvey = surveyDao.updateSurvey(survey);
         
-        assertEquals("New title", updatedSurvey.getName());
+        assertEquals(updatedSurvey.getName(), "New title");
     }
     
     @Test
@@ -185,8 +185,8 @@ public class DynamoSurveyDaoMockTest {
         // execute and validate
         Survey retval = surveyDao.publishSurvey(TestConstants.TEST_STUDY, survey, true);
         assertTrue(retval.isPublished());
-        assertEquals(MOCK_NOW_MILLIS, retval.getModifiedOn());
-        assertEquals(SCHEMA_REV, retval.getSchemaRevision().intValue());
+        assertEquals(retval.getModifiedOn(), MOCK_NOW_MILLIS);
+        assertEquals(retval.getSchemaRevision().intValue(), SCHEMA_REV);
 
         verify(mockSurveyMapper).save(same(retval));
     }
@@ -204,7 +204,7 @@ public class DynamoSurveyDaoMockTest {
         // same test as above, except we *don't* call through to the upload schema DAO
         Survey retval = surveyDao.publishSurvey(TestConstants.TEST_STUDY, survey, true);
         assertTrue(retval.isPublished());
-        assertEquals(MOCK_NOW_MILLIS, retval.getModifiedOn());
+        assertEquals(retval.getModifiedOn(), MOCK_NOW_MILLIS);
         assertNull(retval.getSchemaRevision());
 
         verify(mockSurveyMapper).save(same(retval));
@@ -255,6 +255,6 @@ public class DynamoSurveyDaoMockTest {
 
         verify(mockSurveyMapper).save(surveyCaptor.capture());
         assertFalse(surveyCaptor.getValue().isDeleted());
-        assertEquals(1, surveyCaptor.getValue().getElements().size());
+        assertEquals(surveyCaptor.getValue().getElements().size(), 1);
     }
 }

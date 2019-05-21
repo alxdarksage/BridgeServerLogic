@@ -1,14 +1,15 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -32,7 +33,7 @@ public class GenericUploadFormatHandlerGetSchemaTest {
     private GenericUploadFormatHandler handler;
     private SurveyService mockSurveyService;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         UploadSchemaService mockSchemaService = mock(UploadSchemaService.class);
         when(mockSchemaService.getUploadSchemaByIdAndRev(TestConstants.TEST_STUDY, SCHEMA_ID, SCHEMA_REV)).thenReturn(
@@ -62,7 +63,7 @@ public class GenericUploadFormatHandlerGetSchemaTest {
 
         // execute and validate
         UploadSchema retVal = handler.getUploadSchema(TestConstants.TEST_STUDY, infoJsonNode);
-        assertSame(DUMMY_SCHEMA, retVal);
+        assertSame(retVal, DUMMY_SCHEMA);
     }
 
     @Test
@@ -86,8 +87,8 @@ public class GenericUploadFormatHandlerGetSchemaTest {
             handler.getUploadSchema(TestConstants.TEST_STUDY, infoJsonNode);
             fail("expected exception");
         } catch (UploadValidationException ex) {
-            assertEquals("Schema not found for survey " + SURVEY_GUID + ":" + SURVEY_CREATED_ON_MILLIS,
-                    ex.getMessage());
+            assertEquals(ex.getMessage(),
+                    "Schema not found for survey " + SURVEY_GUID + ":" + SURVEY_CREATED_ON_MILLIS);
         }
     }
 
@@ -100,7 +101,7 @@ public class GenericUploadFormatHandlerGetSchemaTest {
 
         // execute and validate
         UploadSchema retVal = handler.getUploadSchema(TestConstants.TEST_STUDY, infoJsonNode);
-        assertSame(DUMMY_SCHEMA, retVal);
+        assertSame(retVal, DUMMY_SCHEMA);
     }
 
     @Test
@@ -113,8 +114,8 @@ public class GenericUploadFormatHandlerGetSchemaTest {
             handler.getUploadSchema(TestConstants.TEST_STUDY, infoJsonNode);
             fail("expected exception");
         } catch (UploadValidationException ex) {
-            assertEquals("info.json must contain either item and schemaRevision or surveyGuid and surveyCreatedOn",
-                    ex.getMessage());
+            assertEquals(ex.getMessage(),
+                    "info.json must contain either item and schemaRevision or surveyGuid and surveyCreatedOn");
         }
     }
 }

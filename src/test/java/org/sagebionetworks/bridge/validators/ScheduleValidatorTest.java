@@ -1,15 +1,16 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
 import org.sagebionetworks.bridge.time.DateUtils;
@@ -25,7 +26,7 @@ public class ScheduleValidatorTest {
     private Schedule schedule;
     ScheduleValidator validator;
     
-    @Before
+    @BeforeMethod
     public void before() {
         schedule = new Schedule();
         validator = new ScheduleValidator(Sets.newHashSet("tapTest"));
@@ -173,7 +174,7 @@ public class ScheduleValidatorTest {
         schedule.setStartsOn(now);
         schedule.setEndsOn(now.plusHours(1));
         
-        assertEquals(ActivityType.TASK, schedule.getActivities().get(0).getActivityType());
+        assertEquals(schedule.getActivities().get(0).getActivityType(), ActivityType.TASK);
     }
     
     @Test

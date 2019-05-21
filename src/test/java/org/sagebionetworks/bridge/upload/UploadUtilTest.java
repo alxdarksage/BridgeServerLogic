@@ -1,10 +1,10 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.upload.UploadFieldDefinition;
@@ -58,8 +58,8 @@ public class UploadUtilTest {
             UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("field").withType(fieldType)
                     .build();
             UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(fieldDef));
-            assertEquals("bytes for " + fieldType, expectedBytes, fieldSize.getNumBytes());
-            assertEquals("columns for " + fieldType, 1, fieldSize.getNumColumns());
+            assertEquals(fieldSize.getNumBytes(), expectedBytes, "bytes for " + fieldType);
+            assertEquals(fieldSize.getNumColumns(), 1, "columns for " + fieldType);
         }
     }
 
@@ -67,8 +67,8 @@ public class UploadUtilTest {
     public void calculateFieldSizeNullType() {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("field").withType(null).build();
         UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(fieldDef));
-        assertEquals(0, fieldSize.getNumBytes());
-        assertEquals(0, fieldSize.getNumColumns());
+        assertEquals(fieldSize.getNumBytes(), 0);
+        assertEquals(fieldSize.getNumColumns(), 0);
     }
 
     @Test
@@ -80,42 +80,32 @@ public class UploadUtilTest {
             UploadFieldDefinition smallStringField = new UploadFieldDefinition.Builder().withName("small-field")
                     .withType(fieldType).withMaxLength(1).build();
             UploadFieldSize smallFieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(smallStringField));
-            assertEquals("small string field bytes for " + fieldType, 3,
-                    smallFieldSize.getNumBytes());
-            assertEquals("small string field columns for " + fieldType, 1,
-                    smallFieldSize.getNumColumns());
+            assertEquals(smallFieldSize.getNumBytes(), 3, "small string field bytes for " + fieldType);
+            assertEquals(smallFieldSize.getNumColumns(), 1, "small string field columns for " + fieldType);
 
             UploadFieldDefinition mediumStringField = new UploadFieldDefinition.Builder().withName("medium-field")
                     .withType(fieldType).withMaxLength(128).build();
             UploadFieldSize mediumFieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(mediumStringField));
-            assertEquals("medium string field bytes for " + fieldType, 384,
-                    mediumFieldSize.getNumBytes());
-            assertEquals("medium string field columns for " + fieldType, 1,
-                    mediumFieldSize.getNumColumns());
+            assertEquals(mediumFieldSize.getNumBytes(), 384, "medium string field bytes for " + fieldType);
+            assertEquals(mediumFieldSize.getNumColumns(), 1, "medium string field columns for " + fieldType);
 
             UploadFieldDefinition bigStringField = new UploadFieldDefinition.Builder().withName("big-field")
                     .withType(fieldType).withMaxLength(500).build();
             UploadFieldSize bigFieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(bigStringField));
-            assertEquals("big string field bytes for " + fieldType, 1500,
-                    bigFieldSize.getNumBytes());
-            assertEquals("big string field columns for " + fieldType, 1,
-                    bigFieldSize.getNumColumns());
+            assertEquals(bigFieldSize.getNumBytes(), 1500, "big string field bytes for " + fieldType);
+            assertEquals(bigFieldSize.getNumColumns(), 1, "big string field columns for " + fieldType);
 
             UploadFieldDefinition defaultStringField = new UploadFieldDefinition.Builder().withName("default-field")
                     .withType(fieldType).withMaxLength(null).build();
             UploadFieldSize defaultFieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(defaultStringField));
-            assertEquals("default string field bytes for " + fieldType, 300,
-                    defaultFieldSize.getNumBytes());
-            assertEquals("default string field columns for " + fieldType, 1,
-                    defaultFieldSize.getNumColumns());
+            assertEquals(defaultFieldSize.getNumBytes(), 300, "default string field bytes for " + fieldType);
+            assertEquals(defaultFieldSize.getNumColumns(), 1, "default string field columns for " + fieldType);
 
             UploadFieldDefinition unboundedStringField = new UploadFieldDefinition.Builder()
                     .withName("unbounded-field").withType(fieldType).withUnboundedText(true).build();
             UploadFieldSize unboundedFieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(unboundedStringField));
-            assertEquals("unbounded string field bytes for " + fieldType, 3000,
-                    unboundedFieldSize.getNumBytes());
-            assertEquals("unbounded string field columns for " + fieldType, 1,
-                    unboundedFieldSize.getNumColumns());
+            assertEquals(unboundedFieldSize.getNumBytes(), 3000, "unbounded string field bytes for " + fieldType);
+            assertEquals(unboundedFieldSize.getNumColumns(), 1, "unbounded string field columns for " + fieldType);
         }
     }
 
@@ -125,8 +115,8 @@ public class UploadUtilTest {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("field")
                 .withType(UploadFieldType.MULTI_CHOICE).withMultiChoiceAnswerList().build();
         UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(fieldDef));
-        assertEquals(0, fieldSize.getNumBytes());
-        assertEquals(0, fieldSize.getNumColumns());
+        assertEquals(fieldSize.getNumBytes(), 0);
+        assertEquals(fieldSize.getNumColumns(), 0);
     }
 
     @Test
@@ -134,8 +124,8 @@ public class UploadUtilTest {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("field")
                 .withType(UploadFieldType.MULTI_CHOICE).withMultiChoiceAnswerList("foo").build();
         UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(fieldDef));
-        assertEquals(5, fieldSize.getNumBytes());
-        assertEquals(1, fieldSize.getNumColumns());
+        assertEquals(fieldSize.getNumBytes(), 5);
+        assertEquals(fieldSize.getNumColumns(), 1);
     }
 
     @Test
@@ -144,8 +134,8 @@ public class UploadUtilTest {
                 .withType(UploadFieldType.MULTI_CHOICE)
                 .withMultiChoiceAnswerList("foo", "bar", "baz", "qwerty", "asdf").build();
         UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(fieldDef));
-        assertEquals(25, fieldSize.getNumBytes());
-        assertEquals(5, fieldSize.getNumColumns());
+        assertEquals(fieldSize.getNumBytes(), 25);
+        assertEquals(fieldSize.getNumColumns(), 5);
     }
 
     @Test
@@ -154,8 +144,8 @@ public class UploadUtilTest {
                 .withType(UploadFieldType.MULTI_CHOICE).withMultiChoiceAnswerList("foo", "bar")
                 .withAllowOtherChoices(true).build();
         UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(fieldDef));
-        assertEquals(3010, fieldSize.getNumBytes());
-        assertEquals(3, fieldSize.getNumColumns());
+        assertEquals(fieldSize.getNumBytes(), 3010);
+        assertEquals(fieldSize.getNumColumns(), 3);
     }
 
     @Test
@@ -163,8 +153,8 @@ public class UploadUtilTest {
         UploadFieldDefinition fieldDef = new UploadFieldDefinition.Builder().withName("field")
                 .withType(UploadFieldType.TIMESTAMP).build();
         UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(ImmutableList.of(fieldDef));
-        assertEquals(35, fieldSize.getNumBytes());
-        assertEquals(2, fieldSize.getNumColumns());
+        assertEquals(fieldSize.getNumBytes(), 35);
+        assertEquals(fieldSize.getNumColumns(), 2);
     }
 
     @Test
@@ -181,8 +171,8 @@ public class UploadUtilTest {
 
         // Execute and validate.
         UploadFieldSize fieldSize = UploadUtil.calculateFieldSize(fieldDefList);
-        assertEquals(3195, fieldSize.getNumBytes());
-        assertEquals(6, fieldSize.getNumColumns());
+        assertEquals(fieldSize.getNumBytes(), 3195);
+        assertEquals(fieldSize.getNumColumns(), 6);
     }
 
     @Test
@@ -342,16 +332,16 @@ public class UploadUtilTest {
             UploadFieldType fieldType = (UploadFieldType) oneTestCase[1];
 
             CanonicalizationResult result = UploadUtil.canonicalize(inputNode, fieldType);
-            assertEquals("Test case: " + inputNodeStr + " as " + fieldType.name(), oneTestCase[2],
-                    result.getCanonicalizedValueNode());
+            assertEquals(result.getCanonicalizedValueNode(), oneTestCase[2],
+                    "Test case: " + inputNodeStr + " as " + fieldType.name());
 
             boolean expectedIsValid = (boolean) oneTestCase[3];
             if (expectedIsValid) {
-                assertTrue("Test case: " + inputNodeStr + " as " + fieldType.name(), result.isValid());
-                assertNull("Test case: " + inputNodeStr + " as " + fieldType.name(), result.getErrorMessage());
+                assertTrue(result.isValid(), "Test case: " + inputNodeStr + " as " + fieldType.name());
+                assertNull(result.getErrorMessage(), "Test case: " + inputNodeStr + " as " + fieldType.name());
             } else {
-                assertFalse("Test case: " + inputNodeStr + " as " + fieldType.name(), result.isValid());
-                assertNotNull("Test case: " + inputNodeStr + " as " + fieldType.name(), result.getErrorMessage());
+                assertFalse(result.isValid(), "Test case: " + inputNodeStr + " as " + fieldType.name());
+                assertNotNull(result.getErrorMessage(), "Test case: " + inputNodeStr + " as " + fieldType.name());
             }
         }
     }
@@ -385,8 +375,8 @@ public class UploadUtilTest {
             String inputNodeStr = BridgeObjectMapper.get().writeValueAsString(inputNode);
 
             JsonNode result = UploadUtil.convertToStringNode(inputNode);
-            assertTrue("Test case: " + inputNodeStr, result.isTextual());
-            assertEquals("Test case: " + inputNodeStr, oneTestCase[1], result.textValue());
+            assertTrue(result.isTextual(), "Test case: " + inputNodeStr);
+            assertEquals(result.textValue(), oneTestCase[1], "Test case: " + inputNodeStr);
         }
 
         // arbitrary JSON object
@@ -398,7 +388,7 @@ public class UploadUtilTest {
             // We don't want to couple to a specific way of JSON formatting. So instead of string checking, convert the
             // string back into JSON and compare JSON directly.
             JsonNode resultNestedJson = BridgeObjectMapper.get().readTree(result.textValue());
-            assertEquals(inputNode, resultNestedJson);
+            assertEquals(resultNestedJson, inputNode);
         }
     }
 
@@ -423,7 +413,7 @@ public class UploadUtilTest {
             String inputNodeStr = BridgeObjectMapper.get().writeValueAsString(inputNode);
 
             String retVal = UploadUtil.getAsString(inputNode);
-            assertEquals("Test case: " + inputNodeStr, oneTestCase[1], retVal);
+            assertEquals(retVal, oneTestCase[1], "Test case: " + inputNodeStr);
         }
 
         // arbitrary JSON object
@@ -434,7 +424,7 @@ public class UploadUtilTest {
             // We don't want to couple to a specific way of JSON formatting. So instead of string checking, convert the
             // string back into JSON and compare JSON directly.
             JsonNode resultNestedJson = BridgeObjectMapper.get().readTree(retVal);
-            assertEquals(inputNode, resultNestedJson);
+            assertEquals(resultNestedJson, inputNode);
         }
     }
 
@@ -461,8 +451,8 @@ public class UploadUtilTest {
         };
 
         for (String oneTestCase : testCases) {
-            assertFalse(oneTestCase + " should be invalid answer choice", UploadUtil.isValidAnswerChoice(oneTestCase));
-            assertFalse(oneTestCase + " should be invalid field name", UploadUtil.isValidSchemaFieldName(oneTestCase));
+            assertFalse(UploadUtil.isValidAnswerChoice(oneTestCase), oneTestCase + " should be invalid answer choice");
+            assertFalse(UploadUtil.isValidSchemaFieldName(oneTestCase), oneTestCase + " should be invalid field name");
         }
     }
 
@@ -477,8 +467,8 @@ public class UploadUtilTest {
         };
 
         for (String oneTestCase : testCases) {
-            assertTrue(oneTestCase + " should be valid answer choice", UploadUtil.isValidAnswerChoice(oneTestCase));
-            assertFalse(oneTestCase + " should be invalid field name", UploadUtil.isValidSchemaFieldName(oneTestCase));
+            assertTrue(UploadUtil.isValidAnswerChoice(oneTestCase), oneTestCase + " should be valid answer choice");
+            assertFalse(UploadUtil.isValidSchemaFieldName(oneTestCase), oneTestCase + " should be invalid field name");
         }
     }
 
@@ -499,8 +489,8 @@ public class UploadUtilTest {
         };
 
         for (String oneTestCase : testCases) {
-            assertTrue(oneTestCase + " should be valid answer choice", UploadUtil.isValidAnswerChoice(oneTestCase));
-            assertTrue(oneTestCase + " should be valid field name", UploadUtil.isValidSchemaFieldName(oneTestCase));
+            assertTrue(UploadUtil.isValidAnswerChoice(oneTestCase), oneTestCase + " should be valid answer choice");
+            assertTrue(UploadUtil.isValidSchemaFieldName(oneTestCase), oneTestCase + " should be valid field name");
         }
     }
 
@@ -561,8 +551,8 @@ public class UploadUtilTest {
         };
 
         for (Object[] oneTestCase : testCases) {
-            assertEquals(oneTestCase[2], UploadUtil.isCompatibleFieldDef((UploadFieldDefinition) oneTestCase[0],
-                    (UploadFieldDefinition) oneTestCase[1]));
+            assertEquals(UploadUtil.isCompatibleFieldDef((UploadFieldDefinition) oneTestCase[0],
+                    (UploadFieldDefinition) oneTestCase[1]), oneTestCase[2]);
         }
     }
 
@@ -590,7 +580,7 @@ public class UploadUtilTest {
                 UploadFieldDefinition newFieldDef = new UploadFieldDefinition.Builder().withName("field")
                         .withType(UploadFieldType.MULTI_CHOICE).withMultiChoiceAnswerList("foo", "bar", "baz")
                         .withAllowOtherChoices(oneTestCase[1]).build();
-                assertEquals(oneTestCase[2], UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef));
+                assertEquals((Boolean)UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef), (Boolean)oneTestCase[2]);
             }
 
             // unboundedText
@@ -599,7 +589,7 @@ public class UploadUtilTest {
                         .withType(UploadFieldType.STRING).withUnboundedText(oneTestCase[0]).build();
                 UploadFieldDefinition newFieldDef = new UploadFieldDefinition.Builder().withName("field")
                         .withType(UploadFieldType.STRING).withUnboundedText(oneTestCase[1]).build();
-                assertEquals(oneTestCase[3], UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef));
+                assertEquals((Boolean)UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef), (Boolean)oneTestCase[3]);
             }
         }
     }
@@ -626,7 +616,7 @@ public class UploadUtilTest {
                     .withType(UploadFieldType.STRING).withMaxLength((Integer) oneTestCase[0]).build();
             UploadFieldDefinition newFieldDef = new UploadFieldDefinition.Builder().withName("field")
                     .withType(UploadFieldType.STRING).withMaxLength((Integer) oneTestCase[1]).build();
-            assertEquals(oneTestCase[2], UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef));
+            assertEquals(UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef), oneTestCase[2]);
         }
     }
 
@@ -652,7 +642,7 @@ public class UploadUtilTest {
                     .withType((UploadFieldType) oneTestCase[0]).withMaxLength(null).build();
             UploadFieldDefinition newFieldDef = new UploadFieldDefinition.Builder().withName("field")
                     .withType((UploadFieldType) oneTestCase[1]).withMaxLength((Integer) oneTestCase[2]).build();
-            assertEquals(oneTestCase[3], UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef));
+            assertEquals(UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef), oneTestCase[3]);
         }
     }
 
@@ -676,7 +666,7 @@ public class UploadUtilTest {
             UploadFieldDefinition newFieldDef = new UploadFieldDefinition.Builder().withName("field")
                     .withType(UploadFieldType.MULTI_CHOICE).withMultiChoiceAnswerList((List<String>) oneTestCase[1])
                     .build();
-            assertEquals(oneTestCase[2], UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef));
+            assertEquals(UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef), oneTestCase[2]);
         }
     }
 
@@ -696,7 +686,7 @@ public class UploadUtilTest {
                     .withType(UploadFieldType.INT).withRequired((boolean) oneTestCase[0]).build();
             UploadFieldDefinition newFieldDef = new UploadFieldDefinition.Builder().withName("field")
                     .withType(UploadFieldType.INT).withRequired((boolean) oneTestCase[1]).build();
-            assertEquals(oneTestCase[2], UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef));
+            assertEquals(UploadUtil.isCompatibleFieldDef(oldFieldDef, newFieldDef), oneTestCase[2]);
         }
     }
 
@@ -729,25 +719,25 @@ public class UploadUtilTest {
     @Test
     public void validCalendarDate() {
         LocalDate date = UploadUtil.parseIosCalendarDate("2015-12-25");
-        assertEquals(2015, date.getYear());
-        assertEquals(12, date.getMonthOfYear());
-        assertEquals(25, date.getDayOfMonth());
+        assertEquals(date.getYear(), 2015);
+        assertEquals(date.getMonthOfYear(), 12);
+        assertEquals(date.getDayOfMonth(), 25);
     }
 
     @Test
     public void timestampCalendarDate() {
         LocalDate date = UploadUtil.parseIosCalendarDate("2015-12-25T14:33-0800");
-        assertEquals(2015, date.getYear());
-        assertEquals(12, date.getMonthOfYear());
-        assertEquals(25, date.getDayOfMonth());
+        assertEquals(date.getYear(), 2015);
+        assertEquals(date.getMonthOfYear(), 12);
+        assertEquals(date.getDayOfMonth(), 25);
     }
 
     @Test
     public void truncatesIntoValidCalendarDate() {
         LocalDate date = UploadUtil.parseIosCalendarDate("2015-12-25 @ lunchtime");
-        assertEquals(2015, date.getYear());
-        assertEquals(12, date.getMonthOfYear());
-        assertEquals(25, date.getDayOfMonth());
+        assertEquals(date.getYear(), 2015);
+        assertEquals(date.getMonthOfYear(), 12);
+        assertEquals(date.getDayOfMonth(), 25);
     }
 
     @Test
@@ -785,7 +775,7 @@ public class UploadUtilTest {
         String timestampStr = "2015-08-26T23:54:04Z";
         long expectedMillis = DateTime.parse(timestampStr).getMillis();
         DateTime parsedTimestamp = UploadUtil.parseIosTimestamp(timestampStr);
-        assertEquals(expectedMillis, parsedTimestamp.getMillis());
+        assertEquals(parsedTimestamp.getMillis(), expectedMillis);
     }
 
     @Test
@@ -793,14 +783,14 @@ public class UploadUtilTest {
         String timestampStr = "2015-08-26T16:54:04-07:00";
         long expectedMillis = DateTime.parse(timestampStr).getMillis();
         DateTime parsedTimestamp = UploadUtil.parseIosTimestamp(timestampStr);
-        assertEquals(expectedMillis, parsedTimestamp.getMillis());
+        assertEquals(parsedTimestamp.getMillis(), expectedMillis);
     }
 
     @Test
     public void iosTimestamp() {
         long expectedMillis = DateTime.parse("2015-08-26T16:54:04-07:00").getMillis();
         DateTime parsedTimestamp = UploadUtil.parseIosTimestamp("2015-08-26 16:54:04 -0700");
-        assertEquals(expectedMillis, parsedTimestamp.getMillis());
+        assertEquals(parsedTimestamp.getMillis(), expectedMillis);
     }
 
     @Test
@@ -813,8 +803,8 @@ public class UploadUtilTest {
 
         // Execute and validate.
         Map<String, String> outputMap = UploadUtil.sanitizeFieldNames(inputMap);
-        assertEquals(2, outputMap.size());
-        assertEquals("bar", outputMap.get("foo"));
-        assertEquals("sanitize this's value", outputMap.get("sanitize____this"));
+        assertEquals(outputMap.size(), 2);
+        assertEquals(outputMap.get("foo"), "bar");
+        assertEquals(outputMap.get("sanitize____this"), "sanitize this's value");
     }
 }

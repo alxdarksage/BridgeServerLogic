@@ -1,12 +1,12 @@
 package org.sagebionetworks.bridge.models.reports;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -21,16 +21,16 @@ public class ReportIndexTest {
         index.setSubstudyIds(TestConstants.USER_SUBSTUDY_IDS);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(index);
-        assertEquals("asdf", node.get("identifier").textValue());
-        assertEquals("ReportIndex", node.get("type").textValue());
+        assertEquals(node.get("identifier").textValue(), "asdf");
+        assertEquals(node.get("type").textValue(), "ReportIndex");
         assertTrue(node.get("public").booleanValue());
-        assertEquals("substudyA", node.get("substudyIds").get(0).textValue());
-        assertEquals("substudyB", node.get("substudyIds").get(1).textValue());
-        assertEquals(4, node.size());
+        assertEquals(node.get("substudyIds").get(0).textValue(), "substudyA");
+        assertEquals(node.get("substudyIds").get(1).textValue(), "substudyB");
+        assertEquals(node.size(), 4);
         
         ReportIndex deser = BridgeObjectMapper.get().readValue(node.toString(), ReportIndex.class);
-        assertEquals("asdf", deser.getIdentifier());
+        assertEquals(deser.getIdentifier(), "asdf");
         assertTrue(deser.isPublic());
-        assertEquals(TestConstants.USER_SUBSTUDY_IDS, deser.getSubstudyIds());
+        assertEquals(deser.getSubstudyIds(), TestConstants.USER_SUBSTUDY_IDS);
     }
 }

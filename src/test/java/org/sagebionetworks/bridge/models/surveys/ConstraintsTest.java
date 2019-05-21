@@ -1,9 +1,10 @@
 package org.sagebionetworks.bridge.models.surveys;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 
 public class ConstraintsTest {
@@ -20,7 +21,7 @@ public class ConstraintsTest {
         constraints.setLatestValue(DateTime.parse("2015-12-31T10:10:10-07:00"));
 
         String json = BridgeObjectMapper.get().writeValueAsString(constraints);
-        assertEquals(json.indexOf("\"dataType\""), json.lastIndexOf("\"dataType\""));
+        assertEquals(json.lastIndexOf("\"dataType\""), json.indexOf("\"dataType\""));
     }
 
 }

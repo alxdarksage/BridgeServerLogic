@@ -1,17 +1,17 @@
 package org.sagebionetworks.bridge.models.schedules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -60,7 +60,7 @@ public class CriteriaScheduleStrategyTest {
     
     private CriteriaScheduleStrategy strategy;
     
-    @Before
+    @BeforeMethod
     public void before() {
         strategy = new CriteriaScheduleStrategy();
         PLAN.setStrategy(strategy);
@@ -81,19 +81,19 @@ public class CriteriaScheduleStrategyTest {
         String json = mapper.writeValueAsString(strategy);
         JsonNode node = mapper.readTree(json);
 
-        assertEquals("CriteriaScheduleStrategy", node.get("type").asText());
+        assertEquals(node.get("type").asText(), "CriteriaScheduleStrategy");
         assertNotNull(node.get("scheduleCriteria"));
         
         ArrayNode array = (ArrayNode)node.get("scheduleCriteria");
         JsonNode schCriteria1 = array.get(0);
-        assertEquals("ScheduleCriteria", schCriteria1.get("type").asText());
+        assertEquals(schCriteria1.get("type").asText(), "ScheduleCriteria");
         
         JsonNode criteriaNode = schCriteria1.get("criteria");
         
         JsonNode minVersionsNode = criteriaNode.get("minAppVersions");
-        assertEquals(4, minVersionsNode.get(OperatingSystem.IOS).asInt());
+        assertEquals(minVersionsNode.get(OperatingSystem.IOS).asInt(), 4);
         JsonNode maxVersionsNode = criteriaNode.get("maxAppVersions");
-        assertEquals(12, maxVersionsNode.get(OperatingSystem.IOS).asInt());
+        assertEquals(maxVersionsNode.get(OperatingSystem.IOS).asInt(), 12);
         
         assertNotNull(criteriaNode.get("allOfGroups"));
         assertNotNull(criteriaNode.get("noneOfGroups"));
@@ -116,7 +116,7 @@ public class CriteriaScheduleStrategyTest {
         
         // But mostly, if this isn't all serialized, and then deserialized, these won't be equal
         CriteriaScheduleStrategy newStrategy = mapper.readValue(json, CriteriaScheduleStrategy.class);
-        assertEquals(strategy, newStrategy);
+        assertEquals(newStrategy, strategy);
     }
     
     @Test
@@ -126,11 +126,11 @@ public class CriteriaScheduleStrategyTest {
         
         // First returned because context has no version info
         Schedule schedule = getScheduleFromStrategy(ClientInfo.UNKNOWN_CLIENT);
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_APP_VERSIONS, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_APP_VERSIONS);
         
         // Context version info outside minimum range of first criteria, last one returned
         schedule = getScheduleFromStrategy(CLIENT_INFO);
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
     }
     
     @Test
@@ -140,11 +140,11 @@ public class CriteriaScheduleStrategyTest {
         
         // First one is returned because client has no version info
         Schedule schedule = getScheduleFromStrategy(ClientInfo.UNKNOWN_CLIENT);
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_APP_VERSIONS, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_APP_VERSIONS);
         
         // Context version info outside maximum range of first criteria, last one returned
         schedule = getScheduleFromStrategy(CLIENT_INFO);
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
     }
     
     @Test
@@ -154,11 +154,11 @@ public class CriteriaScheduleStrategyTest {
         
         // context has a group required by first group, it's returned
         Schedule schedule = getScheduleFromStrategy(Sets.newHashSet("group1"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_ONE_REQUIRED_DATA_GROUP, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_ONE_REQUIRED_DATA_GROUP);
         
         // context does not have a required group, last one returned
         schedule = getScheduleFromStrategy(Sets.newHashSet("someRandomToken"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
     }
     
     @Test
@@ -168,15 +168,15 @@ public class CriteriaScheduleStrategyTest {
         
         // context has all the required groups so the first one is returned
         Schedule schedule = getScheduleFromStrategy(Sets.newHashSet("group1","group2","group3"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_REQUIRED_DATA_GROUPS, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_REQUIRED_DATA_GROUPS);
         
         // context does not have *any* the required groups, last one returned
         schedule = getScheduleFromStrategy(Sets.newHashSet("someRandomToken"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
         
         // context does not have *all* the required groups, last one returned
         schedule = getScheduleFromStrategy(Sets.newHashSet("group1"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
     }
     
     @Test
@@ -186,11 +186,11 @@ public class CriteriaScheduleStrategyTest {
         
         // Group not prohibited so first schedule returned
         Schedule schedule = getScheduleFromStrategy(Sets.newHashSet("groupNotProhibited"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_ONE_PROHIBITED_DATA_GROUP, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_ONE_PROHIBITED_DATA_GROUP);
         
         // this group is prohibited so second schedule is returned
         schedule = getScheduleFromStrategy(Sets.newHashSet("group1"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
     }
     
     @Test
@@ -200,15 +200,15 @@ public class CriteriaScheduleStrategyTest {
         
         // context has a prohibited group, so the last schedule is returned
         Schedule schedule = getScheduleFromStrategy(Sets.newHashSet("group1"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
         
         // context has one of the prohibited groups, same thing
         schedule = getScheduleFromStrategy(Sets.newHashSet("foo","group1"));
-        assertEquals(SCHEDULE_FOR_STRATEGY_NO_CRITERIA, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_NO_CRITERIA);
         
         // context has no prohibited groups, first schedule is returned
         schedule = getScheduleFromStrategy(Sets.newHashSet());
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_PROHIBITED_DATA_GROUPS, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_PROHIBITED_DATA_GROUPS);
     }
     
     @Test
@@ -241,7 +241,7 @@ public class CriteriaScheduleStrategyTest {
         // and the second because the user does not have a required data group. The last ScheduleCriteria 
         // matches and returns the last schedule in the list
         Schedule schedule = strategy.getScheduleForUser(PLAN, context);
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_PROHIBITED_DATA_GROUPS, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_PROHIBITED_DATA_GROUPS);
     }
     
     @Test
@@ -257,7 +257,7 @@ public class CriteriaScheduleStrategyTest {
         
         // Matches the first schedule, not the second schedule (although it also matches)
         Schedule schedule = strategy.getScheduleForUser(PLAN, context);
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_ALL_REQUIREMENTS, schedule);
+        assertEquals(schedule, SCHEDULE_FOR_STRATEGY_WITH_ALL_REQUIREMENTS);
     }
 
     @Test
@@ -267,10 +267,10 @@ public class CriteriaScheduleStrategyTest {
         setUpStrategyWithProhibitedDataGroups();
 
         List<Schedule> schedules = strategy.getAllPossibleSchedules();
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_APP_VERSIONS, schedules.get(0));
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_ONE_REQUIRED_DATA_GROUP, schedules.get(1));
-        assertEquals(SCHEDULE_FOR_STRATEGY_WITH_PROHIBITED_DATA_GROUPS, schedules.get(2));
-        assertEquals(3, schedules.size());
+        assertEquals(schedules.get(0), SCHEDULE_FOR_STRATEGY_WITH_APP_VERSIONS);
+        assertEquals(schedules.get(1), SCHEDULE_FOR_STRATEGY_WITH_ONE_REQUIRED_DATA_GROUP);
+        assertEquals(schedules.get(2), SCHEDULE_FOR_STRATEGY_WITH_PROHIBITED_DATA_GROUPS);
+        assertEquals(schedules.size(), 3);
     }
     
     @Test
@@ -358,7 +358,8 @@ public class CriteriaScheduleStrategyTest {
             Validate.entityThrowingException(VALIDATOR, PLAN);
             fail("Should have thrown exception");
         } catch(InvalidEntityException e) {
-            assertEquals("strategy.scheduleCriteria[0].schedule is required", e.getErrors().get("strategy.scheduleCriteria[0].schedule").get(0));
+            assertEquals(e.getErrors().get("strategy.scheduleCriteria[0].schedule").get(0),
+                    "strategy.scheduleCriteria[0].schedule is required");
         }
     }
     
@@ -377,12 +378,13 @@ public class CriteriaScheduleStrategyTest {
             Validate.entityThrowingException(VALIDATOR, PLAN);
             fail("Should have thrown exception");
         } catch(InvalidEntityException e) {
-            assertEquals("strategy.scheduleCriteria[0].criteria is required", e.getErrors().get("strategy.scheduleCriteria[0].criteria").get(0));
+            assertEquals(e.getErrors().get("strategy.scheduleCriteria[0].criteria").get(0),
+                    "strategy.scheduleCriteria[0].criteria is required");
         }
     }
     
     private void assertError(InvalidEntityException e, String fieldName, int index, String errorMsg) {
-        assertEquals(fieldName+errorMsg, e.getErrors().get(fieldName).get(index));
+        assertEquals(e.getErrors().get(fieldName).get(index), fieldName+errorMsg);
     }
     
     private Set<String> arrayToSet(JsonNode array) {

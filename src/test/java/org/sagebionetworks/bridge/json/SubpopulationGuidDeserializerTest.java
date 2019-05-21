@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.models.accounts.ConsentStatus;
@@ -38,7 +38,7 @@ public class SubpopulationGuidDeserializerTest {
 
         JsonNode consentNode = node.get("foo5");
         ConsentStatus consent5 = mapper.readValue(consentNode.toString(), ConsentStatus.class);
-        assertEquals(TestConstants.REQUIRED_UNSIGNED, consent5);
+        assertEquals(consent5, TestConstants.REQUIRED_UNSIGNED);
         
         // Test deserialization in a class that has the annotation to restore the SubpopulationGuid key
         MapTest mapTest = new MapTest();
@@ -46,7 +46,7 @@ public class SubpopulationGuidDeserializerTest {
         
         MapTest deserializedMapTest = mapper.readValue(mapper.writeValueAsString(mapTest), MapTest.class);
         
-        assertEquals(map, deserializedMapTest.getConsentStatuses());
+        assertEquals(deserializedMapTest.getConsentStatuses(), map);
     }
     
     private static class MapTest {

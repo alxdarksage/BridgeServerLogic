@@ -1,8 +1,9 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.dynamodb.DynamoExternalIdentifier;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -23,12 +24,12 @@ public class HibernateAccountSubstudyTest {
         // not yet used, but coming very shortly
         accountSubstudy.setExternalId("externalId");
         
-        assertEquals("studyId", accountSubstudy.getStudyId());
-        assertEquals("substudyId", accountSubstudy.getSubstudyId());
-        assertEquals("accountId", accountSubstudy.getAccountId());
-        assertEquals("externalId", accountSubstudy.getExternalId());
+        assertEquals(accountSubstudy.getStudyId(), "studyId");
+        assertEquals(accountSubstudy.getSubstudyId(), "substudyId");
+        assertEquals(accountSubstudy.getAccountId(), "accountId");
+        assertEquals(accountSubstudy.getExternalId(), "externalId");
         
         accountSubstudy.setSubstudyId("newSubstudyId");
-        assertEquals("newSubstudyId", accountSubstudy.getSubstudyId());
+        assertEquals(accountSubstudy.getSubstudyId(), "newSubstudyId");
     }
 }

@@ -1,12 +1,13 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.testng.annotations.Test;
 
-import org.junit.Test;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.subpopulations.SubpopulationGuid;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,18 +50,18 @@ public class UserConsentHistoryTest {
         JsonNode node = BridgeObjectMapper.get().readTree(json);
         
         assertNull(node.get("healthCode"));
-        assertEquals("BBB", node.get("subpopulationGuid").asText());
-        assertEquals("2015-10-29T16:29:24.293Z", node.get("consentCreatedOn").asText());
-        assertEquals("image/png", node.get("imageMimeType").asText());
-        assertEquals("2015-10-29T16:29:42.504Z", node.get("signedOn").asText());
-        assertEquals("2015-10-29T16:29:56.168Z", node.get("withdrewOn").asText());
-        assertEquals(true, node.get("hasSignedActiveConsent").asBoolean());
-        assertEquals("UserConsentHistory", node.get("type").asText());
+        assertEquals(node.get("subpopulationGuid").asText(), "BBB");
+        assertEquals(node.get("consentCreatedOn").asText(), "2015-10-29T16:29:24.293Z");
+        assertEquals(node.get("imageMimeType").asText(), "image/png");
+        assertEquals(node.get("signedOn").asText(), "2015-10-29T16:29:42.504Z");
+        assertEquals(node.get("withdrewOn").asText(), "2015-10-29T16:29:56.168Z");
+        assertEquals(node.get("hasSignedActiveConsent").asBoolean(), true);
+        assertEquals(node.get("type").asText(), "UserConsentHistory");
         
         // This has to be added for the deserialized version to be equal to original
         ((ObjectNode)node).put("healthCode", "AAA");
         
         UserConsentHistory newHistory = BridgeObjectMapper.get().readValue(node.toString(), UserConsentHistory.class);
-        assertEquals(history, newHistory);
+        assertEquals(newHistory, history);
     }
 }

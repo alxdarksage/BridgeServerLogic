@@ -1,15 +1,16 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.exceptions.InvalidEntityException;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -36,7 +37,7 @@ public class HibernateSharedModuleMetadataTest {
         SharedModuleMetadata metadata = SharedModuleMetadata.create();
         metadata.setSchemaId(SCHEMA_ID);
         metadata.setSchemaRevision(SCHEMA_REV);
-        assertEquals(SharedModuleType.SCHEMA, metadata.getModuleType());
+        assertEquals(metadata.getModuleType(), SharedModuleType.SCHEMA);
     }
 
     @Test
@@ -44,10 +45,10 @@ public class HibernateSharedModuleMetadataTest {
         SharedModuleMetadata metadata = SharedModuleMetadata.create();
         metadata.setSurveyCreatedOn(SURVEY_CREATED_ON_MILLIS);
         metadata.setSurveyGuid(SURVEY_GUID);
-        assertEquals(SharedModuleType.SURVEY, metadata.getModuleType());
+        assertEquals(metadata.getModuleType(), SharedModuleType.SURVEY);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expectedExceptions = InvalidEntityException.class)
     public void getModuleTypeNeither() {
         SharedModuleMetadata.create().getModuleType();
     }
@@ -61,7 +62,7 @@ public class HibernateSharedModuleMetadataTest {
 
         // set the tags
         metadata.setTags(ImmutableSet.of("foo", "bar", "baz"));
-        assertEquals(ImmutableSet.of("foo", "bar", "baz"), metadata.getTags());
+        assertEquals(metadata.getTags(), ImmutableSet.of("foo", "bar", "baz"));
 
         // Set tag set to null. It should come back as empty.
         metadata.setTags(null);
@@ -87,42 +88,42 @@ public class HibernateSharedModuleMetadataTest {
 
         // Convert to POJO
         SharedModuleMetadata metadata = BridgeObjectMapper.get().readValue(jsonText, SharedModuleMetadata.class);
-        assertEquals(MODULE_ID, metadata.getId());
+        assertEquals(metadata.getId(), MODULE_ID);
         assertTrue(metadata.isLicenseRestricted());
-        assertEquals(MODULE_NAME, metadata.getName());
-        assertEquals(MODULE_NOTES, metadata.getNotes());
-        assertEquals(MODULE_OS, metadata.getOs());
+        assertEquals(metadata.getName(), MODULE_NAME);
+        assertEquals(metadata.getNotes(), MODULE_NOTES);
+        assertEquals(metadata.getOs(), MODULE_OS);
         assertTrue(metadata.isPublished());
-        assertEquals(SCHEMA_ID, metadata.getSchemaId());
-        assertEquals(SCHEMA_REV, metadata.getSchemaRevision().intValue());
-        assertEquals(MODULE_TAGS, metadata.getTags());
+        assertEquals(metadata.getSchemaId(), SCHEMA_ID);
+        assertEquals(metadata.getSchemaRevision().intValue(), SCHEMA_REV);
+        assertEquals(metadata.getTags(), MODULE_TAGS);
         assertFalse(metadata.isDeleted());
-        assertEquals(MODULE_VERSION, metadata.getVersion());
+        assertEquals(metadata.getVersion(), MODULE_VERSION);
 
         // Convert back to JSON
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(metadata, JsonNode.class);
-        assertEquals(13, jsonNode.size());
-        assertEquals(MODULE_ID, jsonNode.get("id").textValue());
+        assertEquals(jsonNode.size(), 13);
+        assertEquals(jsonNode.get("id").textValue(), MODULE_ID);
         assertTrue(jsonNode.get("licenseRestricted").booleanValue());
-        assertEquals(MODULE_NAME, jsonNode.get("name").textValue());
-        assertEquals(MODULE_NOTES, jsonNode.get("notes").textValue());
-        assertEquals(MODULE_OS, jsonNode.get("os").textValue());
+        assertEquals(jsonNode.get("name").textValue(), MODULE_NAME);
+        assertEquals(jsonNode.get("notes").textValue(), MODULE_NOTES);
+        assertEquals(jsonNode.get("os").textValue(), MODULE_OS);
         assertTrue(jsonNode.get("published").booleanValue());
-        assertEquals(SCHEMA_ID, jsonNode.get("schemaId").textValue());
-        assertEquals(SCHEMA_REV, jsonNode.get("schemaRevision").intValue());
-        assertEquals(MODULE_VERSION, jsonNode.get("version").intValue());
-        assertEquals("schema", jsonNode.get("moduleType").textValue());
+        assertEquals(jsonNode.get("schemaId").textValue(), SCHEMA_ID);
+        assertEquals(jsonNode.get("schemaRevision").intValue(), SCHEMA_REV);
+        assertEquals(jsonNode.get("version").intValue(), MODULE_VERSION);
+        assertEquals(jsonNode.get("moduleType").textValue(), "schema");
         assertFalse(jsonNode.get("deleted").booleanValue());
-        assertEquals("SharedModuleMetadata", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.get("type").textValue(), "SharedModuleMetadata");
 
         JsonNode tagsNode = jsonNode.get("tags");
-        assertEquals(3, tagsNode.size());
+        assertEquals(tagsNode.size(), 3);
         Set<String> jsonNodeTags = new HashSet<>();
         for (int i = 0; i < 3; i++) {
             String oneTag = tagsNode.get(i).textValue();
             jsonNodeTags.add(oneTag);
         }
-        assertEquals(MODULE_TAGS, jsonNodeTags);
+        assertEquals(jsonNodeTags, MODULE_TAGS);
     }
 
     @Test
@@ -139,28 +140,28 @@ public class HibernateSharedModuleMetadataTest {
 
         // Convert to POJO - Test only the fields we set, so that we don't have exploding tests.
         SharedModuleMetadata metadata = BridgeObjectMapper.get().readValue(jsonText, SharedModuleMetadata.class);
-        assertEquals(MODULE_ID, metadata.getId());
-        assertEquals(MODULE_NAME, metadata.getName());
-        assertEquals(SURVEY_CREATED_ON_MILLIS, metadata.getSurveyCreatedOn().longValue());
-        assertEquals(SURVEY_GUID, metadata.getSurveyGuid());
-        assertEquals(MODULE_VERSION, metadata.getVersion());
+        assertEquals(metadata.getId(), MODULE_ID);
+        assertEquals(metadata.getName(), MODULE_NAME);
+        assertEquals(metadata.getSurveyCreatedOn().longValue(), SURVEY_CREATED_ON_MILLIS);
+        assertEquals(metadata.getSurveyGuid(), SURVEY_GUID);
+        assertEquals(metadata.getVersion(), MODULE_VERSION);
 
         // Convert back to JSON. licenseRestricted and published default to false. tags defaults to empty set.
         JsonNode jsonNode = BridgeObjectMapper.get().convertValue(metadata, JsonNode.class);
-        assertEquals(11, jsonNode.size());
-        assertEquals(MODULE_ID, jsonNode.get("id").textValue());
+        assertEquals(jsonNode.size(), 11);
+        assertEquals(jsonNode.get("id").textValue(), MODULE_ID);
         assertFalse(jsonNode.get("licenseRestricted").booleanValue());
-        assertEquals(MODULE_NAME, jsonNode.get("name").textValue());
+        assertEquals(jsonNode.get("name").textValue(), MODULE_NAME);
         assertFalse(jsonNode.get("published").booleanValue());
-        assertEquals(SURVEY_GUID, jsonNode.get("surveyGuid").textValue());
+        assertEquals(jsonNode.get("surveyGuid").textValue(), SURVEY_GUID);
         assertTrue(jsonNode.get("tags").isArray());
-        assertEquals(0, jsonNode.get("tags").size());
-        assertEquals(MODULE_VERSION, jsonNode.get("version").intValue());
-        assertEquals("survey", jsonNode.get("moduleType").textValue());
+        assertEquals(jsonNode.get("tags").size(), 0);
+        assertEquals(jsonNode.get("version").intValue(), MODULE_VERSION);
+        assertEquals(jsonNode.get("moduleType").textValue(), "survey");
         assertTrue(jsonNode.get("deleted").booleanValue());
-        assertEquals("SharedModuleMetadata", jsonNode.get("type").textValue());
+        assertEquals(jsonNode.get("type").textValue(), "SharedModuleMetadata");
 
         String surveyCreatedOnString = jsonNode.get("surveyCreatedOn").textValue();
-        assertEquals(SURVEY_CREATED_ON_MILLIS, DateUtils.convertToMillisFromEpoch(surveyCreatedOnString));
+        assertEquals(DateUtils.convertToMillisFromEpoch(surveyCreatedOnString), SURVEY_CREATED_ON_MILLIS);
     }
 }

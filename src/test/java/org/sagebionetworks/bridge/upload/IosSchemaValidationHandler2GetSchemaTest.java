@@ -1,18 +1,19 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.testng.Assert.assertSame;
 
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.dynamodb.DynamoSurvey;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.GuidCreatedOnVersionHolderImpl;
@@ -59,11 +60,11 @@ public class IosSchemaValidationHandler2GetSchemaTest {
 
         // execute and validate
         UploadSchema retVal = handler.getUploadSchema(TEST_STUDY, infoJson);
-        assertSame(dummySchema, retVal);
+        assertSame(retVal, dummySchema);
     }
 
     // branch coverage: survey with no identifier
-    @Test(expected = UploadValidationException.class)
+    @Test(expectedExceptions = UploadValidationException.class)
     public void surveyWithNoIdentifier() throws Exception {
         // mock survey service
         DynamoSurvey survey = new DynamoSurvey();
@@ -89,7 +90,7 @@ public class IosSchemaValidationHandler2GetSchemaTest {
     }
 
     // branch coverage: survey with no schema rev
-    @Test(expected = UploadValidationException.class)
+    @Test(expectedExceptions = UploadValidationException.class)
     public void surveyWithNoSchemaRev() throws Exception {
         // mock survey service
         DynamoSurvey survey = new DynamoSurvey();
@@ -133,7 +134,7 @@ public class IosSchemaValidationHandler2GetSchemaTest {
 
         // execute and validate
         UploadSchema retVal = handler.getUploadSchema(TEST_STUDY, infoJson);
-        assertSame(dummySchema, retVal);
+        assertSame(retVal, dummySchema);
     }
 
     @Test
@@ -155,7 +156,7 @@ public class IosSchemaValidationHandler2GetSchemaTest {
 
         // execute and validate
         UploadSchema retVal = handler.getUploadSchema(TEST_STUDY, infoJson);
-        assertSame(dummySchema, retVal);
+        assertSame(retVal, dummySchema);
     }
 
     @Test
@@ -178,7 +179,7 @@ public class IosSchemaValidationHandler2GetSchemaTest {
 
         // execute and validate
         UploadSchema retVal = handler.getUploadSchema(TEST_STUDY, infoJson);
-        assertSame(dummySchema, retVal);
+        assertSame(retVal, dummySchema);
     }
 
     @Test
@@ -200,11 +201,11 @@ public class IosSchemaValidationHandler2GetSchemaTest {
 
         // execute and validate
         UploadSchema retVal = handler.getUploadSchema(TEST_STUDY, infoJson);
-        assertSame(dummySchema, retVal);
+        assertSame(retVal, dummySchema);
     }
 
     // branch coverage: no item or survey
-    @Test(expected = UploadValidationException.class)
+    @Test(expectedExceptions = UploadValidationException.class)
     public void missingItemOrSurvey() throws Exception {
         new IosSchemaValidationHandler2().getUploadSchema(TEST_STUDY,
                 BridgeObjectMapper.get().createObjectNode());

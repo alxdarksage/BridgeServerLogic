@@ -1,6 +1,6 @@
 package org.sagebionetworks.bridge.validators;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
 import org.springframework.validation.MapBindingResult;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.upload.UploadFieldDefinition;
 import org.sagebionetworks.bridge.models.upload.UploadFieldType;
@@ -124,10 +124,10 @@ public class UploadFieldDefinitionListValidatorTest {
         MapBindingResult errors = new MapBindingResult(new HashMap<>(), "UploadFieldDefinitionList");
         UploadFieldDefinitionListValidator.INSTANCE.validate(fieldDefList, errors, FIELD_LIST_ATTR_NAME);
 
-        assertEquals(hasError, errors.hasErrors());
+        assertEquals(errors.hasErrors(), hasError);
         if (hasError) {
             Map<String, List<String>> errorMap = Validate.convertErrorsToSimpleMap(errors);
-            assertEquals(fieldName + " " + errorMessage, errorMap.get(fieldName).get(0));
+            assertEquals(errorMap.get(fieldName).get(0), fieldName + " " + errorMessage);
         }
     }
 

@@ -5,8 +5,9 @@ import static org.sagebionetworks.bridge.TestUtils.assertValidatorMessage;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.models.surveys.MultiValueConstraints;
 import org.sagebionetworks.bridge.models.surveys.Survey;
@@ -23,7 +24,7 @@ public class SurveyPublishValidatorTest {
 
     private SurveyPublishValidator validator;
 
-    @Before
+    @BeforeMethod
     public void before() {
         survey = new TestSurvey(SurveySaveValidatorTest.class, true);
         // because this is set by the service before validation

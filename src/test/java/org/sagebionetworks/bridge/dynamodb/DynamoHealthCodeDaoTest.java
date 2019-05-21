@@ -1,22 +1,20 @@
 package org.sagebionetworks.bridge.dynamodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DynamoHealthCodeDaoTest {
 
     @Mock
@@ -27,8 +25,9 @@ public class DynamoHealthCodeDaoTest {
     
     private DynamoHealthCodeDao healthCodeDao;
     
-    @Before
+    @BeforeMethod
     public void before() {
+        MockitoAnnotations.initMocks(this);
         healthCodeDao = new DynamoHealthCodeDao();
         healthCodeDao.setMapper(mapper);
     }
@@ -46,8 +45,8 @@ public class DynamoHealthCodeDaoTest {
         
         verify(mapper).load(codeCaptor.capture());
         
-        assertEquals("studyId", result);
-        assertEquals("healthCode", codeCaptor.getValue().getCode());
+        assertEquals(result, "studyId");
+        assertEquals(codeCaptor.getValue().getCode(), "healthCode");
     }
     
     @Test

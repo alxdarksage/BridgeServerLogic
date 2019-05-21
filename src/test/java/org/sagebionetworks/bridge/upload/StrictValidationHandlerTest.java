@@ -1,11 +1,11 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,8 +17,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dynamodb.DynamoStudy;
 import org.sagebionetworks.bridge.dynamodb.DynamoUpload2;
@@ -38,7 +39,7 @@ public class StrictValidationHandlerTest {
     private UploadValidationContext context;
     private StrictValidationHandler handler;
 
-    @Before
+    @BeforeMethod
     public void setup() {
         handler = new StrictValidationHandler();
 
@@ -122,7 +123,7 @@ public class StrictValidationHandlerTest {
                     fail("Expected exception");
                 } catch (UploadValidationException ex) {
                     for (String oneExpectedError : expectedErrorList) {
-                        assertTrue("Expected error: " + oneExpectedError, ex.getMessage().contains(oneExpectedError));
+                        assertTrue(ex.getMessage().contains(oneExpectedError), "Expected error: " + oneExpectedError);
                     }
                 }
             } else {
@@ -135,15 +136,15 @@ public class StrictValidationHandlerTest {
             // context message list together and make sure our expected strings are in there.
             String concatMessage = Joiner.on('\n').join(context.getMessageList());
             for (String oneExpectedError : expectedErrorList) {
-                assertTrue("Expected error: " + oneExpectedError, concatMessage.contains(oneExpectedError));
+                assertTrue(concatMessage.contains(oneExpectedError), "Expected error: " + oneExpectedError);
             }
 
             if (uploadValidationStrictness == UploadValidationStrictness.REPORT) {
                 // If strictness is REPORT, do the same for record.validationErrors.
                 String recordValidationErrors = record.getValidationErrors();
                 for (String oneExpectedError : expectedErrorList) {
-                    assertTrue("Expected error: " + oneExpectedError, recordValidationErrors.contains(
-                            oneExpectedError));
+                    assertTrue(recordValidationErrors.contains(oneExpectedError),
+                            "Expected error: " + oneExpectedError);
                 }
             }
         }
@@ -241,7 +242,7 @@ public class StrictValidationHandlerTest {
         JsonNode dataNode = context.getHealthDataRecord().getData();
         JsonNode intNode = dataNode.get("canonicalized int");
         assertTrue(intNode.isIntegralNumber());
-        assertEquals(23, intNode.intValue());
+        assertEquals(intNode.intValue(), 23);
     }
 
     @Test

@@ -1,11 +1,12 @@
 package org.sagebionetworks.bridge.models.oauth;
 
-import static org.junit.Assert.assertEquals;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
+
+import static org.testng.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -29,19 +30,19 @@ public class OAuthAccessTokenTest {
         OAuthAccessToken token = new OAuthAccessToken(VENDOR_ID, ACCESS_TOKEN, DATE_TIME, PROVIDER_USER_ID);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(token);
-        assertEquals(VENDOR_ID, node.get(VENDOR_ID).textValue());
-        assertEquals(ACCESS_TOKEN, node.get(ACCESS_TOKEN).textValue());
-        assertEquals(DATE_TIME.toString(), node.get("expiresOn").textValue());
-        assertEquals(PROVIDER_USER_ID, node.get(PROVIDER_USER_ID).textValue());
-        assertEquals(TYPE_NAME, node.get("type").textValue());
-        assertEquals(5, node.size());
+        assertEquals(node.get(VENDOR_ID).textValue(), VENDOR_ID);
+        assertEquals(node.get(ACCESS_TOKEN).textValue(), ACCESS_TOKEN);
+        assertEquals(node.get("expiresOn").textValue(), DATE_TIME.toString());
+        assertEquals(node.get(PROVIDER_USER_ID).textValue(), PROVIDER_USER_ID);
+        assertEquals(node.get("type").textValue(), TYPE_NAME);
+        assertEquals(node.size(), 5);
         
         OAuthAccessToken deser = BridgeObjectMapper.get().readValue(node.toString(), OAuthAccessToken.class);
-        assertEquals(VENDOR_ID, deser.getVendorId());
-        assertEquals(ACCESS_TOKEN, deser.getAccessToken());
-        assertEquals(DATE_TIME.toString(), deser.getExpiresOn().toString());
-        assertEquals(PROVIDER_USER_ID, deser.getProviderUserId());
+        assertEquals(deser.getVendorId(), VENDOR_ID);
+        assertEquals(deser.getAccessToken(), ACCESS_TOKEN);
+        assertEquals(deser.getExpiresOn().toString(), DATE_TIME.toString());
+        assertEquals(deser.getProviderUserId(), PROVIDER_USER_ID);
         
-        assertEquals(token, deser);
+        assertEquals(deser, token);
     }
 }

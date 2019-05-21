@@ -1,13 +1,14 @@
 package org.sagebionetworks.bridge.upload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.dao.UploadDao;
 import org.sagebionetworks.bridge.file.FileHelper;
@@ -40,13 +41,13 @@ public class UploadValidationTaskFactoryTest {
 
         // execute and validate
         UploadValidationTask task = taskFactory.newTask(study, upload);
-        assertEquals(HEALTH_CODE, task.getContext().getHealthCode());
-        assertSame(study, task.getContext().getStudy());
-        assertSame(upload, task.getContext().getUpload());
+        assertEquals(task.getContext().getHealthCode(), HEALTH_CODE);
+        assertSame(task.getContext().getStudy(), study);
+        assertSame(task.getContext().getUpload(), upload);
 
-        assertSame(fileHelper, task.getFileHelper());
-        assertSame(handlerList, task.getHandlerList());
-        assertSame(dao, task.getUploadDao());
-        assertSame(healthDataService, task.getHealthDataService());
+        assertSame(task.getFileHelper(), fileHelper);
+        assertSame(task.getHandlerList(), handlerList);
+        assertSame(task.getUploadDao(), dao);
+        assertSame(task.getHealthDataService(), healthDataService);
     }
 }

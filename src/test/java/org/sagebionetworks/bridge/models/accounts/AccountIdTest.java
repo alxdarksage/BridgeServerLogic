@@ -1,12 +1,13 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.sagebionetworks.bridge.TestConstants.PHONE;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
@@ -40,93 +41,93 @@ public class AccountIdTest {
     
     @Test
     public void testToString() {
-        assertEquals("AccountId [studyId=api, credential=user-id]", AccountId.forId(TEST_STUDY_IDENTIFIER, "user-id").toString());
+        assertEquals(AccountId.forId(TEST_STUDY_IDENTIFIER, "user-id").toString(), "AccountId [studyId=api, credential=user-id]");
         
-        assertEquals("AccountId [studyId=api, credential=Phone [regionCode=US, number=9712486796]]", AccountId.forPhone(TEST_STUDY_IDENTIFIER, PHONE).toString());
+        assertEquals(AccountId.forPhone(TEST_STUDY_IDENTIFIER, PHONE).toString(), "AccountId [studyId=api, credential=Phone [regionCode=US, number=9712486796]]");
         
-        assertEquals("AccountId [studyId=api, credential=email]", AccountId.forEmail(TEST_STUDY_IDENTIFIER, "email").toString());
+        assertEquals(AccountId.forEmail(TEST_STUDY_IDENTIFIER, "email").toString(), "AccountId [studyId=api, credential=email]");
         
-        assertEquals("AccountId [studyId=api, credential=HEALTH_CODE]", AccountId.forHealthCode(TEST_STUDY_IDENTIFIER, "DEF-GHI").toString());
+        assertEquals(AccountId.forHealthCode(TEST_STUDY_IDENTIFIER, "DEF-GHI").toString(), "AccountId [studyId=api, credential=HEALTH_CODE]");
         
-        assertEquals("AccountId [studyId=api, credential=EXTID]", AccountId.forExternalId(TEST_STUDY_IDENTIFIER, "EXTID").toString());
+        assertEquals(AccountId.forExternalId(TEST_STUDY_IDENTIFIER, "EXTID").toString(), "AccountId [studyId=api, credential=EXTID]");
     }
     
     @Test
     public void factoryMethodsWork() {
         String number = PHONE.getNumber();
-        assertEquals("one", AccountId.forId(TEST_STUDY_IDENTIFIER, "one").getId());
-        assertEquals("one", AccountId.forEmail(TEST_STUDY_IDENTIFIER, "one").getEmail());
-        assertEquals(number, AccountId.forPhone(TEST_STUDY_IDENTIFIER, PHONE).getPhone().getNumber());
-        assertEquals("ABC-DEF", AccountId.forHealthCode(TEST_STUDY_IDENTIFIER, "ABC-DEF").getHealthCode());
-        assertEquals("EXTID", AccountId.forExternalId(TEST_STUDY_IDENTIFIER, "EXTID").getExternalId());
+        assertEquals(AccountId.forId(TEST_STUDY_IDENTIFIER, "one").getId(), "one");
+        assertEquals(AccountId.forEmail(TEST_STUDY_IDENTIFIER, "one").getEmail(), "one");
+        assertEquals(AccountId.forPhone(TEST_STUDY_IDENTIFIER, PHONE).getPhone().getNumber(), number);
+        assertEquals(AccountId.forHealthCode(TEST_STUDY_IDENTIFIER, "ABC-DEF").getHealthCode(), "ABC-DEF");
+        assertEquals(AccountId.forExternalId(TEST_STUDY_IDENTIFIER, "EXTID").getExternalId(), "EXTID");
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void idAccessorThrows() {
         AccountId.forEmail(TEST_STUDY_IDENTIFIER, "one").getId();
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void emailAccessorThrows() {
         AccountId.forId(TEST_STUDY_IDENTIFIER, "one").getEmail();
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void phoneAccessorThrows() {
         AccountId.forId(TEST_STUDY_IDENTIFIER, "one").getPhone();
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void healthCodeAccessorThrows() {
         AccountId.forHealthCode(TEST_STUDY_IDENTIFIER, "one").getEmail();
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void externalIdAccessorThrows() {
         AccountId.forExternalId(TEST_STUDY_IDENTIFIER, "one").getEmail();
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoEmail() {
         AccountId.forEmail(TEST_STUDY_IDENTIFIER, null);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoId() {
         AccountId.forId(TEST_STUDY_IDENTIFIER, null);
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoPhone() {
         AccountId.forPhone(TEST_STUDY_IDENTIFIER, null);
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoHealthCode() {
         AccountId.forHealthCode(TEST_STUDY_IDENTIFIER, null);
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoExternalId() {
         AccountId.forExternalId(TEST_STUDY_IDENTIFIER, null);
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoStudy() {
         AccountId.forId(null, "id");
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoStudyOrEmail() {
         AccountId.forEmail(null, null);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoStudyOrId() {
         AccountId.forId(null, null);
     }
     
-    @Test(expected = NullPointerException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void cannotCreateIdObjectWithNoStudyOrPhone() {
         AccountId.forPhone(null, null);
     }
@@ -136,8 +137,8 @@ public class AccountIdTest {
         AccountId id = AccountId.forId("test-study", "id");
         
         AccountId accountId = id.getUnguardedAccountId();
-        assertEquals("test-study", accountId.getStudyId());
-        assertEquals("id", accountId.getId());
+        assertEquals(accountId.getStudyId(), "test-study");
+        assertEquals(accountId.getId(), "id");
         assertNull(accountId.getEmail());
         assertNull(accountId.getPhone());
         assertNull(accountId.getHealthCode());
@@ -156,12 +157,12 @@ public class AccountIdTest {
         
         AccountId identifier = BridgeObjectMapper.get().readValue(json, AccountId.class);
         
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, identifier.getStudyId());
-        assertEquals(TestConstants.EMAIL, identifier.getEmail());
-        assertEquals("someExternalId", identifier.getExternalId());
-        assertEquals("someHealthCode", identifier.getHealthCode());
-        assertEquals(TestConstants.PHONE.getNumber(), identifier.getPhone().getNumber());
-        assertEquals(TestConstants.PHONE.getRegionCode(), identifier.getPhone().getRegionCode());
+        assertEquals(identifier.getStudyId(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(identifier.getEmail(), TestConstants.EMAIL);
+        assertEquals(identifier.getExternalId(), "someExternalId");
+        assertEquals(identifier.getHealthCode(), "someHealthCode");
+        assertEquals(identifier.getPhone().getNumber(), TestConstants.PHONE.getNumber());
+        assertEquals(identifier.getPhone().getRegionCode(), TestConstants.PHONE.getRegionCode());
     }
     
 }

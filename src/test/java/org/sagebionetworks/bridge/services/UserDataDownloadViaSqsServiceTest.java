@@ -1,6 +1,5 @@
 package org.sagebionetworks.bridge.services;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,14 +12,15 @@ import static org.sagebionetworks.bridge.services.UserDataDownloadViaSqsService.
 import static org.sagebionetworks.bridge.services.UserDataDownloadViaSqsService.REQUEST_KEY_STUDY_ID;
 import static org.sagebionetworks.bridge.services.UserDataDownloadViaSqsService.REQUEST_KEY_USER_ID;
 import static org.sagebionetworks.bridge.services.UserDataDownloadViaSqsService.UDD_SERVICE_TITLE;
+import static org.testng.Assert.assertEquals;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.LocalDate;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.config.BridgeConfig;
@@ -73,9 +73,9 @@ public class UserDataDownloadViaSqsServiceTest {
         JsonNode msgBody = sqsMessageNode.path(REQUEST_KEY_BODY);
         assertEquals(msgBody.size(), 4);
 
-        assertEquals(TestConstants.TEST_STUDY_IDENTIFIER, msgBody.get(REQUEST_KEY_STUDY_ID).textValue());
-        assertEquals(USER_ID, msgBody.get(REQUEST_KEY_USER_ID).textValue());
-        assertEquals(START_DATE, msgBody.get(REQUEST_KEY_START_DATE).textValue());
-        assertEquals(END_DATE, msgBody.get(REQUEST_KEY_END_DATE).textValue());
+        assertEquals(msgBody.get(REQUEST_KEY_STUDY_ID).textValue(), TestConstants.TEST_STUDY_IDENTIFIER);
+        assertEquals(msgBody.get(REQUEST_KEY_USER_ID).textValue(), USER_ID);
+        assertEquals(msgBody.get(REQUEST_KEY_START_DATE).textValue(), START_DATE);
+        assertEquals(msgBody.get(REQUEST_KEY_END_DATE).textValue(), END_DATE);
     }
 }

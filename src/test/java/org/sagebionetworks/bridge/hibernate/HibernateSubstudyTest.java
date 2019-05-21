@@ -1,15 +1,16 @@
 package org.sagebionetworks.bridge.hibernate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.json.BridgeObjectMapper;
 import org.sagebionetworks.bridge.models.substudies.Substudy;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -30,22 +31,22 @@ public class HibernateSubstudyTest {
         substudy.setVersion(3L);
         
         JsonNode node = BridgeObjectMapper.get().valueToTree(substudy);
-        assertEquals(7, node.size());
-        assertEquals("oneId", node.get("id").textValue());
-        assertEquals("name", node.get("name").textValue());
+        assertEquals(node.size(), 7);
+        assertEquals(node.get("id").textValue(), "oneId");
+        assertEquals(node.get("name").textValue(), "name");
         assertTrue(node.get("deleted").booleanValue());
-        assertEquals(CREATED_ON.toString(), node.get("createdOn").textValue());
-        assertEquals(MODIFIED_ON.toString(), node.get("modifiedOn").textValue());
-        assertEquals(3L, node.get("version").longValue());
-        assertEquals("Substudy", node.get("type").textValue());
+        assertEquals(node.get("createdOn").textValue(), CREATED_ON.toString());
+        assertEquals(node.get("modifiedOn").textValue(), MODIFIED_ON.toString());
+        assertEquals(node.get("version").longValue(), 3L);
+        assertEquals(node.get("type").textValue(), "Substudy");
         assertNull(node.get("studyId"));
         
         Substudy deser = BridgeObjectMapper.get().readValue(node.toString(), Substudy.class);
-        assertEquals("oneId", deser.getId());
-        assertEquals("name", deser.getName());
+        assertEquals(deser.getId(), "oneId");
+        assertEquals(deser.getName(), "name");
         assertTrue(deser.isDeleted());
-        assertEquals(CREATED_ON, deser.getCreatedOn());
-        assertEquals(MODIFIED_ON, deser.getModifiedOn());
-        assertEquals(new Long(3), deser.getVersion());
+        assertEquals(deser.getCreatedOn(), CREATED_ON);
+        assertEquals(deser.getModifiedOn(), MODIFIED_ON);
+        assertEquals(deser.getVersion(), new Long(3));
     }
 }

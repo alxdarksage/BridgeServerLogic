@@ -1,14 +1,17 @@
 package org.sagebionetworks.bridge.models.accounts;
 
-import static org.junit.Assert.*;
 import static org.sagebionetworks.bridge.Roles.RESEARCHER;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Iterator;
 import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.TestConstants;
 import org.sagebionetworks.bridge.TestUtils;
@@ -53,42 +56,42 @@ public class UserSessionInfoTest {
         session.setStudyIdentifier(new StudyIdentifierImpl("study-identifier"));
         
         JsonNode node = UserSessionInfo.toJSON(session);
-        assertEquals("first name", node.get("firstName").textValue());
-        assertEquals("last name", node.get("lastName").textValue());
-        assertEquals(session.isAuthenticated(), node.get("authenticated").booleanValue());
-        assertEquals(ConsentStatus.isConsentCurrent(map), node.get("signedMostRecentConsent").booleanValue());
-        assertEquals(ConsentStatus.isUserConsented(map), node.get("consented").booleanValue());
-        assertEquals(participant.getSharingScope().name(), node.get("sharingScope").textValue().toUpperCase());
-        assertEquals(session.getSessionToken(), node.get("sessionToken").textValue());
-        assertEquals(participant.getEmail(), node.get("username").textValue());
+        assertEquals(node.get("firstName").textValue(), "first name");
+        assertEquals(node.get("lastName").textValue(), "last name");
+        assertEquals(node.get("authenticated").booleanValue(), session.isAuthenticated());
+        assertEquals(node.get("signedMostRecentConsent").booleanValue(), ConsentStatus.isConsentCurrent(map));
+        assertEquals(node.get("consented").booleanValue(), ConsentStatus.isUserConsented(map));
+        assertEquals(node.get("sharingScope").textValue().toUpperCase(), participant.getSharingScope().name());
+        assertEquals(node.get("sessionToken").textValue(), session.getSessionToken());
+        assertEquals(node.get("username").textValue(), participant.getEmail());
         assertEquals(participant.getEmail(), node.get("email").textValue());
-        assertEquals("researcher", node.get("roles").get(0).textValue());
-        assertEquals("foo", node.get("dataGroups").get(0).textValue());
-        assertEquals("staging", node.get("environment").textValue());
-        assertEquals("reauthToken", node.get("reauthToken").textValue());
-        assertEquals(participant.getId(), node.get("id").textValue());
-        assertEquals(1, node.get("substudyIds").size());
-        assertEquals("substudyA", node.get("substudyIds").get(0).textValue());
+        assertEquals(node.get("roles").get(0).textValue(), "researcher");
+        assertEquals(node.get("dataGroups").get(0).textValue(), "foo");
+        assertEquals(node.get("environment").textValue(), "staging");
+        assertEquals(node.get("reauthToken").textValue(), "reauthToken");
+        assertEquals(node.get("id").textValue(), participant.getId());
+        assertEquals(node.get("substudyIds").size(), 1);
+        assertEquals(node.get("substudyIds").get(0).textValue(), "substudyA");
         assertFalse(node.get("notifyByEmail").booleanValue());
         assertNull(node.get("healthCode"));
         assertNull(node.get("encryptedHealthCode"));
-        assertEquals("externalIdA", node.get("externalIds").get("substudyA").textValue());
-        assertEquals("UserSessionInfo", node.get("type").asText());
+        assertEquals(node.get("externalIds").get("substudyA").textValue(), "externalIdA");
+        assertEquals(node.get("type").asText(), "UserSessionInfo");
         
         JsonNode consentMap = node.get("consentStatuses");
         
         JsonNode consentStatus = consentMap.get("AAA");
-        assertEquals("Consent", consentStatus.get("name").textValue());
-        assertEquals("AAA", consentStatus.get("subpopulationGuid").textValue());
+        assertEquals(consentStatus.get("name").textValue(), "Consent");
+        assertEquals(consentStatus.get("subpopulationGuid").textValue(), "AAA");
         assertTrue(consentStatus.get("required").booleanValue());
         assertTrue(consentStatus.get("consented").booleanValue());
         assertFalse(consentStatus.get("signedMostRecentConsent").booleanValue());
-        assertEquals(timestamp.toString(), consentStatus.get("signedOn").textValue());
-        assertEquals("ConsentStatus", consentStatus.get("type").textValue());
-        assertEquals(7, consentStatus.size());
+        assertEquals(consentStatus.get("signedOn").textValue(), timestamp.toString());
+        assertEquals(consentStatus.get("type").textValue(), "ConsentStatus");
+        assertEquals(consentStatus.size(), 7);
         
         // ... and no things that shouldn't be there
-        assertEquals(22, node.size());
+        assertEquals(node.size(), 22);
     }
     
     @Test
@@ -96,7 +99,7 @@ public class UserSessionInfoTest {
         JsonNode node = UserSessionInfo.toJSON(new UserSession());
         for (Iterator<String> i = node.fieldNames(); i.hasNext();) {
             String fieldName = i.next();
-            assertFalse(fieldName + " should not be null", node.get(fieldName).isNull());
+            assertFalse(node.get(fieldName).isNull(), fieldName + " should not be null");
         }
     }
     
