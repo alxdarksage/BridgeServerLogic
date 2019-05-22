@@ -44,12 +44,17 @@ public class DynamoSubpopulationDao implements SubpopulationDao {
         this.criteriaDao = criteriaDao;
     }
     
+    // Exposed for mock tests
+    String generateGuid() {
+        return BridgeUtils.generateGuid();
+    }
+    
     @Override
     public Subpopulation createSubpopulation(Subpopulation subpop) {
         checkNotNull(subpop);
         checkNotNull(subpop.getStudyIdentifier());
         
-        subpop.setGuidString(BridgeUtils.generateGuid());
+        subpop.setGuidString(generateGuid());
         subpop.setDeleted(false); 
         subpop.setDefaultGroup(false);
         subpop.setVersion(null);
