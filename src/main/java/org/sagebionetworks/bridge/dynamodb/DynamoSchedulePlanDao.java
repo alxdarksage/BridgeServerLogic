@@ -110,7 +110,8 @@ public class DynamoSchedulePlanDao implements SchedulePlanDao {
         checkNotNull(plan);
 
         SchedulePlan saved = getSchedulePlan(studyIdentifier, plan.getGuid());
-        if (saved == null || (saved.isDeleted() && plan.isDeleted())) {
+        // if saved == null, getSchedulePlan() throws EntityNotFoundException
+        if (saved.isDeleted() && plan.isDeleted()) {
             throw new EntityNotFoundException(SchedulePlan.class);
         }
         plan.setStudyKey(studyIdentifier.getIdentifier());
