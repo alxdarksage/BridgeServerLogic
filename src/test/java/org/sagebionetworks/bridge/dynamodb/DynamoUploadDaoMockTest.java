@@ -1,10 +1,12 @@
 package org.sagebionetworks.bridge.dynamodb;
 
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
+import static org.sagebionetworks.bridge.models.upload.UploadCompletionClient.APP;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -30,6 +32,7 @@ import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dao.HealthCodeDao;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
+import org.sagebionetworks.bridge.exceptions.ConcurrentModificationException;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
 import org.sagebionetworks.bridge.exceptions.NotFoundException;
 import org.sagebionetworks.bridge.models.ForwardCursorPagedResourceList;
@@ -50,6 +53,7 @@ import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.internal.IteratorSupport;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -328,6 +332,24 @@ public class DynamoUploadDaoMockTest {
         assertEquals(page.getRequestParams().get("startTime"), startTime.toString());
         assertEquals(page.getRequestParams().get("endTime"), endTime.toString());
     }
+    
+    @Test(expectedExceptions = BadRequestException.class)
+    public void getUploadsMinPageEnforced() {
+        String healthCode = "abc";
+        DateTime startTime = DateTime.now().minusDays(4);
+        DateTime endTime = DateTime.now();
+
+        dao.getUploads(healthCode, startTime, endTime, 0, null);
+    }
+    
+    @Test(expectedExceptions = BadRequestException.class)
+    public void getUploadsMaxPageEnforced() {
+        String healthCode = "abc";
+        DateTime startTime = DateTime.now().minusDays(4);
+        DateTime endTime = DateTime.now();
+
+        dao.getUploads(healthCode, startTime, endTime, 200, null);
+    }
 
     @Test
     @SuppressWarnings("unchecked")
@@ -445,6 +467,44 @@ public class DynamoUploadDaoMockTest {
         } catch(BadRequestException e) {
             assertEquals(e.getMessage(), "Invalid offsetKey: bad-key");
         }
+    }
+    
+    @Test(expectedExceptions = BadRequestException.class)
+    public void getStudyUploadsMinPageSizeEnforced() {
+        StudyIdentifier studyId = new StudyIdentifierImpl("test-study");
+        DateTime startTime = DateTime.now().minusDays(4);
+        DateTime endTime = DateTime.now();
+        
+        dao.getStudyUploads(studyId, startTime, endTime, -1, null);
+    }
+    
+    @Test(expectedExceptions = BadRequestException.class)
+    public void getStudyUploadsMaxPageSizeEnforced() { 
+        StudyIdentifier studyId = new StudyIdentifierImpl("test-study");
+        DateTime startTime = DateTime.now().minusDays(4);
+        DateTime endTime = DateTime.now();
+        
+        dao.getStudyUploads(studyId, startTime, endTime, 101, null);
+    }
+    
+    @Test
+    public void deleteUploadsForHealthCode() {
+        List<DynamoUpload2> uploads = ImmutableList.of(new DynamoUpload2());
+        when(mockIndexHelper.queryKeys(DynamoUpload2.class, "healthCode", "oneHealthCode", null)).thenReturn(uploads);        
+        
+        dao.deleteUploadsForHealthCode("oneHealthCode");
+        
+        verify(mockIndexHelper).queryKeys(DynamoUpload2.class, "healthCode", "oneHealthCode", null);
+        verify(mockMapper).batchDelete(uploads);
+    }
+    
+    @Test(expectedExceptions = ConcurrentModificationException.class)
+    public void uploadCompleteConditionalCheckFailedException() {
+        doThrow(new ConditionalCheckFailedException("")).when(mockMapper).save(any());
+        
+        Upload upload = new DynamoUpload2();
+        
+        dao.uploadComplete(APP, upload);
     }
     
     private static UploadRequest createUploadRequest() {

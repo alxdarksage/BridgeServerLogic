@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableList;
 @Component
 public class DynamoSubpopulationDao implements SubpopulationDao {
     
-    private static final String CANNOT_DELETE_DEFAULT_SUBPOP_MSG = "Cannot delete the default subpopulation for a study.";
+    static final String CANNOT_DELETE_DEFAULT_SUBPOP_MSG = "Cannot delete the default subpopulation for a study.";
     private DynamoDBMapper mapper;
     private CriteriaDao criteriaDao;
 

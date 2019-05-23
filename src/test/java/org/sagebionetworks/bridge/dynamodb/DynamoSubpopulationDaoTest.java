@@ -1,12 +1,23 @@
 package org.sagebionetworks.bridge.dynamodb;
 
+import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
+import static org.sagebionetworks.bridge.dynamodb.DynamoSubpopulationDao.CANNOT_DELETE_DEFAULT_SUBPOP_MSG;
+import static org.sagebionetworks.bridge.models.OperatingSystem.ANDROID;
+import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
+
+import java.util.List;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
+import com.google.common.collect.ImmutableList;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -19,13 +30,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import org.sagebionetworks.bridge.dao.CriteriaDao;
+import org.sagebionetworks.bridge.exceptions.BadRequestException;
+import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
 import org.sagebionetworks.bridge.models.Criteria;
 import org.sagebionetworks.bridge.models.subpopulations.Subpopulation;
+import org.sagebionetworks.bridge.models.subpopulations.SubpopulationGuid;
 
 public class DynamoSubpopulationDaoTest extends Mockito {
 
     private static final String GUID = "oneGuid";
     private static final String CRITERIA_KEY = "subpopulation:" + GUID;
+    private static final SubpopulationGuid SUBPOP_GUID = SubpopulationGuid.create(GUID);
     
     @Mock
     DynamoDBMapper mockMapper;
@@ -33,8 +48,14 @@ public class DynamoSubpopulationDaoTest extends Mockito {
     @Mock
     CriteriaDao mockCriteriaDao;
     
+    @Mock
+    PaginatedQueryList<DynamoSubpopulation> mockQueryList;
+    
     @Captor
     ArgumentCaptor<Subpopulation> subpopCaptor;
+    
+    @Captor
+    ArgumentCaptor<DynamoDBQueryExpression<DynamoSubpopulation>> queryCaptor;
     
     @Captor
     ArgumentCaptor<Criteria> criteriaCaptor;
@@ -71,31 +92,255 @@ public class DynamoSubpopulationDaoTest extends Mockito {
     
     @Test
     public void createDefaultSubpopulation() {
+        when(mockCriteriaDao.createOrUpdateCriteria(any())).thenAnswer(invocation -> invocation.getArgument(0));
         
+        Subpopulation result = dao.createDefaultSubpopulation(TEST_STUDY);
+        
+        verify(mockMapper).save(subpopCaptor.capture());
+        Subpopulation subpop = subpopCaptor.getValue();
+        assertEquals(subpop.getStudyIdentifier(), TEST_STUDY_IDENTIFIER);
+        assertEquals(subpop.getGuidString(), TEST_STUDY_IDENTIFIER);
+        assertEquals(subpop.getName(), "Default Consent Group");
+        assertTrue(subpop.isDefaultGroup());
+        assertTrue(subpop.isRequired());
+        assertSame(subpop, result);
+        
+        verify(mockCriteriaDao).createOrUpdateCriteria(criteriaCaptor.capture());
+        Criteria criteria = criteriaCaptor.getValue();
+        assertEquals(criteria.getKey(), "subpopulation:api");
+        assertEquals(criteria.getMinAppVersion(ANDROID), new Integer(0));
+        assertEquals(criteria.getMinAppVersion(IOS), new Integer(0));
+        assertSame(criteria, subpop.getCriteria());
     }
     
     @Test
-    public void getSubpopulations() {
+    public void getSubpopulationsIncludeDeleted() {
+        DynamoSubpopulation subpop1 = new DynamoSubpopulation();
+        subpop1.setDeleted(false);
         
+        DynamoSubpopulation subpop2 = new DynamoSubpopulation();
+        subpop2.setDeleted(true);
+        List<DynamoSubpopulation> subpopList = ImmutableList.of(subpop1, subpop2);
+        
+        when(mockMapper.query(eq(DynamoSubpopulation.class), any())).thenReturn(mockQueryList);
+        when(mockQueryList.isEmpty()).thenReturn(subpopList.isEmpty());
+        when(mockQueryList.stream()).thenReturn(subpopList.stream());
+        
+        List<Subpopulation> result = dao.getSubpopulations(TEST_STUDY, false, true);
+        assertEquals(result.size(), 2);
+        
+        verify(mockMapper).query(eq(DynamoSubpopulation.class), queryCaptor.capture());
+        assertEquals(queryCaptor.getValue().getHashKeyValues().getStudyIdentifier(), TEST_STUDY_IDENTIFIER);        
+    }
+
+    @Test
+    public void getSubpopulationsExcludeDeleted() {
+        DynamoSubpopulation subpop1 = new DynamoSubpopulation();
+        subpop1.setDeleted(false);
+        
+        DynamoSubpopulation subpop2 = new DynamoSubpopulation();
+        subpop2.setDeleted(true);
+        List<DynamoSubpopulation> subpopList = ImmutableList.of(subpop1, subpop2);
+        
+        when(mockMapper.query(eq(DynamoSubpopulation.class), any())).thenReturn(mockQueryList);
+        when(mockQueryList.isEmpty()).thenReturn(subpopList.isEmpty());
+        when(mockQueryList.stream()).thenReturn(subpopList.stream());
+        
+        List<Subpopulation> result = dao.getSubpopulations(TEST_STUDY, false, false);
+        assertEquals(result.size(), 1);
+        assertFalse(result.get(0).isDeleted());
+    }
+
+    @Test
+    public void getSubpopulationsCreateDefault() {
+        DynamoSubpopulation subpop1 = new DynamoSubpopulation();
+        List<DynamoSubpopulation> subpopList = ImmutableList.of(subpop1);
+        when(mockMapper.query(eq(DynamoSubpopulation.class), any())).thenReturn(mockQueryList);
+        when(mockQueryList.isEmpty()).thenReturn(subpopList.isEmpty());
+        when(mockQueryList.stream()).thenReturn(subpopList.stream());
+        
+        List<Subpopulation> result = dao.getSubpopulations(TEST_STUDY, true, true);
+        assertEquals(result.size(), 1);
+        assertFalse(result.get(0).isDefaultGroup());
+    }
+    
+    @Test
+    public void getSubpopulationsCreateDefaultDoesNotIfThereAreExistingSubpops() {
+        List<DynamoSubpopulation> subpopList = ImmutableList.of();
+        when(mockMapper.query(eq(DynamoSubpopulation.class), any())).thenReturn(mockQueryList);
+        when(mockQueryList.isEmpty()).thenReturn(subpopList.isEmpty());
+        when(mockQueryList.stream()).thenReturn(subpopList.stream());
+        
+        List<Subpopulation> result = dao.getSubpopulations(TEST_STUDY, true, true);
+        assertEquals(result.size(), 1);
+        assertTrue(result.get(0).isDefaultGroup());
     }
     
     @Test
     public void getSubpopulation() {
+        Subpopulation saved = Subpopulation.create();
+        when(mockMapper.load(any())).thenReturn(saved);
         
+        Subpopulation result = dao.getSubpopulation(TEST_STUDY, SUBPOP_GUID);
+        assertSame(result, saved);
     }
     
-    @Test
-    public void updateSubpopulation() {
-        
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void getSubpopulationNotFound() {
+        dao.getSubpopulation(TEST_STUDY, SUBPOP_GUID);
     }
 
     @Test
-    public void deleteSubpopulation() {
+    public void updateSubpopulation() {
+        Subpopulation saved = Subpopulation.create();
+        when(mockMapper.load(any())).thenReturn(saved);
         
+        Subpopulation subpop = Subpopulation.create();
+        subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        subpop.setGuid(SUBPOP_GUID);
+        subpop.setVersion(2L);
+        
+        dao.updateSubpopulation(subpop);
+        
+        verify(mockMapper).save(subpopCaptor.capture());
+        Subpopulation updated = subpopCaptor.getValue();
+        assertSame(updated, subpop);
+    }
+    
+    @Test(expectedExceptions = BadRequestException.class)
+    public void updateSubpopulationNoVersion() {
+        Subpopulation subpop = Subpopulation.create();
+        subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        subpop.setGuid(SUBPOP_GUID);
+        
+        dao.updateSubpopulation(subpop);
+    }
+    
+    @Test(expectedExceptions = BadRequestException.class)
+    public void updateSubpopulationNoGuid() {
+        Subpopulation subpop = Subpopulation.create();
+        subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        subpop.setVersion(2L);
+        
+        dao.updateSubpopulation(subpop);
+    }
+    
+    @Test
+    public void updateSubpopulationCanUndelete() {
+        Subpopulation saved = Subpopulation.create();
+        saved.setDeleted(true);
+        when(mockMapper.load(any())).thenReturn(saved);
+        
+        Subpopulation subpop = Subpopulation.create();
+        subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        subpop.setGuid(SUBPOP_GUID);
+        subpop.setVersion(2L);
+        // not deleted
+        
+        dao.updateSubpopulation(subpop);
+        
+        verify(mockMapper).save(subpopCaptor.capture());
+        Subpopulation updated = subpopCaptor.getValue();
+        assertFalse(updated.isDeleted());        
+    }
+
+    @Test
+    public void updateSubpopulationCanDelete() {
+        Subpopulation saved = Subpopulation.create();
+        // not deleted
+        when(mockMapper.load(any())).thenReturn(saved);
+        
+        Subpopulation subpop = Subpopulation.create();
+        subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        subpop.setGuid(SUBPOP_GUID);
+        subpop.setVersion(2L);
+        subpop.setDeleted(true);
+        
+        dao.updateSubpopulation(subpop);
+        
+        verify(mockMapper).save(subpopCaptor.capture());
+        Subpopulation updated = subpopCaptor.getValue();
+        assertTrue(updated.isDeleted());        
+    }
+    
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void updateSubpopulationCannotUpdateLogicallyDeletedSubpop() {
+        Subpopulation saved = Subpopulation.create();
+        saved.setDeleted(true);
+        when(mockMapper.load(any())).thenReturn(saved);
+        
+        Subpopulation subpop = Subpopulation.create();
+        subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        subpop.setGuid(SUBPOP_GUID);
+        subpop.setVersion(2L);
+        subpop.setDeleted(true);
+        
+        dao.updateSubpopulation(subpop);
+    }
+    
+    @Test(expectedExceptions = BadRequestException.class, expectedExceptionsMessageRegExp = CANNOT_DELETE_DEFAULT_SUBPOP_MSG)
+    public void updateSubpopulationCannotDeleteDefaultSubpop() {
+        Subpopulation saved = Subpopulation.create();
+        saved.setDefaultGroup(true);
+        when(mockMapper.load(any())).thenReturn(saved);
+        
+        Subpopulation subpop = Subpopulation.create();
+        subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        subpop.setGuid(SUBPOP_GUID);
+        subpop.setVersion(2L);
+        subpop.setDeleted(true);
+        
+        dao.updateSubpopulation(subpop);        
+    }
+    
+    @Test
+    public void deleteSubpopulation() {
+        Subpopulation saved = Subpopulation.create();
+        when(mockMapper.load(any())).thenReturn(saved);
+        
+        dao.deleteSubpopulation(TEST_STUDY, SUBPOP_GUID);
+        
+        verify(mockMapper).save(subpopCaptor.capture());
+        assertTrue(subpopCaptor.getValue().isDeleted());
+    }
+    
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void deleteSubpopulationNotFound() {
+        dao.deleteSubpopulation(TEST_STUDY, SUBPOP_GUID);
+    }
+    
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void deleteSubpopulationAlreadyDeleted() {
+        Subpopulation saved = Subpopulation.create();
+        saved.setDeleted(true);
+        when(mockMapper.load(any())).thenReturn(saved);
+        
+        dao.deleteSubpopulation(TEST_STUDY, SUBPOP_GUID);
+    }
+    
+    @Test(expectedExceptions = BadRequestException.class)
+    public void deleteSubpopulationCannotDeleteDefaultGroup() {
+        Subpopulation saved = Subpopulation.create();
+        saved.setDefaultGroup(true);
+        when(mockMapper.load(any())).thenReturn(saved);
+        
+        dao.deleteSubpopulation(TEST_STUDY, SUBPOP_GUID);
     }
     
     @Test
     public void deleteSubpopulationPermanently() {
+        Subpopulation saved = Subpopulation.create();
+        saved.setGuid(SUBPOP_GUID);
+        when(mockMapper.load(any())).thenReturn(saved);
         
+        dao.deleteSubpopulationPermanently(TEST_STUDY, SUBPOP_GUID);
+        
+        verify(mockCriteriaDao).deleteCriteria("subpopulation:oneGuid");
+        verify(mockMapper).delete(any());
+    }
+
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void deleteSubpopulationPermanentlyNotFound() {
+        dao.deleteSubpopulationPermanently(TEST_STUDY, SUBPOP_GUID);
     }
 }
