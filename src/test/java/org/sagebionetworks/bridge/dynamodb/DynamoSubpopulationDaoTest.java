@@ -73,6 +73,12 @@ public class DynamoSubpopulationDaoTest extends Mockito {
     @Test
     public void createSubpopulation() {
         Subpopulation subpop = Subpopulation.create();
+        // We cannot set any of these values on create, they are all defaulted
+        subpop.setGuidString("some nonsense");
+        subpop.setDeleted(true); 
+        subpop.setDefaultGroup(true);
+        subpop.setVersion(1L);
+        subpop.setPublishedConsentCreatedOn(100L);
         subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
         
         dao.createSubpopulation(subpop);
@@ -152,7 +158,7 @@ public class DynamoSubpopulationDaoTest extends Mockito {
     }
 
     @Test
-    public void getSubpopulationsCreateDefault() {
+    public void getSubpopulationsDoesNotCreateDefaultIfThereAreExistingSubpops() {
         DynamoSubpopulation subpop1 = new DynamoSubpopulation();
         List<DynamoSubpopulation> subpopList = ImmutableList.of(subpop1);
         when(mockMapper.query(eq(DynamoSubpopulation.class), any())).thenReturn(mockQueryList);
@@ -165,7 +171,20 @@ public class DynamoSubpopulationDaoTest extends Mockito {
     }
     
     @Test
-    public void getSubpopulationsCreateDefaultDoesNotIfThereAreExistingSubpops() {
+    public void getSubpopulationsDoesNotCreateDefaultIfFlagIsFalse() {
+        // No subopulation
+        List<DynamoSubpopulation> subpopList = ImmutableList.of();
+        when(mockMapper.query(eq(DynamoSubpopulation.class), any())).thenReturn(mockQueryList);
+        when(mockQueryList.isEmpty()).thenReturn(subpopList.isEmpty());
+        when(mockQueryList.stream()).thenReturn(subpopList.stream());
+        
+        // but don't create a default
+        List<Subpopulation> result = dao.getSubpopulations(TEST_STUDY, false, true);
+        assertTrue(result.isEmpty());
+    }
+    
+    @Test
+    public void getSubpopulationsCreatesDefault() {
         List<DynamoSubpopulation> subpopList = ImmutableList.of();
         when(mockMapper.query(eq(DynamoSubpopulation.class), any())).thenReturn(mockQueryList);
         when(mockQueryList.isEmpty()).thenReturn(subpopList.isEmpty());
@@ -193,18 +212,22 @@ public class DynamoSubpopulationDaoTest extends Mockito {
     @Test
     public void updateSubpopulation() {
         Subpopulation saved = Subpopulation.create();
+        saved.setDefaultGroup(true); // this cannot be changed
         when(mockMapper.load(any())).thenReturn(saved);
         
         Subpopulation subpop = Subpopulation.create();
         subpop.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
         subpop.setGuid(SUBPOP_GUID);
         subpop.setVersion(2L);
+        subpop.setDefaultGroup(false);
         
-        dao.updateSubpopulation(subpop);
+        Subpopulation result = dao.updateSubpopulation(subpop);
+        assertTrue(result.isDefaultGroup());
         
         verify(mockMapper).save(subpopCaptor.capture());
         Subpopulation updated = subpopCaptor.getValue();
         assertSame(updated, subpop);
+        assertTrue(updated.isDefaultGroup());
     }
     
     @Test(expectedExceptions = BadRequestException.class)
