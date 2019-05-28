@@ -7,8 +7,6 @@ import static org.testng.Assert.assertSame;
 import java.io.IOException;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -325,5 +323,50 @@ public class StudyConsentServiceMockTest extends Mockito {
         subpop.setGuid(SUBPOP_GUID);
         
         service.publishConsent(study, subpop, CREATED_ON);
+    }
+    
+    @Test
+    public void invalidMarkupIsFixed() {
+        StudyConsent consent = StudyConsent.create();
+        when(mockDao.addConsent(SUBPOP_GUID, STORAGE_PATH, CREATED_ON)).thenReturn(consent);
+        
+        StudyConsentForm form = new StudyConsentForm("<cml><p>This is not valid XML.</cml>");
+        StudyConsentView view = service.addConsent(SUBPOP_GUID, form);
+        assertEquals("<p>This is not valid XML.</p>", view.getDocumentContent());
+    }
+    
+    @Test
+    public void fullDocumentsAreConvertedToFragments() {
+        StudyConsent consent = StudyConsent.create();
+        when(mockDao.addConsent(SUBPOP_GUID, STORAGE_PATH, CREATED_ON)).thenReturn(consent);
+        
+        String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title></title></head><body><p>This is all the content that should be kept.</p><br><p>And this makes it a fragment.</p></body></html>";
+        
+        StudyConsentForm form = new StudyConsentForm(doc);
+        StudyConsentView view = service.addConsent(SUBPOP_GUID, form);
+        assertEquals("<p>This is all the content that should be kept.</p>\n<br />\n<p>And this makes it a fragment.</p>", view.getDocumentContent());
+    }
+    
+    @Test
+    public void ckeditorMarkupIsPreserved() {
+        StudyConsent consent = StudyConsent.create();
+        when(mockDao.addConsent(SUBPOP_GUID, STORAGE_PATH, CREATED_ON)).thenReturn(consent);
+        
+        String doc = "<s>This is a test</s><p style=\"color:red\">of new attributes ${url}.</p><hr />";
+        
+        StudyConsentForm form = new StudyConsentForm(doc);
+        StudyConsentView view = service.addConsent(SUBPOP_GUID, form);
+        // Text is pretty printed so remove that before comparing 
+        assertEquals(doc, view.getDocumentContent().replaceAll("[\n\t\r]", ""));
+    }
+    
+    @Test
+    public void  evenVeryBrokenContentIsFixed() {
+        StudyConsent consent = StudyConsent.create();
+        when(mockDao.addConsent(SUBPOP_GUID, STORAGE_PATH, CREATED_ON)).thenReturn(consent);
+        
+        StudyConsentForm form = new StudyConsentForm("</script><div ankle='foo'>This just isn't a SGML-based document no matter how you slice it.</p><h4><img>");
+        StudyConsentView view = service.addConsent(SUBPOP_GUID, form);
+        assertEquals("<div>\n This just isn't a SGML-based document no matter how you slice it.\n <p></p>\n <h4><img /></h4>\n</div>", view.getDocumentContent());
     }
 }
