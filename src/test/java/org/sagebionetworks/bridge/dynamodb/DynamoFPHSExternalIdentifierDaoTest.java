@@ -26,6 +26,7 @@ import org.sagebionetworks.bridge.config.BridgeConfig;
 import org.sagebionetworks.bridge.exceptions.BadRequestException;
 import org.sagebionetworks.bridge.exceptions.EntityAlreadyExistsException;
 import org.sagebionetworks.bridge.exceptions.EntityNotFoundException;
+import org.sagebionetworks.bridge.models.accounts.ExternalIdentifier;
 import org.sagebionetworks.bridge.models.accounts.FPHSExternalIdentifier;
 
 public class DynamoFPHSExternalIdentifierDaoTest extends Mockito {
@@ -79,6 +80,21 @@ public class DynamoFPHSExternalIdentifierDaoTest extends Mockito {
     @Test(expectedExceptions = EntityNotFoundException.class)
     public void verifyExternalIdFails() {
         dao.verifyExternalId(externalId);
+    }
+    
+    @Test(expectedExceptions = EntityAlreadyExistsException.class, 
+            expectedExceptionsMessageRegExp = "ExternalIdentifier already exists.")
+    public void verifyAnAlreadyExistingExternalId() {
+        fphsExternalId1.setRegistered(true);
+        when(mockMapper.load(any())).thenReturn(fphsExternalId1);
+        
+        dao.verifyExternalId(externalId);
+    }
+    
+    @Test(expectedExceptions = EntityNotFoundException.class, 
+            expectedExceptionsMessageRegExp = "ExternalIdentifier not found.")
+    public void registerAMissingExternalId() {
+        dao.registerExternalId(externalId);
     }
     
     @Test

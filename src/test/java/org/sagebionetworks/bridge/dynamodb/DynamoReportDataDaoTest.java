@@ -53,11 +53,11 @@ public class DynamoReportDataDaoTest extends Mockito {
     static final ReportDataKey PARTICIPANT_REPORT_KEY = new ReportDataKey.Builder().withIdentifier(REPORT_ID)
             .withHealthCode(HEALTH_CODE).withReportType(PARTICIPANT).withStudyIdentifier(TEST_STUDY).build();
     
-    static final DynamoReportData REPORT0 = createReport(DateTime.parse("2016-03-28T17:16:28.711-07:00"), "g", "h");
-    static final DynamoReportData REPORT1 = createReport(DateTime.parse("2016-03-29T17:16:28.711-07:00"), "a", "b");
-    static final DynamoReportData REPORT2 = createReport(DateTime.parse("2016-03-30T17:16:28.711-07:00"), "c", "d");
-    static final DynamoReportData REPORT3 = createReport(DateTime.parse("2016-03-31T17:16:28.711-07:00"), "e", "f");
-    static final ImmutableList<DynamoReportData> REPORTS = ImmutableList.of(REPORT0, REPORT1, REPORT2, REPORT3);
+    DynamoReportData report0;
+    DynamoReportData report1;
+    DynamoReportData report2;
+    DynamoReportData report3;
+    ImmutableList<DynamoReportData> reports;
     
     @Mock
     DynamoDBMapper mockMapper;
@@ -87,6 +87,12 @@ public class DynamoReportDataDaoTest extends Mockito {
     @BeforeMethod
     public void beforeMethod() {
         MockitoAnnotations.initMocks(this);
+        
+        report0 = createReport(DateTime.parse("2016-03-28T17:16:28.711-07:00"), "g", "h");
+        report1 = createReport(DateTime.parse("2016-03-29T17:16:28.711-07:00"), "a", "b");
+        report2 = createReport(DateTime.parse("2016-03-30T17:16:28.711-07:00"), "c", "d");
+        report3 = createReport(DateTime.parse("2016-03-31T17:16:28.711-07:00"), "e", "f");
+        reports = ImmutableList.of(report0, report1, report2, report3);
     }
     
     @Test
@@ -111,7 +117,7 @@ public class DynamoReportDataDaoTest extends Mockito {
     @Test
     public void getReportDataV4() {
         // For this test we want the timezone to start as UTC, not PST, so adjust this:
-        List<DynamoReportData> list = REPORTS.stream().map((report) -> {
+        List<DynamoReportData> list = reports.stream().map((report) -> {
             report.setDateTime(report.getDateTime().withZone(DateTimeZone.UTC));
             return report;
         }).collect(Collectors.toList());
@@ -148,7 +154,7 @@ public class DynamoReportDataDaoTest extends Mockito {
     @Test
     public void getReportDataV4NoOffsetKey() {
         when(mockMapper.queryPage(eq(DynamoReportData.class), any())).thenReturn(mockQueryPage);
-        when(mockQueryPage.getResults()).thenReturn(REPORTS);
+        when(mockQueryPage.getResults()).thenReturn(reports);
         
         ForwardCursorPagedResourceList<ReportData> result = dao.getReportDataV4(STUDY_REPORT_KEY, START_TIME, END_TIME,
                 null, 5);
@@ -165,8 +171,8 @@ public class DynamoReportDataDaoTest extends Mockito {
     @Test
     public void getReportDataV4MultiplePages() {
         List<DynamoReportData> list = new ArrayList<>();
-        list.addAll(REPORTS);
-        list.addAll(REPORTS.subList(0, 2));
+        list.addAll(reports);
+        list.addAll(reports.subList(0, 2));
         
         when(mockMapper.queryPage(eq(DynamoReportData.class), any())).thenReturn(mockQueryPage);
         when(mockQueryPage.getResults()).thenReturn(list);
@@ -179,11 +185,11 @@ public class DynamoReportDataDaoTest extends Mockito {
     
     @Test
     public void saveReportData() {
-        dao.saveReportData(REPORT0);
+        dao.saveReportData(report0);
         
         verify(mockMapper).save(reportDataCaptor.capture());
         ReportData reportData = reportDataCaptor.getValue();
-        assertSame(reportData, REPORT0);
+        assertSame(reportData, report0);
         assertEquals(reportData.getDateTime().getZone(), DateTimeZone.UTC);
     }
     
@@ -191,11 +197,11 @@ public class DynamoReportDataDaoTest extends Mockito {
     public void deleteReportData() {
         when(mockMapper.query(eq(DynamoReportData.class), any())).thenReturn(mockQueryList);
         
-        dao.deleteReportData(REPORT0.getReportDataKey());
+        dao.deleteReportData(report0.getReportDataKey());
         
         verify(mockMapper).query(eq(DynamoReportData.class), queryCaptor.capture());
         DynamoDBQueryExpression<DynamoReportData> query = queryCaptor.getValue();
-        assertEquals(query.getHashKeyValues().getKey(), REPORT0.getReportDataKey().getKeyString());
+        assertEquals(query.getHashKeyValues().getKey(), report0.getReportDataKey().getKeyString());
         
         verify(mockMapper).batchDelete(dataListCaptor.capture());
         
@@ -207,29 +213,29 @@ public class DynamoReportDataDaoTest extends Mockito {
         when(mockMapper.query(eq(DynamoReportData.class), any())).thenReturn(mockQueryList);
         when(mockQueryList.isEmpty()).thenReturn(true);
         
-        dao.deleteReportData(REPORT0.getReportDataKey());
+        dao.deleteReportData(report0.getReportDataKey());
         
         verify(mockMapper, never()).batchDelete(dataListCaptor.capture());
     }    
     
     @Test
     public void deleteReportDataRecord() {
-        when(mockMapper.load(any())).thenReturn(REPORT0);
+        when(mockMapper.load(any())).thenReturn(report0);
         
-        String localDateString = REPORT0.getDateTime().toLocalDate().toString();
-        dao.deleteReportDataRecord(REPORT0.getReportDataKey(), localDateString);
+        String localDateString = report0.getDateTime().toLocalDate().toString();
+        dao.deleteReportDataRecord(report0.getReportDataKey(), localDateString);
         
         verify(mockMapper).load(reportDataCaptor.capture());
-        assertEquals(reportDataCaptor.getValue().getKey(), REPORT0.getReportDataKey().getKeyString());
+        assertEquals(reportDataCaptor.getValue().getKey(), report0.getReportDataKey().getKeyString());
         assertEquals(reportDataCaptor.getValue().getDate(), localDateString);
         
-        verify(mockMapper).delete(REPORT0);
+        verify(mockMapper).delete(report0);
     }
     
     @Test
     public void deleteReportDataRecordNoRecord() {
-        String localDateString = REPORT0.getDateTime().toLocalDate().toString();
-        dao.deleteReportDataRecord(REPORT0.getReportDataKey(), localDateString);
+        String localDateString = report0.getDateTime().toLocalDate().toString();
+        dao.deleteReportDataRecord(report0.getReportDataKey(), localDateString);
         
         verify(mockMapper, never()).delete(any());
     }    

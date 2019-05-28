@@ -47,6 +47,11 @@ public class DynamoSchedulePlanDao implements SchedulePlanDao {
     final void setCriteriaDao(CriteriaDao criteriaDao) {
         this.criteriaDao = criteriaDao;
     }
+    
+    // Allows for mocking in tests.
+    String generateGuid() {
+        return BridgeUtils.generateGuid();
+    }
 
     @Override
     public List<SchedulePlan> getSchedulePlans(ClientInfo clientInfo, StudyIdentifier studyIdentifier,
@@ -94,7 +99,7 @@ public class DynamoSchedulePlanDao implements SchedulePlanDao {
         checkNotNull(plan);
         
         plan.setStudyKey(studyIdentifier.getIdentifier());
-        plan.setGuid(BridgeUtils.generateGuid());
+        plan.setGuid(generateGuid());
         plan.setModifiedOn(DateUtils.getCurrentMillisFromEpoch());
         plan.setDeleted(false);
         plan.setVersion(null);
