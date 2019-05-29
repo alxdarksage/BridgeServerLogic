@@ -449,8 +449,6 @@ public class DynamoSchedulePlanDaoMockTest extends Mockito {
     
     @Test
     public void updateSchedulePlan() {
-        schedulePlan.setStudyKey(null); // this will be set
-        schedulePlan.setModifiedOn(0L); // this will be set
         Criteria criteria = ((CriteriaScheduleStrategy) schedulePlan.getStrategy()).getScheduleCriteria().get(0)
                 .getCriteria();
         
@@ -459,7 +457,12 @@ public class DynamoSchedulePlanDaoMockTest extends Mockito {
         when(mockCriteriaDao.createOrUpdateCriteria(any())).thenAnswer(invocation -> invocation.getArgument(0));
         
         SchedulePlan plan = constructSchedulePlan();
+        plan.setStudyKey(null); // this will be set
+        plan.setModifiedOn(0L); // this will be set
+        
         SchedulePlan returned = dao.updateSchedulePlan(TEST_STUDY, plan);
+        assertEquals(returned.getStudyKey(), TEST_STUDY_IDENTIFIER);
+        assertEquals(returned.getModifiedOn(), TIMESTAMP.getMillis());
         
         verify(mockMapper).queryPage(eq(DynamoSchedulePlan.class), queryCaptor.capture());
         DynamoDBQueryExpression<DynamoSchedulePlan> query = queryCaptor.getValue();
