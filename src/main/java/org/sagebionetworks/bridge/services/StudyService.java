@@ -235,7 +235,7 @@ public class StudyService {
         this.bridgeAdminTeamId = bridgeConfig.get(CONFIG_KEY_TEAM_BRIDGE_ADMIN);
         this.bridgeStaffTeamId = bridgeConfig.get(CONFIG_KEY_TEAM_BRIDGE_STAFF);
         this.studyWhitelist = Collections.unmodifiableSet(new HashSet<>(
-                BridgeConfigFactory.getConfig().getPropertyAsList(CONFIG_STUDY_WHITELIST)));
+                bridgeConfig.getPropertyAsList(CONFIG_STUDY_WHITELIST)));
     }
 
     /** Compound activity definition service, used to clean up deleted studies. This is set by Spring. */

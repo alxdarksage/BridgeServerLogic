@@ -674,7 +674,7 @@ public class SurveyServiceMockTest {
     public void versionSurveyFailsOnMissingSurvey() throws Exception {
         when(mockSurveyDao.getSurvey(any(), eq(false))).thenReturn(null);
         
-        service.versionSurvey(TestConstants.TEST_STUDY, SURVEY_KEYS);
+        service.versionSurvey(TEST_STUDY, SURVEY_KEYS);
     }
     
     @Test(expectedExceptions = EntityNotFoundException.class)
@@ -686,7 +686,7 @@ public class SurveyServiceMockTest {
     
     @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyAllVersionsThrowsException() {
-        service.getSurveyAllVersions(TestConstants.TEST_STUDY, "GUID", true);
+        service.getSurveyAllVersions(TEST_STUDY, "GUID", true);
     }
     
     @Test(expectedExceptions = EntityNotFoundException.class)
@@ -712,7 +712,7 @@ public class SurveyServiceMockTest {
     
     @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyThrowsException() {
-        service.getSurvey(TestConstants.TEST_STUDY, SURVEY_KEYS, false, true);
+        service.getSurvey(TEST_STUDY, SURVEY_KEYS, false, true);
     }
 
     @Test
@@ -831,6 +831,68 @@ public class SurveyServiceMockTest {
     @Test(expectedExceptions = EntityNotFoundException.class)
     public void getSurveyMostRecentVersionMissingSurvey() {
         service.getSurveyMostRecentVersion(OTHER_STUDY, SURVEY_GUID);    
+    }
+    
+    @Test
+    public void versionSurvey() {
+        Survey survey = Survey.create();
+        survey.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        when(mockSurveyDao.getSurvey(SURVEY_KEYS, false)).thenReturn(survey);
+        
+        service.versionSurvey(TEST_STUDY, SURVEY_KEYS);
+        
+        verify(mockSurveyDao).getSurvey(SURVEY_KEYS, false);
+    }
+    
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void versionSurveyNotFound() {
+        service.versionSurvey(TEST_STUDY, SURVEY_KEYS);
+    }
+
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void versionSurveyLogicallyDeleted() {
+        Survey survey = Survey.create();
+        survey.setStudyIdentifier(TEST_STUDY_IDENTIFIER);
+        survey.setDeleted(true);
+        when(mockSurveyDao.getSurvey(SURVEY_KEYS, false)).thenReturn(survey);
+        
+        service.versionSurvey(TEST_STUDY, SURVEY_KEYS);
+    }
+    
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void versionSurveyNotInStudy() {
+        Survey survey = Survey.create();
+        survey.setStudyIdentifier(OTHER_STUDY.getIdentifier());
+        when(mockSurveyDao.getSurvey(SURVEY_KEYS, false)).thenReturn(survey);
+        
+        service.versionSurvey(TEST_STUDY, SURVEY_KEYS);
+    }
+    
+    @Test
+    public void getSurveyAllVersionsIncludeDeleted() {
+        List<Survey> list = ImmutableList.of(Survey.create(), Survey.create());
+        when(mockSurveyDao.getSurveyAllVersions(TEST_STUDY, SURVEY_GUID, true)).thenReturn(list);
+        
+        List<Survey> results = service.getSurveyAllVersions(TEST_STUDY, SURVEY_GUID, true);
+        assertEquals(results.size(), 2);
+        
+        verify(mockSurveyDao).getSurveyAllVersions(TEST_STUDY, SURVEY_GUID, true);
+    }
+    
+    @Test
+    public void getSurveyAllVersionsExcludeDeleted() {
+        List<Survey> list = ImmutableList.of(Survey.create(), Survey.create());
+        when(mockSurveyDao.getSurveyAllVersions(TEST_STUDY, SURVEY_GUID, false)).thenReturn(list);
+        
+        List<Survey> results = service.getSurveyAllVersions(TEST_STUDY, SURVEY_GUID, false);
+        assertEquals(results.size(), 2);
+        
+        verify(mockSurveyDao).getSurveyAllVersions(TEST_STUDY, SURVEY_GUID, false);
+    }
+    
+    @Test(expectedExceptions = EntityNotFoundException.class)
+    public void getSurveyAllVersionsNotFound() {
+        service.getSurveyAllVersions(TEST_STUDY, SURVEY_GUID, false);
     }
     
     private List<Activity> getActivityList(List<SchedulePlan> plans) {
