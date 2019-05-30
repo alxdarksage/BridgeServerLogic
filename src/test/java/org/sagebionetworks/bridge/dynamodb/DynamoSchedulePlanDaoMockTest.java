@@ -1,13 +1,11 @@
 package org.sagebionetworks.bridge.dynamodb;
 
 import static com.amazonaws.services.dynamodbv2.model.ComparisonOperator.EQ;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY;
 import static org.sagebionetworks.bridge.TestConstants.TEST_STUDY_IDENTIFIER;
 import static org.sagebionetworks.bridge.models.OperatingSystem.IOS;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
